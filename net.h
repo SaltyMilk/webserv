@@ -1,0 +1,20 @@
+#ifndef NET_H
+#define NET_H
+	#include "parser.h"
+	#include "libft/libft.h"
+	#include <iostream>
+	#include <stdlib.h>
+	#include <unistd.h>
+	#include <string.h>
+	#include <fcntl.h>
+	#include <netdb.h>
+	#include <ctype.h>
+	#include <dirent.h>
+	#include <sys/socket.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <sys/time.h>
+	#include <arpa/inet.h>
+	#include <netinet/in.h>
+	#include <errno.h>
+#endif 

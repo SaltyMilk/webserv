@@ -68,6 +68,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet)
 	return (0);
 }
 
+//subject Field Name list
 int	is_field_name(char *req_lines)
 {
 	if (!ft_strncmp("Accept-Charsets:", req_lines, 16))
@@ -109,28 +110,36 @@ int	is_field_name(char *req_lines)
 	return (0);
 }
 
+//Parsing field_value
 std::string	field_value(char *req_line)
 {
-	size_t start, end = ft_strlen(req_line) - 2;
-
+	size_t start, end = ft_strlen(req_line) - 2;//init end -2 "\r\n"
+	// 118 -> 120 skip start jusqu'a field_value
 	for (start = 0; req_line[start] != ':'; start++);
 	if (req_line[start + 1] == ' ')
 		start++;
 	for (; req_line[start] == ' '; start++);
+	// 123 skip end jusqu'a field_value_end
 	for (; req_line[end] == ' '; end--);
+	//convert to string pour plus de facilité d'usage.
 	std::string field_value(req_line);
+	//return partie désirée de la string
 	return (field_value.substr(start, end));
 }
 
+//Parsing field name
 std::string	field_name(char *req_line)
 {
 	size_t i;
-
+	//get field_name len
 	for (i = 0; req_line[i] != ':'; i++);
+	//convert to string pour plus de facilité d'usage.
 	std::string field_name(req_line);
+	//return partie désirée de la string
 	return (field_name.substr(0, i));
 }
 
+//char** to hashmap
 int	get_in_map(t_req_line *rl, char **req_lines)
 { 
 	for(size_t i = 1; req_lines[i];i++)

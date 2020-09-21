@@ -1,14 +1,12 @@
-#include "net.h"
+#include "webserv.h"
 int		fd; 			// notre socket de connection
-int		client_fd[1000];	// la socket du client
-char 	client_connected[1000];
+//int		client_fd[1000];	// la socket du client
 int		client_count = 0;
 
 int net_init(int port) 
 {
 	struct sockaddr_in	self_adr;
 
-	ft_memset(client_connected, 1, 1000);
 	// open socket
 	if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
 		return (print_err("Couldn't open socket.\n"));
@@ -43,45 +41,36 @@ int net_shutdown(void)
 	return 0;
 }
 
-int net_receive(void)
+int net_receive(t_net &snet)
 {
 	char	buff[1024];//Must change to dynamic buffer
 	int len;
 
-	for (int i = 0; i < client_count; i++)
+	for (std::list<int>::iterator it = snet.client_fds.begin() ; it != snet.client_fds.end(); it++)
 	{
-		len = read(client_fd[i], buff, sizeof(buff) - 1);
-		if (len > 0){
-			buff[len] = 0;
-	//		std::cout << buff;
-			if (parse_request(buff, client_fd[i]))
-				return (1);
-		}
-		else if (!len && client_connected[i])
+		len = read(*it, buff, sizeof(buff) - 1);
+		if (len > 0) // We received a request from this client
 		{
-			client_connected[i] = 0;
-			std::cout << "Client "<< i << " disconnected" << std::endl;
-		}
-		else if (errno == 35) // Will have to be removed for pdf
-			continue;
-		else {
-			std::cout << "Couldn't read socket: " << strerror(errno) << ", " << errno << std::endl;
-			return 1;
+			buff[len] = 0;
+			if (parse_request(buff, *it, snet))
+				return (1);
+			it = snet.client_fds.begin();
 		}
 	}
 	return 0;
 }
 
-int net_accept(void) 
+int net_accept(t_net &snet) 
 {
 	struct sockaddr_in	client_adr;
 	unsigned int		len;
-
+	int tmp_fd;
 	// set client adr len
 	len = sizeof(client_adr);
-
+	
 	// accept socket
-	if ((client_fd[client_count] = accept(fd, (struct sockaddr *)&client_adr, &len)) == -1) {
+	if ((tmp_fd = accept(fd, (struct sockaddr *)&client_adr, &len)) == -1)
+	{
 		if (errno == 35)
 			return 0;
 		else {
@@ -89,12 +78,13 @@ int net_accept(void)
 			return 1;
 		}
 	}
+	snet.client_fds.push_back(tmp_fd);
 
 	client_count++;
-	printf("Client %d connected !\n", client_count-1);
+	printf("Client %d connected !\n", client_count);
 
 	// unblock socket
-	if ((fcntl(client_fd[client_count - 1], F_GETFL, O_NONBLOCK)) == -1)
+	if ((fcntl(tmp_fd, F_GETFL, O_NONBLOCK)) == -1)
 		return 1;
 	return 0;
 }
@@ -102,10 +92,11 @@ int net_accept(void)
 int main(int argc, char **argv) 
 {
 	(void)argc;
+	t_net s_net;
 	if (net_init(atoi(argv[1])))
 		return 1;
 	while (1)
-		if (net_accept() || net_receive())
+		if (net_accept(s_net) || net_receive(s_net))
 			return 1;
 	if (net_shutdown())
 		return 1;

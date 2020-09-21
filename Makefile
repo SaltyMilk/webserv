@@ -1,7 +1,7 @@
 NAME = webserv
 SRC = net.cpp utils.cpp parse_request.cpp
 CC = clang++
-CFLAGS = -Wall -Wextra -Werror -lft -L.
+CFLAGS = -fsanitize=address -Wall -Wextra -Werror -lft -L.
 
 all: libft $(NAME)
 

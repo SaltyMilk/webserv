@@ -68,6 +68,66 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet)
 	return (0);
 }
 
+int	is_field_name(char *req_lines)
+{
+	if (!ft_strncmp("Host:", req_lines, 5))
+		return (1);
+	else if (!ft_strncmp("Connection:", req_lines, 11))
+		return (1);
+	else if (!ft_strncmp("Cache-Control:", req_lines, 14))
+		return (1);
+	else if (!ft_strncmp("Upgrade-Insecure-Requests:", req_lines, 26))
+		return (1);
+	else if (!ft_strncmp("User-Agent:", req_lines, 11))
+		return (1);
+	else if (!ft_strncmp("Accept:", req_lines, 7))
+		return (1);
+	else if (!ft_strncmp("Sec-Fetch-Site:", req_lines, 15))
+		return (1);
+	else if (!ft_strncmp("Sec-Fetch-Mode:", req_lines, 15))
+		return (1);
+	else if (!ft_strncmp("Sec-Fetch-User:", req_lines, 15))
+		return (1);
+	else if (!ft_strncmp("Sec-Fetch-Dest:", req_lines, 15))
+		return (1);
+	else if (!ft_strncmp("Accept-Encoding:", req_lines, 16))
+		return (1);
+	else if (!ft_strncmp("Accept-Language:", req_lines, 16))
+		return (1);
+	else if (!ft_strncmp("Cookie:", req_lines, 7))
+		return (1);
+	return (0);
+}
+
+std::string	field_value(char *req_line)
+{
+	size_t start, end = ft_strlen(req_line) - 2;
+
+	for (start = 0; req_line[start] != ':'; start++);
+	if (req_line[start + 1] == ' ')
+		start++;
+	for (; req_line[start] == ' '; start++);
+	for (; req_line[end] == ' '; end--);
+	std::string field_value(req_line);
+	return (field_value.substr(start, end));
+}
+
+std::string	field_name(char *req_line)
+{
+	size_t i;
+
+	for (i = 0; req_line[i] != ':'; i++);
+	std::string field_name(req_line);
+	return (field_name.substr(0, i));
+}
+
+int	get_in_map(t_req_line *rl, char **req_lines)
+{ 
+	for(size_t i = 1; req_lines[i] && is_field_name(req_lines[i]);i++)
+		rl->field[field_name(req_lines[i])] = field_value(req_lines[i]);
+	return (0);
+}
+
 int parse_request(char *request, int fd, t_net &snet)
 {
 	t_req_line rl;
@@ -76,10 +136,13 @@ int parse_request(char *request, int fd, t_net &snet)
 	if (!(req_lines = ft_strtok(request, (char *)"\r\n")))
 		return (1);
 	parse_request_line(rl, req_lines);
-	
 	for (size_t i = 0; req_lines[i] ; i++)
 		std::cout << req_lines[i] << std::endl;
-
+	get_in_map(&rl, req_lines);
+	std::cout << "-----------------------------------------" << std::endl;
+	for (std::map<std::string,std::string>::iterator i = rl.field.begin(); i != rl.field.end(); i++)
+		std::cout << i->first << "=" << i->second << std::endl;
+	std::cout << "-----------------------------------------" << std::endl;
 	answer_request(fd, rl, snet);	
 	return (0);
 }

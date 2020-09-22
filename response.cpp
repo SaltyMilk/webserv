@@ -37,7 +37,6 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet)
 		{
 			resp.status_code = "200";
 			resp.reason_phrase = "OK";
-			std::string s("HTTP/1.1 200 OK\r\n\r\n");
 			char c;
 			while (read(fd, &c, 1) > 0)
 				resp.body += c;

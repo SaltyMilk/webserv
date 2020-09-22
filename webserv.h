@@ -39,10 +39,22 @@ typedef struct	s_request_line
 	std::string method; // GET, PUT, POST,...
 	std::string target; // ex: /index, http://https://profile.intra.42.fr/,...
 	std::string http_ver;// ex : HTTP/1.1
-	std::map<std::string, std::string> field; //each fieldname :: field-value
+	std::map<std::string, std::string> headers; //each fieldname :: field-value
+	std::string body;
 }				t_req_line;
 
 int parse_request(char *request, int fd, t_net&);
+
+//RESPONSE
+typedef struct	s_http_res
+{
+	std::string http_ver;// ex : HTTP/1.1
+	std::string status_code; // ex: 
+	std::string reason_phrase; // GET, PUT, POST,...
+	std::string headers[18]; //headers are indexed like in project's subject
+	std::string body;
+}				t_http_res;
+int answer_request(int client_fd, t_req_line rl, t_net &snet);
 
 //UTILS
 int print_err(std::string s);

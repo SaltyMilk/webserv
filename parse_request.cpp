@@ -71,41 +71,24 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet)
 //subject Field Name list
 int	is_field_name(char *req_lines)
 {
-	if (!ft_strncmp("Accept-Charsets:", req_lines, 16))
-		return (1);
-	else if (!ft_strncmp("Accept-Language:", req_lines, 16))
-		return (1);
-	else if (!ft_strncmp("Allow:", req_lines, 6))
-		return (1);
-	else if (!ft_strncmp("Authorization:", req_lines, 14))
-		return (1);
-	else if (!ft_strncmp("Content-Language:", req_lines, 17))
-		return (1);
-	else if (!ft_strncmp("Content-Length:", req_lines, 15))
-		return (1);
-	else if (!ft_strncmp("Content-Location:", req_lines, 17))
-		return (1);
-	else if (!ft_strncmp("Content-Type:", req_lines, 13))
-		return (1);
-	else if (!ft_strncmp("Date:", req_lines, 5))
-		return (1);
-	else if (!ft_strncmp("Host:", req_lines, 5))
-		return (1);
-	else if (!ft_strncmp("Last-Modified:", req_lines, 14))
-		return (1);
-	else if (!ft_strncmp("Location:", req_lines, 9))
-		return (1);
-	else if (!ft_strncmp("Referer:", req_lines, 8))
-		return (1);
-	else if (!ft_strncmp("Retry-After:", req_lines, 12))
-		return (1);
-	else if (!ft_strncmp("Server:", req_lines, 7))
-		return (1);
-	else if (!ft_strncmp("Transfer-Encoding:", req_lines, 18))
-		return (1);
-	else if (!ft_strncmp("User-Agent:", req_lines, 11))
-		return (1);
-	else if (!ft_strncmp("WWW-Authenticate:", req_lines, 17))
+	if (!ft_strncmp("Accept-Charsets:", req_lines, 16) 
+	|| !ft_strncmp("Accept-Language:", req_lines, 16)
+	|| !ft_strncmp("Allow:", req_lines, 6)
+	|| !ft_strncmp("Authorization:", req_lines, 14)
+	|| !ft_strncmp("Content-Language:", req_lines, 17)
+	|| !ft_strncmp("Content-Length:", req_lines, 15)
+	|| !ft_strncmp("Content-Location:", req_lines, 17)
+	|| !ft_strncmp("Content-Type:", req_lines, 13)
+	|| !ft_strncmp("Date:", req_lines, 5)
+	|| !ft_strncmp("Host:", req_lines, 5)
+	|| !ft_strncmp("Last-Modified:", req_lines, 14)
+	|| !ft_strncmp("Location:", req_lines, 9)
+	|| !ft_strncmp("Referer:", req_lines, 8)
+	|| !ft_strncmp("Retry-After:", req_lines, 12)
+	|| !ft_strncmp("Server:", req_lines, 7)
+	|| !ft_strncmp("Transfer-Encoding:", req_lines, 18)
+	|| !ft_strncmp("User-Agent:", req_lines, 11)
+	|| !ft_strncmp("WWW-Authenticate:", req_lines, 17))
 		return (1);
 	return (0);
 }

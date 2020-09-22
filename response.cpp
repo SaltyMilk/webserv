@@ -4,15 +4,11 @@ std::string construct_response(t_http_res resp)
 {
 	std::string response;
 	//CONSTRUCT STATUS LINE
-	response = (resp.http_ver + " " + resp.status_code + " " + resp.reason_phrase + "\r\n\r\n");
+	response = (resp.http_ver + " " + resp.status_code + " " + resp.reason_phrase + "\r\n");
 	//ADDING HEADERS
 	for (size_t i = 0; i < 18; i++)	
 		if (resp.headers[i].length() > 0)
-		{
-			std::cout << "WTF MAN" << std::endl;
 			response += (resp.headers[i] + "\r\n");
-		
-		}
 	response += "\r\n"; // emmpty line before msg
 	response += resp.body;
 	return (response);

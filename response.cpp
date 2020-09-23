@@ -6,7 +6,7 @@ std::string construct_response(t_http_res resp)
 	//CONSTRUCT STATUS LINE
 	response = (resp.http_ver + " " + resp.status_code + " " + resp.reason_phrase + "\r\n");
 	//ADDING HEADERS
-	for (size_t i = 0; i < 18; i++)	
+	for (size_t i = 0; i < 18; i++)
 		if (resp.headers[i].length() > 0)
 			response += (resp.headers[i] + "\r\n");
 	response += "\r\n"; // emmpty line before msg
@@ -14,36 +14,41 @@ std::string construct_response(t_http_res resp)
 	return (response);
 }
 
-int answer_request(int client_fd, t_req_line rl, t_net &snet)
+int getorhead_resp(t_req_line rl, t_http_res &resp)
 {
 	int fd;
-	t_http_res resp;
-	std::string response;//This will be sent as a response to a given request
-	resp.http_ver = "HTTP/1.1";
-	
-	if (rl.method == "GET")
+
+	if ((fd = open(("." + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 	{
-		if ((fd = open(("."+rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
-		{
-			resp.status_code = "404";
-			resp.reason_phrase = "Not Found";
-			char c;
-			int efd = open("404.html", O_RDONLY);
+		resp.status_code = "404";
+		resp.reason_phrase = "Not Found";
+		char c;
+		int efd = open("404.html", O_RDONLY);
+		if (rl.method == "GET") // No body for head method
 			while (read(efd, &c, 1) > 0)
 				resp.body += c;
-			resp.body += "\r\n";
-		}
-		else // Requested file was found.
-		{
-			resp.status_code = "200";
-			resp.reason_phrase = "OK";
-			char c;
+	}
+	else // Requested file was found.
+	{
+		resp.status_code = "200";
+		resp.reason_phrase = "OK";
+		char c;
+		if (rl.method == "GET") // No body for head method
 			while (read(fd, &c, 1) > 0)
 				resp.body += c;
-			resp.body += "\r\n";
-		}
 	}
-	response = construct_response(resp);	
+	return (0);
+}
+
+int answer_request(int client_fd, t_req_line rl, t_net &snet)
+{
+	t_http_res resp;
+	std::string response; //This will be sent as a response to a given request
+	resp.http_ver = "HTTP/1.1";
+
+	if (rl.method == "GET" || rl.method == "HEAD")
+		getorhead_resp(rl, resp);
+	response = construct_response(resp);
 	//SEND REQUEST
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)

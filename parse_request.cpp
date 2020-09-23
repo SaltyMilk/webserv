@@ -110,6 +110,15 @@ int	is_field_name(char *req_lines)
 	return (0);
 }
 
+//Replace obs-fold by space
+int	replace_obs_fold(std::string *field_value)
+{
+	for (size_t i = 0; field_value[0][i] && field_value[0][i + 1]; i++)
+		if (field_value[0][i] == '\r' && field_value[0][i + 1] == '\n')
+			field_value[0].replace(i, 2, " ");
+	return (0);
+}
+
 //Parsing field_value
 std::string	field_value(char *req_line)
 {
@@ -124,6 +133,7 @@ std::string	field_value(char *req_line)
 	//convert to string pour plus de facilité d'usage.
 	std::string field_value(req_line);
 	//return partie désirée de la string
+	replace_obs_fold(&field_value);
 	return (field_value.substr(start, end));
 }
 

@@ -27,6 +27,25 @@
 //DATE INCLUDES
 #include <sys/time.h>
 
+//HEADER DEFINES
+#define ACCEPT_CHARSETS 	0
+#define ACCEPT_LANGUAGE 	1
+#define ALLOW				2
+#define AUTHORIZATION		3
+#define CONTENT_LANGUAGE	4
+#define CONTENT_LENGTH		5
+#define CONTENT_LOCATION	6
+#define CONTENT_TYPE		7
+#define DATE				8
+#define HOST				9
+#define LAST_MODIFIED		10
+#define LOCATION			11
+#define REFERER				12
+#define RETRY_AFTER			13
+#define SERVER				14
+#define TRANSFER_ENCODING	15
+#define USER_AGENT			16
+#define WWW_AUTHENTICATE	17
 
 //NET
 typedef struct	s_net

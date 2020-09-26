@@ -44,7 +44,9 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet)
 {
 	t_http_res resp;
 	std::string response; //This will be sent as a response to a given request
-	resp.http_ver = "HTTP/1.1";
+	resp.http_ver = "HTTP/1.1";//We will always respond with the version we use
+	//Add date header to all responses
+	resp.headers[DATE] = "Date: " + get_imf_fixdate();
 
 	if (rl.method == "GET" || rl.method == "HEAD")
 		getorhead_resp(rl, resp);

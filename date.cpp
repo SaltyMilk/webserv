@@ -14,6 +14,6 @@ std::string get_imf_fixdate()
 {
 	struct tm date = getDate();
 	char buff[420];
-	strftime(buff, 420, "%a, %d %b %Y %H:%M:%S GMT", &date);
+	strftime(buff, 420, "%a, %d %b %Y %H:%M:%S %Z", &date);
 	return (std::string(buff));
 }

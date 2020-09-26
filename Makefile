@@ -1,5 +1,5 @@
 NAME = webserv
-SRC = net.cpp utils.cpp parse_request.cpp response.cpp
+SRC = net.cpp utils.cpp parse_request.cpp response.cpp date.cpp
 CC = clang++
 CFLAGS = -Wall -Wextra -Werror -lft -L.
 

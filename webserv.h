@@ -24,7 +24,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
-
+//DATE INCLUDES
+#include <sys/time.h>
 
 
 //NET
@@ -55,6 +56,9 @@ typedef struct	s_http_res
 	std::string body;
 }				t_http_res;
 int answer_request(int client_fd, t_req_line rl, t_net &snet);
+
+//DATE
+std::string get_imf_fixdate();
 
 //UTILS
 int print_err(std::string s);

@@ -92,8 +92,14 @@ int net_accept(t_net &snet)
 int main(int argc, char **argv) 
 {
 	(void)argc;
+	t_conf conf;
 	t_net s_net;
-	if (net_init(atoi(argv[1])))
+	std::string conf_file = "ws.conf"; //Default path
+
+	if (argc == 2)
+		conf_file = argv[1];
+	conf = parseConf(conf_file);
+	if (net_init(conf.ports[0]))
 		return 1;
 	while (1)
 		if (net_accept(s_net) || net_receive(s_net))

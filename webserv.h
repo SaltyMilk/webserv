@@ -3,6 +3,8 @@
 //GENERAL INCLUDES
 #include <string>
 #include <list>
+#include <map>
+#include <vector>
 #include <errno.h>
 #include <iostream>
 #include "libft/libft.h"
@@ -10,7 +12,6 @@
 #include <unistd.h>
 //NETWORK INCLUDES
 #include <stdlib.h>
-#include <map>
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
@@ -75,6 +76,14 @@ typedef struct	s_http_res
 	std::string body;
 }				t_http_res;
 int answer_request(int client_fd, t_req_line rl, t_net &snet);
+
+//CONFIG PARSER
+typedef struct conf
+{
+	std::vector<int> ports;
+	std::string host;
+}	t_conf;
+t_conf parseConf(std::string);
 
 //DATE
 std::string get_imf_fixdate();

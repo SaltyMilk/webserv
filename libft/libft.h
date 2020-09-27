@@ -16,6 +16,8 @@
 # include <string.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <limits.h>
+
 //NEEDED TO LINK C LIB WITH C++
 #ifdef __cplusplus
 extern "C"{
@@ -82,6 +84,19 @@ int				ft_pow(int n, int pow);
 int				*ft_range(int min, int max);
 //ADDED FUNCTIONS
 char			**ft_strtok(char *str, char *charset);
+int				get_next_line(int fd, char **line);
+//GNL UTILS
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
+# endif
+
+void	delol(char *tempbuffer, char mod);
+char	*ultstrcat(char *s1, char *s2);
+int		eolp(char *buffer, char mod);
+void	fill_tempbuffer(char *tempbuffer, char *buffer, int eolp);
+//END OF GNL UTILS
+int							ft_satoi(const char *str);
 #ifdef __cplusplus
 }
 #endif

@@ -6,10 +6,7 @@ void parsePorts(t_conf &conf, char *line)
 			{
 				int port;
 				if ((port = ft_satoi(sp[i])) == -1) //STRICT ATOI
-				{
-					std::cerr << "Config file error: invalid port number" << std::endl;
-					exit(1);
-				}
+					excerr("Config file error: invalid port number", 1);
 				else 
 					conf.ports.push_back(port); //ADD PORT TO PORT LIST
 			}

@@ -90,5 +90,6 @@ std::string get_imf_fixdate();
 
 //UTILS
 int print_err(std::string s);
+void excerr(std::string msg, int c);
 
 #endif

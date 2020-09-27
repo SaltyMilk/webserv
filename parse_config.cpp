@@ -1,20 +1,6 @@
 #include "webserv.h"
-
-t_conf parseConf(std::string filename)
+void parsePorts(t_conf &conf, char *line)
 {
-	t_conf conf;
-	int fd;
-
-	if (!(fd = open(filename.c_str(), O_RDONLY)))
-	{
-		std::cerr << "Could not open config file. Try with this synax : ./webserv conf_file" << std::endl;
-		exit(2);
-	}
-	char *line;
-	while (get_next_line(fd,&line))
-	{
-		if (std::string(line, 5) == "port ")
-		{
 			char **sp = ft_split(line, ' ');
 			for (size_t i = 1; sp[i]; i++)
 			{
@@ -30,15 +16,26 @@ t_conf parseConf(std::string filename)
 			for (size_t i = 1; sp[i]; i++)
 				free(sp[i]);
 			free(sp);
-		}
+}
+
+t_conf parseConf(std::string filename)
+{
+	t_conf conf;
+	int fd;
+
+	if (!(fd = open(filename.c_str(), O_RDONLY)))
+		excerr("Could not open config file. Try with this synax : ./webserv conf_file", 2);
+	char *line;
+	while (get_next_line(fd,&line))
+	{
+		if (std::string(line, 5) == "port ")
+			parsePorts(conf, line);
+
 		free(line);
 	}
 	free(line);
 	if (!conf.ports.size()) //CHECK IF AT LEAST A PORT WAS GIVEN
-	{
-		std::cerr << "Config file error: missing port number" << std::endl;
-		exit(1);
-	}
+		excerr("Config file error: missing port number", 1);
 	return (conf);
 
 }

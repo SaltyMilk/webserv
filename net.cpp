@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	std::string conf_file = "ws.conf"; //Default path
 
 	if (argc == 2)
-		conf_file = argv[1];
+		conf_file = argv[1]; //Use config file given as arg
 	conf = parseConf(conf_file);
 	if (net_init(conf.ports[0]))
 		return 1;

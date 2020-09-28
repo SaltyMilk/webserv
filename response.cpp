@@ -17,7 +17,6 @@ std::string construct_response(t_http_res resp)
 int getorhead_resp(t_req_line rl, t_http_res &resp)
 {
 	int fd;
-
 	if ((fd = open(("." + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 	{
 		resp.status_code = "404";
@@ -30,6 +29,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp)
 	}
 	else // Requested file was found.
 	{
+		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target);
 		resp.status_code = "200";
 		resp.reason_phrase = "OK";
 		char c;

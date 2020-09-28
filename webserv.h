@@ -87,6 +87,8 @@ t_conf parseConf(std::string);
 
 //DATE
 std::string get_imf_fixdate();
+//CONTENT_TYPE
+std::string get_content_type(std::string filename);
 
 //UTILS
 int print_err(std::string s);

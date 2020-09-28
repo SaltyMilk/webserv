@@ -19,6 +19,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp)
 	int fd;
 	if ((fd = open(("." + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 	{
+		resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
 		resp.status_code = "404";
 		resp.reason_phrase = "Not Found";
 		char c;
@@ -29,7 +30,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp)
 	}
 	else // Requested file was found.
 	{
-		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target);
+		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 		resp.status_code = "200";
 		resp.reason_phrase = "OK";
 		char c;

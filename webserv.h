@@ -48,6 +48,15 @@
 #define USER_AGENT			16
 #define WWW_AUTHENTICATE	17
 
+//CONFIG PARSER
+typedef struct conf
+{
+	std::vector<int> ports;
+	std::string host;
+	std::vector<std::string> indexs;
+}	t_conf;
+t_conf parseConf(std::string);
+
 //NET
 typedef struct	s_net
 {
@@ -64,7 +73,7 @@ typedef struct	s_request_line
 	std::string body;
 }				t_req_line;
 
-int parse_request(char *request, int fd, t_net&);
+int parse_request(char *request, int fd, t_net&, t_conf);
 
 //RESPONSE
 typedef struct	s_http_res
@@ -77,13 +86,6 @@ typedef struct	s_http_res
 }				t_http_res;
 int answer_request(int client_fd, t_req_line rl, t_net &snet);
 
-//CONFIG PARSER
-typedef struct conf
-{
-	std::vector<int> ports;
-	std::string host;
-}	t_conf;
-t_conf parseConf(std::string);
 
 //DATE
 std::string get_imf_fixdate();

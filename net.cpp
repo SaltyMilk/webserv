@@ -41,7 +41,7 @@ int net_shutdown(void)
 	return 0;
 }
 
-int net_receive(t_net &snet)
+int net_receive(t_net &snet, t_conf conf)
 {
 	char	buff[1024];//Must change to dynamic buffer
 	int len;
@@ -52,7 +52,7 @@ int net_receive(t_net &snet)
 		if (len > 0) // We received a request from this client
 		{
 			buff[len] = 0;
-			if (parse_request(buff, *it, snet))
+			if (parse_request(buff, *it, snet, conf))
 				return (1);
 			it = snet.client_fds.begin();
 		}
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 	if (net_init(conf.ports[0]))
 		return 1;
 	while (1)
-		if (net_accept(s_net) || net_receive(s_net))
+		if (net_accept(s_net) || net_receive(s_net, conf))
 			return 1;
 	if (net_shutdown())
 		return 1;

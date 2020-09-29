@@ -110,6 +110,8 @@ int	get_in_map(t_req_line *rl, char **req_lines)
 	return (0);
 }
 
+
+
 int parse_request(char *request, int fd, t_net &snet, t_conf conf)
 {
 	t_req_line rl;
@@ -118,8 +120,8 @@ int parse_request(char *request, int fd, t_net &snet, t_conf conf)
 	if (!(req_lines = ft_strtok(request, (char *)"\r\n")))
 		return (1);
 	parse_request_line(rl, req_lines);
-	if (rl.target == "/" && conf.indexs.size() > 0)
-		rl.target += conf.indexs[0];//tmp will have to try each index later
+
+	
 	for (size_t i = 0; req_lines[i] ; i++)
 		std::cout << req_lines[i] << std::endl;
 	get_in_map(&rl, req_lines);
@@ -127,6 +129,6 @@ int parse_request(char *request, int fd, t_net &snet, t_conf conf)
 	for (std::map<std::string,std::string>::iterator i = rl.headers.begin(); i != rl.headers.end(); i++)
 		std::cout << i->first << "=" << i->second << std::endl;
 	std::cout << "-----------------------------------------" << std::endl;
-	answer_request(fd, rl, snet);	
+	answer_request(fd, rl, snet, conf);
 	return (0);
 }

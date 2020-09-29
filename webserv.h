@@ -9,6 +9,7 @@
 #include <iostream>
 #include "libft/libft.h"
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 //NETWORK INCLUDES
 #include <stdlib.h>
@@ -84,7 +85,7 @@ typedef struct	s_http_res
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
 }				t_http_res;
-int answer_request(int client_fd, t_req_line rl, t_net &snet);
+int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
 
 
 //DATE
@@ -95,5 +96,6 @@ std::string get_content_type(std::string filename);
 //UTILS
 int print_err(std::string s);
 void excerr(std::string msg, int c);
+bool file_exists(std::string filename);
 
 #endif

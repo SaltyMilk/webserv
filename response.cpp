@@ -14,9 +14,34 @@ std::string construct_response(t_http_res resp)
 	return (response);
 }
 
-int getorhead_resp(t_req_line rl, t_http_res &resp)
+int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 {
 	int fd;
+	if (rl.target == "/") //Use webserv's index for target
+	{
+		bool found = false;
+		for (size_t i = 0; conf.indexs.size() && i < conf.indexs.size(); i++)
+			if (file_exists("./" + conf.indexs[i]))
+			{
+				std::cout << "yup="<< conf.indexs[i] <<"|" << std::endl;
+				rl.target += conf.indexs[i];//tmp will have to try each index later
+				found = true;
+				break;
+			}
+		if (!found || !conf.indexs.size())
+		{
+			resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
+			resp.status_code = "403";
+			resp.reason_phrase = "Forbidden";
+			char c;
+			int efd = open("403.html", O_RDONLY);
+			if (rl.method == "GET") // No body for head method
+				while (read(efd, &c, 1) > 0)
+					resp.body += c;
+			return (0);	
+		}
+	}
+
 	if ((fd = open(("." + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 	{
 		resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
@@ -41,7 +66,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp)
 	return (0);
 }
 
-int answer_request(int client_fd, t_req_line rl, t_net &snet)
+int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 {
 	t_http_res resp;
 	std::string response; //This will be sent as a response to a given request
@@ -50,7 +75,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet)
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
 
 	if (rl.method == "GET" || rl.method == "HEAD")
-		getorhead_resp(rl, resp);
+		getorhead_resp(rl, resp, conf);
 	response = construct_response(resp);
 	//SEND REQUEST
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));

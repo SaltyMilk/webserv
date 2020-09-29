@@ -1,4 +1,4 @@
-#include <iostream>
+#include "webserv.h"
 int print_err(std::string s)
 {
 	std::cout << s;
@@ -9,4 +9,10 @@ void excerr(std::string msg, int c)
 {
 	std::cerr << msg << std::endl;
 	exit(c);
+}
+
+bool file_exists(std::string filename)
+{
+	struct stat buff;
+	return(!stat(filename.c_str(), &buff));
 }

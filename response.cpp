@@ -23,46 +23,21 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 		for (size_t i = 0; conf.indexs.size() && i < conf.indexs.size(); i++)
 			if (file_exists("./" + conf.indexs[i]))
 			{
-				std::cout << "yup="<< conf.indexs[i] <<"|" << std::endl;
 				rl.target += conf.indexs[i];//tmp will have to try each index later
 				found = true;
 				break;
 			}
 		if (!found || !conf.indexs.size())
 		{
-			resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
-			resp.status_code = "403";
-			resp.reason_phrase = "Forbidden";
-			char c;
-			int efd = open("403.html", O_RDONLY);
-			if (rl.method == "GET") // No body for head method
-				while (read(efd, &c, 1) > 0)
-					resp.body += c;
+			send_403(rl, resp);
 			return (0);	
 		}
 	}
 
 	if ((fd = open(("." + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
-	{
-		resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
-		resp.status_code = "404";
-		resp.reason_phrase = "Not Found";
-		char c;
-		int efd = open("404.html", O_RDONLY);
-		if (rl.method == "GET") // No body for head method
-			while (read(efd, &c, 1) > 0)
-				resp.body += c;
-	}
+		send_404(rl, resp);
 	else // Requested file was found.
-	{
-		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
-		resp.status_code = "200";
-		resp.reason_phrase = "OK";
-		char c;
-		if (rl.method == "GET") // No body for head method
-			while (read(fd, &c, 1) > 0)
-				resp.body += c;
-	}
+		send_200(rl, resp, fd);
 	return (0);
 }
 

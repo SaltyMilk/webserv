@@ -92,6 +92,10 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
 std::string get_imf_fixdate();
 //CONTENT_TYPE
 std::string get_content_type(std::string filename);
+//STATUS_CODE
+void send_403(t_req_line rl, t_http_res &resp);
+void send_404(t_req_line rl, t_http_res &resp);
+void send_200(t_req_line rl, t_http_res &resp, int fd);
 
 //UTILS
 int print_err(std::string s);

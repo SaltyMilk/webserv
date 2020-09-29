@@ -29,6 +29,7 @@ void send_200(t_req_line rl, t_http_res &resp, int fd)
 		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 		resp.status_code = "200";
 		resp.reason_phrase = "OK";
+		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified("." + rl.target);
 		char c;
 		if (rl.method == "GET") // No body for head method
 			while (read(fd, &c, 1) > 0)

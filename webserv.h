@@ -92,6 +92,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
 
 //DATE
 std::string get_imf_fixdate();
+std::string get_last_modified(std::string filename);
 //CONTENT_TYPE
 std::string get_content_type(std::string filename);
 //STATUS_CODE

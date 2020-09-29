@@ -49,6 +49,8 @@
 #define USER_AGENT			16
 #define WWW_AUTHENTICATE	17
 
+#define WEBSERV_VER "0.1"
+
 //CONFIG PARSER
 typedef struct conf
 {

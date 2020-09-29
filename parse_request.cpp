@@ -37,7 +37,14 @@ int parse_request_line(t_req_line &rl, char** req_lines)
 	return (0);
 }
 
-
+int	is_space_between_field_name_colon(char * req_line)
+{
+	size_t i = 0;
+	
+	for(; req_line[i] == ' '; i++);
+	for (; req_line[i] != ' ' && req_line[i] != ':'; i++);
+	return (req_line[i] != ':');
+}
 
 //subject Field Name list
 int	is_field_name(char *req_lines)
@@ -105,8 +112,12 @@ std::string	field_name(char *req_line)
 int	get_in_map(t_req_line *rl, char **req_lines)
 { 
 	for(size_t i = 1; req_lines[i];i++)
+	{
+		if (is_space_between_field_name_colon(req_lines[i]))
+			std::cout << "space between FN and : -> 400\n" << std::endl;
 		if (is_field_name(req_lines[i]))
 			rl->headers[field_name(req_lines[i])] = field_value(req_lines[i]);
+	}
 	return (0);
 }
 

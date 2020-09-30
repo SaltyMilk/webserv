@@ -98,6 +98,7 @@ std::string get_content_type(std::string filename);
 //STATUS_CODE
 void send_403(t_req_line rl, t_http_res &resp);
 void send_404(t_req_line rl, t_http_res &resp);
+void send_505(t_req_line rl, t_http_res &resp);
 void send_200(t_req_line rl, t_http_res &resp, int fd);
 
 //UTILS

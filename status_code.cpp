@@ -24,6 +24,18 @@ void send_404(t_req_line rl, t_http_res &resp)
 			resp.body += c;
 }
 
+void send_505(t_req_line rl, t_http_res &resp)
+{
+	resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
+	resp.status_code = "505";
+	resp.reason_phrase = "HTTP Version Not Supported";
+	char c;
+	int efd = open("505.html", O_RDONLY);
+	if (rl.method == "GET") // No body for head method
+		while (read(efd, &c, 1) > 0)
+			resp.body += c;
+}
+
 void send_200(t_req_line rl, t_http_res &resp, int fd)
 {
 		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)

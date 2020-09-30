@@ -88,6 +88,9 @@ typedef struct	s_http_res
 	std::string body;
 }				t_http_res;
 int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
+//RESPONSE UTILS
+int bad_request(t_req_line rl);
+int valid_http_ver(t_req_line rl);
 
 
 //DATE
@@ -96,6 +99,7 @@ std::string get_last_modified(std::string filename);
 //CONTENT_TYPE
 std::string get_content_type(std::string filename);
 //STATUS_CODE
+void send_400(t_req_line rl, t_http_res &resp);
 void send_403(t_req_line rl, t_http_res &resp);
 void send_404(t_req_line rl, t_http_res &resp);
 void send_505(t_req_line rl, t_http_res &resp);

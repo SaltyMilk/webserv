@@ -1,5 +1,17 @@
 #include "webserv.h"
 
+void send_400(t_req_line rl, t_http_res &resp)
+{	
+	resp.headers[CONTENT_TYPE] = ("Content-Type: " + std::string("text/html"));
+	resp.status_code = "400";
+	resp.reason_phrase = "Bad Request";
+	char c;
+	int efd = open("400.html", O_RDONLY);
+	if (rl.method == "GET") // No body for head method
+		while (read(efd, &c, 1) > 0)
+			resp.body += c;
+}
+
 void send_403(t_req_line rl, t_http_res &resp)
 {
 	resp.headers[CONTENT_TYPE] = ("Content-Type: " + std::string("text/html"));

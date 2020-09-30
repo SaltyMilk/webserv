@@ -44,13 +44,6 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 	return (0);
 }
 
-int valid_http_ver(t_req_line rl)
-{	//HTTP/1.1
-	//[5] is the first '1' this assumes bad request have been parsed first !
-	return (rl.http_ver[5] == '1');
-
-}
-
 int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 {
 	t_http_res resp;
@@ -60,14 +53,13 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	resp.headers[SERVER] = "Server: webserv/" + std::string(WEBSERV_VER);
 	//Add date header to all responses
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
-	if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
+	if (bad_request(rl))
+		send_400(rl, resp);
+	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp);
 	else if (rl.method == "GET" || rl.method == "HEAD")
 		getorhead_resp(rl, resp, conf);
 	response = construct_response(resp);
-	//SEND REQUEST
-	std::cout << "LOG:" << std::endl;
-	std::cout << "END OF LOG:" << std::endl;
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)
 	snet.client_fds.remove(client_fd);

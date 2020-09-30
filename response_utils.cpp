@@ -10,10 +10,18 @@ int valid_http_ver(t_req_line rl)
 int bad_request(t_req_line rl)
 {
 	//CHECK TARGET
-	if ((!rl.target.length() || !rl.method.length()) //note: if http_version is empty the server just sends nothing
-	||  (rl.target[0] != '/' && rl.target.length() > 8 && std::string(rl.target.c_str(), 7) != "http://") // /index.html and http://localhost/index.html are valid
-	|| (rl.target[7] == '/')) // http:/// is invalid
+	if ((!rl.target.length() || !rl.method.length())) //note: if http_version is empty the server just sends nothing
 		return (1);
+	if (rl.target[0] != '/')
+	{
+		size_t j = 0;
+		while (rl.target[j] && rl.target[j] != ':')
+			j++;
+		if (rl.target[j] != ':' || j == 0) // ex: mdr/index.html
+			return (1);
+		if (rl.target[j + 1] != '/' || rl.target[j + 2] != '/')	// ex: mdr:s/ || mdr:/:localhost
+			return (1);
+	}
 	//CHECK HTTP_VERSION
 	if (rl.http_ver.length() && (rl.http_ver.length() < 6  // HTTP_VER will always be at least 8 chars long && if it's empty -> server sends nothing
 		|| std::string(rl.http_ver.c_str(), 5) != "HTTP/")) // Check first part [HTTP/]/1.1

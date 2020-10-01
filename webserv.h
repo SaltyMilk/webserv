@@ -91,6 +91,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
 //RESPONSE UTILS
 int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);
+void handle_absolute_path(t_req_line &rl);
 
 
 //DATE

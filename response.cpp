@@ -57,8 +57,12 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 		send_400(rl, resp);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp);
-	else if (rl.method == "GET" || rl.method == "HEAD")
-		getorhead_resp(rl, resp, conf);
+	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
+	{
+		handle_absolute_path(rl);
+		if (rl.method == "GET" || rl.method == "HEAD")
+			getorhead_resp(rl, resp, conf);
+	}
 	response = construct_response(resp);
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)

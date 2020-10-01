@@ -1,6 +1,6 @@
 #include "webserv.h"
 
-int index_requested(t_req_line rl, t_http_res &resp, t_conf conf)
+int index_requested(t_req_line &rl, t_http_res &resp, t_conf conf)
 {
 		bool found = false;
 		for (size_t i = 0; conf.indexs.size() && i < conf.indexs.size(); i++)
@@ -60,6 +60,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
 		handle_absolute_path(rl);
+		std::cout << "debug:" << rl.target << std::endl;
 		if (rl.method == "GET" || rl.method == "HEAD")
 			getorhead_resp(rl, resp, conf);
 	}

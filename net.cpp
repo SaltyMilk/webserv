@@ -94,6 +94,7 @@ int main(int argc, char **argv)
 	(void)argc;
 	t_conf conf;
 	t_net s_net;
+	ft_bzero(&conf, sizeof(conf));
 	std::string conf_file = "ws.conf"; //Default path
 
 	if (argc == 2)

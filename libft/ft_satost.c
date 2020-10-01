@@ -46,19 +46,19 @@ static	int					count_digits(const char *str, int i)
 }
 //STRICT ATOI ONLY ACCEPTS NUMBERS AND STOPS AFTER LAST DIGIT
 //RETURNS -1 if error 
-int							ft_satoi(const char *str)
+size_t							ft_satost(const char *str)
 {
 	int					i;
 	int					sign;
-	unsigned long long	tenpowdig;
-	unsigned long long	res;
+	size_t 				tenpowdig;
+	size_t				res;
 	int					digits_sstr;
 
 	res = 0;
 	prep_atoi(str, &i, &sign);
 	digits_sstr = count_digits(str, i);
 	if (digits_sstr == -1)
-		return (-1);
+		return ((size_t)-1);
 	tenpowdig = ft_powa(10, digits_sstr) / 10;
 	while (tenpowdig >= 1)
 	{
@@ -66,5 +66,7 @@ int							ft_satoi(const char *str)
 		tenpowdig /= 10;
 		i++;
 	}
-	return ((int)res * sign);
+	if (res == (size_t) -1) // Reserved for errors
+		res--;
+	return (res);
 }

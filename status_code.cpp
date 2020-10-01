@@ -10,6 +10,7 @@ void send_400(t_req_line rl, t_http_res &resp)
 	if (rl.method == "GET") // No body for head method
 		while (read(efd, &c, 1) > 0)
 			resp.body += c;
+	close(efd);
 }
 
 void send_403(t_req_line rl, t_http_res &resp)
@@ -22,6 +23,7 @@ void send_403(t_req_line rl, t_http_res &resp)
 	if (rl.method == "GET") // No body for head method
 		while (read(efd, &c, 1) > 0)
 			resp.body += c;
+	close(efd);
 }
 
 void send_404(t_req_line rl, t_http_res &resp)
@@ -34,7 +36,22 @@ void send_404(t_req_line rl, t_http_res &resp)
 	if (rl.method == "GET") // No body for head method
 		while (read(efd, &c, 1) > 0)
 			resp.body += c;
+	close(efd);
 }
+
+void send_413(t_req_line rl, t_http_res &resp)
+{
+	resp.headers[CONTENT_TYPE] =  ("Content-Type: " + std::string("text/html")); 
+	resp.status_code = "413";
+	resp.reason_phrase = "Payload Too Large";
+	char c;
+	int efd = open("413.html", O_RDONLY);
+	if (rl.method == "GET") // No body for head method
+		while (read(efd, &c, 1) > 0)
+			resp.body += c;
+	close(efd);
+}
+
 
 void send_505(t_req_line rl, t_http_res &resp)
 {
@@ -46,6 +63,7 @@ void send_505(t_req_line rl, t_http_res &resp)
 	if (rl.method == "GET") // No body for head method
 		while (read(efd, &c, 1) > 0)
 			resp.body += c;
+	close(efd);
 }
 
 void send_200(t_req_line rl, t_http_res &resp, int fd)
@@ -58,4 +76,5 @@ void send_200(t_req_line rl, t_http_res &resp, int fd)
 		if (rl.method == "GET") // No body for head method
 			while (read(fd, &c, 1) > 0)
 				resp.body += c;
+	close(fd);
 }

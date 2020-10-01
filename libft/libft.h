@@ -97,6 +97,7 @@ int		eolp(char *buffer, char mod);
 void	fill_tempbuffer(char *tempbuffer, char *buffer, int eolp);
 //END OF GNL UTILS
 int							ft_satoi(const char *str);
+size_t						ft_satost(const char *str);
 #ifdef __cplusplus
 }
 #endif

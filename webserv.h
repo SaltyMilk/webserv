@@ -57,6 +57,7 @@ typedef struct conf
 	std::vector<int> ports;
 	std::string host;
 	std::vector<std::string> indexs;
+	size_t body_limit;
 }	t_conf;
 t_conf parseConf(std::string);
 
@@ -103,6 +104,7 @@ std::string get_content_type(std::string filename);
 void send_400(t_req_line rl, t_http_res &resp);
 void send_403(t_req_line rl, t_http_res &resp);
 void send_404(t_req_line rl, t_http_res &resp);
+void send_413(t_req_line rl, t_http_res &resp);
 void send_505(t_req_line rl, t_http_res &resp);
 void send_200(t_req_line rl, t_http_res &resp, int fd);
 

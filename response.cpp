@@ -57,6 +57,8 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 		send_400(rl, resp);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp);
+	else if (rl.body.length() > conf.body_limit)//Request body was too large for server
+		send_413(rl, resp);
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
 		handle_absolute_path(rl);

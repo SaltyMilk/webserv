@@ -1,145 +1,175 @@
 #include "webserv.h"
 
-int parse_request_line(t_req_line &rl, char** req_lines)
+int get_header_id(std::string header_field)
 {
-	size_t i;
-	if (!ft_strncmp(req_lines[0], "GET ", 4))
-		rl.method = "GET";
-	else if (!ft_strncmp(req_lines[0], "HEAD ", 5))
-		rl.method = "HEAD";
-	else if (!ft_strncmp(req_lines[0], "POST ", 5))
-		rl.method = "POST";
-	else if (!ft_strncmp(req_lines[0], "PUT ", 4))
-		rl.method = "PUT";
-	else if (!ft_strncmp(req_lines[0], "DELETE ", 7))
-		rl.method = "DELETE";
-	else if (!ft_strncmp(req_lines[0], "CONNECT ", 8))
-		rl.method = "CONNECT";
-	else if (!ft_strncmp(req_lines[0], "OPTIONS ", 8))
-		rl.method = "OPTIONS";
-	else if (!ft_strncmp(req_lines[0], "TRACE ", 6))
-		rl.method = "TRACE";
+	char *lowcase_hf = ft_strlowcase(const_cast<char *>(header_field.c_str()));
+	if (!ft_strncmp(lowcase_hf, "accept-charsets", 15))
+		return (ACCEPT_CHARSETS);
+	if (!ft_strncmp(lowcase_hf, "accept-language", 15))
+		return (ACCEPT_LANGUAGE);
+	if (!ft_strncmp(lowcase_hf, "allow", 5))
+		return (ALLOW);
+	if (!ft_strncmp(lowcase_hf, "authorization", 13))
+		return (AUTHORIZATION);
+	if (!ft_strncmp(lowcase_hf, "content-language", 16))
+		return (CONTENT_LANGUAGE);
+	if (!ft_strncmp(lowcase_hf, "content-length", 14))
+		return (CONTENT_LENGTH);
+	if (!ft_strncmp(lowcase_hf, "content-location", 16))
+		return (CONTENT_LOCATION);
+	if (!ft_strncmp(lowcase_hf, "content-type", 12))
+		return (CONTENT_TYPE);
+	if (!ft_strncmp(lowcase_hf, "date", 4))
+		return (DATE);
+	if (!ft_strncmp(lowcase_hf, "host", 4))
+		return (HOST);
+	if (!ft_strncmp(lowcase_hf, "last-modified", 13))
+		return (LAST_MODIFIED);
+	if (!ft_strncmp(lowcase_hf, "location", 8))
+		return (LOCATION);
+	if (!ft_strncmp(lowcase_hf, "referer", 7))
+		return (REFERER);
+	if (!ft_strncmp(lowcase_hf, "retry-after", 11))
+		return (RETRY_AFTER);
+	if (!ft_strncmp(lowcase_hf, "server", 6))
+		return (SERVER);
+	if (!ft_strncmp(lowcase_hf, "transfer-encoding", 17))
+		return (TRANSFER_ENCODING);
+	if (!ft_strncmp(lowcase_hf, "user-agent", 10))
+		return (USER_AGENT);
+	if (!ft_strncmp(lowcase_hf, "www-authenticate", 16))
+		return (WWW_AUTHENTICATE);
+	return (-1);//UNKNOW HEADER -> IGNORE IT
+}
+
+
+void parse_request_line(size_t &i, t_req_line &rl, char *request)
+{
+	rl.bad_request = false;
+	//PARSE METHOD
+	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
+		rl.method += request[i++];
+	if (request[i] == '\r')
+		i++;
+	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reached end of request or req_line
+		return;
+	while (request[i] == ' ') //ignore all SP like nginx (Only one space in RFC)
+		i++;
+	//PARSE TARGET
+	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
+		rl.target += request[i++];
+	if (request[i] == '\r')
+		i++;
+	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reached end of request or req_line
+		return;
+	while (request[i] == ' ') 
+		i++;
+	//PARSE HTTP_VER
+	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
+		rl.http_ver += request[i++];
+	if (request[i] == '\r')
+		i++;
+	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reacued end of request or req_line
+		return;
+	while (request[i] == ' ') 
+		i++;
+	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reacued end of request or req_line
+		return;
 	else
-		return (1); // NO VALID METHOD FOR REQUEST
-	i = ft_strlen(rl.method.c_str()) + 1;
-	
-	size_t sp_i = i;
-	while (req_lines[0][sp_i] != ' ') //Read the target
+		rl.bad_request = true;
+}
+
+
+void parse_headers(size_t &i, t_req_line &rl, char *request)
+{
+	while (request[i] && !((request[i] == '\r' && request[i + 1] == '\n') || request[i] == '\n')) // If end of request or end of headers
 	{
-		if (!req_lines[0][sp_i])
-			return (1); // Invalid format no space after target
-		sp_i++;	
+		std::string header_field = "";
+		while (request[i] && request[i] != ':' && request[i] != '\r' && request[i] != '\n' && request[i] != ' ')
+			header_field += request[i++];
+		if (!request[i] || request[i] == ' ' || (request[i] == '\r' && request[i + 1] != '\n'))//ex: Host[NO \r or \n] or SP between field and : 
+		{
+			rl.bad_request = true;
+			return;
+		}
+		if (request[i] == '\r')
+			i++;
+		if (request[i] == '\n' && request[i] != ':')//Ignore this ex: DATE\r\n
+		{
+			i++;
+			continue;
+		}
+		if (request[i] == ':')
+			i++;
+		while (request[i] == ' ')//Skip OWS
+			i++;
+		std::string header_value = "";
+		while (request[i])
+		{
+			if (request[i] == '\r' && request[i + 1] == '\n' &&    //obs-fold found
+				 (request[i + 2] == '\t' || request[i + 2] == ' '))    //We will offer back-compatibilty
+			{
+				header_value += " ";
+				i +=3;
+			}
+			else if (request[i] == '\r' && request[i + 1] == '\n')//End of header value
+			{
+				i += 2;
+				break;
+			}
+			else if (request[i] == '\n')//For compatibilty with none-conform HTTP REQ
+			{
+				i++;
+				break;
+			}
+			else if (request[i] == '\r') // \r in the middle of a header value -> 400
+			{
+				rl.bad_request = true;
+				return;
+			}
+			else
+				header_value += request[i++];
+		}
+		int id;
+		if ((id = get_header_id(header_field)) != -1)
+			rl.headers[id] = header_value;
 	}
-	rl.target = std::string(req_lines[0]+i, sp_i - i); 
-	rl.target[sp_i - i] = 0; // just making sure string is null terminated.
-	i = ++sp_i;
-	rl.http_ver = req_lines[0]+i;//What's leftover is JUST the version
-	return (0);
+	if (!request[i]) // NO EMPTY LINES FOUND ! nginx loops then sends empty resp, we could send 400
+		rl.bad_request = true;
+	else if (request[i] == '\n')
+		i++; //SET INDEX TO START OF BODY FOR FURTHER PARSING
+	else if (request[i] == '\r' && request[i + 1] == '\n')
+		i += 2;//SET INDEX TO START OF BODY FOR FURTHER PARSING
 }
 
-int	is_space_between_field_name_colon(char * req_line)
+void parse_body(size_t i, t_req_line &rl, char *request)
 {
-	size_t i = 0;
-	
-	for(; req_line[i] == ' '; i++);
-	for (; req_line[i] != ' ' && req_line[i] != ':'; i++);
-	return (req_line[i] != ':');
+	rl.body = "";
+	while (request[i])
+		rl.body += request[i++];
 }
-
-//subject Field Name list
-int	is_field_name(char *req_lines)
-{
-	return (!ft_strncmp("Accept-Charsets:", req_lines, 16) 
-	|| !ft_strncmp("Accept-Language:", req_lines, 16)
-	|| !ft_strncmp("Allow:", req_lines, 6)
-	|| !ft_strncmp("Authorization:", req_lines, 14)
-	|| !ft_strncmp("Content-Language:", req_lines, 17)
-	|| !ft_strncmp("Content-Length:", req_lines, 15)
-	|| !ft_strncmp("Content-Location:", req_lines, 17)
-	|| !ft_strncmp("Content-Type:", req_lines, 13)
-	|| !ft_strncmp("Date:", req_lines, 5)
-	|| !ft_strncmp("Host:", req_lines, 5)
-	|| !ft_strncmp("Last-Modified:", req_lines, 14)
-	|| !ft_strncmp("Location:", req_lines, 9)
-	|| !ft_strncmp("Referer:", req_lines, 8)
-	|| !ft_strncmp("Retry-After:", req_lines, 12)
-	|| !ft_strncmp("Server:", req_lines, 7)
-	|| !ft_strncmp("Transfer-Encoding:", req_lines, 18)
-	|| !ft_strncmp("User-Agent:", req_lines, 11)
-	|| !ft_strncmp("WWW-Authenticate:", req_lines, 17));
-}
-
-//Replace obs-fold by space
-int	replace_obs_fold(std::string *field_value)
-{
-	for (size_t i = 0; field_value[0][i] && field_value[0][i + 1]; i++)
-		if (field_value[0][i] == '\r' && field_value[0][i + 1] == '\n')
-			field_value[0].replace(i, 2, " ");
-	return (0);
-}
-
-//Parsing field_value
-std::string	field_value(char *req_line)
-{
-	size_t start, end = ft_strlen(req_line) - 2;//init end -2 "\r\n"
-	// 118 -> 120 skip start jusqu'a field_value
-	for (start = 0; req_line[start] != ':'; start++);
-	if (req_line[start + 1] == ' ')
-		start++;
-	for (; req_line[start] == ' '; start++);
-	// 123 skip end jusqu'a field_value_end
-	for (; req_line[end] == ' '; end--);
-	//convert to string pour plus de facilité d'usage.
-	std::string field_value(req_line);
-	//return partie désirée de la string
-	replace_obs_fold(&field_value);
-	return (field_value.substr(start, end));
-}
-
-//Parsing field name
-std::string	field_name(char *req_line)
-{
-	size_t i;
-	//get field_name len
-	for (i = 0; req_line[i] != ':'; i++);
-	//convert to string pour plus de facilité d'usage.
-	std::string field_name(req_line);
-	//return partie désirée de la string
-	return (field_name.substr(0, i));
-}
-
-//char** to hashmap
-int	get_in_map(t_req_line *rl, char **req_lines)
-{ 
-	for(size_t i = 1; req_lines[i];i++)
-	{
-		if (is_space_between_field_name_colon(req_lines[i]))
-			std::cout << "space between FN and : -> 400\n" << std::endl;
-		if (is_field_name(req_lines[i]))
-			rl->headers[field_name(req_lines[i])] = field_value(req_lines[i]);
-	}
-	return (0);
-}
-
-
-
+//Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
 int parse_request(char *request, int fd, t_net &snet, t_conf conf)
 {
 	t_req_line rl;
-	char **req_lines; //Will contain each line of the request
+	size_t mi = 0; //Master index to parse request
 
-	if (!(req_lines = ft_strtok(request, (char *)"\r\n")))
-		return (1);
-	parse_request_line(rl, req_lines);
-
+	parse_request_line(mi, rl, request);
 	
-	for (size_t i = 0; req_lines[i] ; i++)
-		std::cout << req_lines[i] << std::endl;
-	get_in_map(&rl, req_lines);
-	std::cout << "-----------------------------------------" << std::endl;
-	for (std::map<std::string,std::string>::iterator i = rl.headers.begin(); i != rl.headers.end(); i++)
-		std::cout << i->first << "=" << i->second << std::endl;
-	std::cout << "-----------------------------------------" << std::endl;
+	std::cout << "REQUEST LOG:" << std::endl;
+	std::cout << rl.method << " " << rl.target << " " << rl.http_ver << std::endl;
+
+	parse_headers(mi, rl, request);
+
+	for (int i = 0; i < 18; i++)
+		if (rl.headers[i].length())
+			std::cout << rl.headers[i] << std::endl;
+
+	parse_body(mi, rl, request);
+
+	std::cout << rl.body << std::endl;
+
+	std::cout << "END REQUEST LOG" << std::endl;
 	answer_request(fd, rl, snet, conf);
-	return (0);
+	return(0);
 }

@@ -73,8 +73,9 @@ typedef struct	s_request_line
 	std::string method; // GET, PUT, POST,...
 	std::string target; // ex: /index, http://https://profile.intra.42.fr/,...
 	std::string http_ver;// ex : HTTP/1.1
-	std::map<std::string, std::string> headers; //each fieldname :: field-value
+	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
+	bool bad_request;//Allows bad_request checks before/while parsing request
 }				t_req_line;
 
 int parse_request(char *request, int fd, t_net&, t_conf);

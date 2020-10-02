@@ -53,7 +53,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	resp.headers[SERVER] = "Server: webserv/" + std::string(WEBSERV_VER);
 	//Add date header to all responses
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
-	if (bad_request(rl))
+	if (bad_request(rl) || rl.bad_request)
 		send_400(rl, resp);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp);

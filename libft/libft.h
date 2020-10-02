@@ -98,6 +98,7 @@ void	fill_tempbuffer(char *tempbuffer, char *buffer, int eolp);
 //END OF GNL UTILS
 int							ft_satoi(const char *str);
 size_t						ft_satost(const char *str);
+char	*ft_strlowcase(char *str);
 #ifdef __cplusplus
 }
 #endif

@@ -66,6 +66,8 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 		if (rl.method == "GET" || rl.method == "HEAD")
 			getorhead_resp(rl, resp, conf);
 	}
+	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
+		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)

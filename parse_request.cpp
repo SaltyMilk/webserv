@@ -130,8 +130,21 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 			else
 				header_value += request[i++];
 		}
-		int id;
-		if ((id = get_header_id(header_field)) != -1)
+		char *trimmed = ft_strtrim(header_value.c_str(), " "); //TRIM extra spaces after header value
+		if (!trimmed)
+			std::cerr << "ERROR LOG: malloc failed." << std::endl;
+		else
+		{
+			header_value = trimmed;
+			free(trimmed);
+		}
+		int id = get_header_id(header_field);
+		if (id == HOST && rl.headers[HOST].length())//CHECK FOR DUPLICATE HOST HEADER -> Bad request
+		{
+			rl.bad_request = true;
+			return;
+		}
+		if (id != -1)
 			rl.headers[id] = header_value;
 	}
 	if (!request[i]) // NO EMPTY LINES FOUND ! nginx loops then sends empty resp, we could send 400

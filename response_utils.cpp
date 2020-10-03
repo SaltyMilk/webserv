@@ -9,6 +9,9 @@ int valid_http_ver(t_req_line rl)
 //Note : invalid method doesn't throw bad_request
 int bad_request(t_req_line rl)
 {
+	//CHECK MANDATORY HEADERS
+	if (!rl.headers[HOST].length())
+		return (1);
 	//CHECK TARGET
 	if ((!rl.target.length() || !rl.method.length())) //note: if http_version is empty the server just sends nothing
 		return (1);

@@ -62,6 +62,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
 		handle_absolute_path(rl);
+		parse_query_from_target(rl);
 		if (rl.method == "GET" || rl.method == "HEAD")
 			getorhead_resp(rl, resp, conf);
 	}

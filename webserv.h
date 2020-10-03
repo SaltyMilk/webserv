@@ -75,6 +75,7 @@ typedef struct	s_request_line
 	std::string http_ver;// ex : HTTP/1.1
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
+	std::string query;
 	bool bad_request;//Allows bad_request checks before/while parsing request
 }				t_req_line;
 
@@ -94,6 +95,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
 int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);
 void handle_absolute_path(t_req_line &rl);
+void parse_query_from_target(t_req_line &rl);
 
 
 //DATE

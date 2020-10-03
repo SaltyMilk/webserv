@@ -21,6 +21,10 @@ int bad_request(t_req_line rl)
 			return (1);
 		if (rl.target[j + 1] != '/' || rl.target[j + 2] != '/')	// ex: mdr:s/ || mdr:/:localhost
 			return (1);
+		j += 3; // Now looking at http://[this]/index.html
+		while (rl.target[j] && rl.target[j] != '/')
+			if (rl.target[j++] == '?') //query symbol forbidden in this part
+				return (1);
 	}
 	//CHECK HTTP_VERSION
 	if (rl.http_ver.length() && (rl.http_ver.length() < 6  // HTTP_VER will always be at least 8 chars long && if it's empty -> server sends nothing
@@ -65,4 +69,16 @@ void handle_absolute_path(t_req_line &rl)
 			else
 				rl.target = std::string(rl.target, i, rl.target.length() - i);
 		}
+}
+
+void parse_query_from_target(t_req_line &rl)
+{
+	std::string targ = "";
+	size_t i = 0;
+	while (rl.target[i] && rl.target[i] != '?')
+		targ += rl.target[i++];
+	if (rl.target[i] == '?')
+		while(rl.target[i])
+			rl.query += rl.target[i++];
+	rl.target = targ;
 }

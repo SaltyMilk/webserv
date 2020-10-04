@@ -12,7 +12,7 @@ int index_requested(t_req_line &rl, t_http_res &resp, t_conf conf)
 			}
 		if (!found || !conf.indexs.size())
 		{
-			send_403(rl, resp);
+			send_403(rl, resp, conf);
 			return (0);	
 		}
 	return (1); //index found continue to send_200 execution
@@ -38,7 +38,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 	if (rl.target == "/" && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
 	if ((fd = open(("." + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
-		send_404(rl, resp);
+		send_404(rl, resp, conf);
 	else // Requested file was found.
 		send_200(rl, resp, fd);
 	return (0);
@@ -54,11 +54,11 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	//Add date header to all responses
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
 	if (bad_request(rl) || rl.bad_request)
-		send_400(rl, resp);
+		send_400(rl, resp, conf);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
-		send_505(rl, resp);
+		send_505(rl, resp, conf);
 	else if (rl.body.length() > conf.body_limit)//Request body was too large for server
-		send_413(rl, resp);
+		send_413(rl, resp, conf);
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
 		handle_absolute_path(rl);

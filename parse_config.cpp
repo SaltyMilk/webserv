@@ -42,12 +42,47 @@ void parseIndex(t_conf &conf, char *line)
 	free(sp);
 }
 
+void parseDefaultErrorPage(t_conf &conf, char *line)
+{
+	char **sp = ft_split(line, ' ');
+	if (!sp[1])
+		excerr("Config file error: missing argument for " + std::string(sp[0]), 1);
+	if (std::string(sp[0]) == "default_400")
+		conf.default_error[ERR400] = std::string(sp[1]);
+	else if (std::string(sp[0]) == "default_403")
+		conf.default_error[ERR403] = std::string(sp[1]);
+	else if (std::string(sp[0]) == "default_404")
+		conf.default_error[ERR404] = std::string(sp[1]);
+	else if (std::string(sp[0]) == "default_413")
+		conf.default_error[ERR413] = std::string(sp[1]);
+	else if (std::string(sp[0]) == "default_505")
+		conf.default_error[ERR505] = std::string(sp[1]);
+	else
+		std::cerr << "Config file warning: cannot set default page for unimplemented error code [" << std::string(sp[0] + 8) << "]" << std::endl;
+	if (!file_exists(std::string(sp[1])))
+		excerr("Config file error: default error file [" + std::string(sp[1]) + "] couldn't be find.", 1);
+	for (size_t i = 1; sp[i]; i++)
+		free(sp[i]);
+	free(sp);
+}
+
+void set_default_settings(t_conf &conf)
+{
+	conf.default_error[ERR400] = "400.html";
+	conf.default_error[ERR403] = "403.html";
+	conf.default_error[ERR404] = "404.html";
+	conf.default_error[ERR413] = "413.html";
+	conf.default_error[ERR505] = "505.html";
+	
+	conf.body_limit = std::string().max_size();
+}
+
 t_conf parseConf(std::string filename)
 {
 	t_conf conf;
 	int fd;
 
-	conf.body_limit = filename.max_size(); // filename has no use here just want to call non static function
+	set_default_settings(conf);
 	if (!(fd = open(filename.c_str(), O_RDONLY)))
 		excerr("Could not open config file. Try with this synax : ./webserv conf_file", 2);
 	char *line;
@@ -59,6 +94,8 @@ t_conf parseConf(std::string filename)
 			parseIndex(conf, line);
 		else if (ft_strlen(line) >= 10 && std::string(line, 11) ==  "body_limit ")
 			parseBodyLimit(conf, line);
+		else if (ft_strlen(line) >= 11 && std::string(line, 8) == "default_") //11 = strlen("default_") + 3 for status code
+			parseDefaultErrorPage(conf, line);
 		free(line);
 	}
 	if (ft_strlen(line) >= 5 && std::string(line, 5) == "port ")

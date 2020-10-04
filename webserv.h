@@ -29,7 +29,7 @@
 //DATE INCLUDES
 #include <sys/time.h>
 
-//HEADER DEFINES
+//HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1
 #define ALLOW				2
@@ -49,6 +49,16 @@
 #define USER_AGENT			16
 #define WWW_AUTHENTICATE	17
 
+//Number of error status code supported
+#define N_ERR_IMPLEMENTED 5
+//Defines to be used with conf::default_error
+#define ERR400 0
+#define ERR403 1
+#define ERR404 2
+#define ERR413 3
+#define ERR505 4
+
+
 #define WEBSERV_VER "0.1"
 
 //CONFIG PARSER
@@ -58,6 +68,7 @@ typedef struct conf
 	std::string host;
 	std::vector<std::string> indexs;
 	size_t body_limit;
+	std::string default_error[5];//List of all the default error pages
 }	t_conf;
 t_conf parseConf(std::string);
 
@@ -104,11 +115,11 @@ std::string get_last_modified(std::string filename);
 //CONTENT_TYPE
 std::string get_content_type(std::string filename);
 //STATUS_CODE
-void send_400(t_req_line rl, t_http_res &resp);
-void send_403(t_req_line rl, t_http_res &resp);
-void send_404(t_req_line rl, t_http_res &resp);
-void send_413(t_req_line rl, t_http_res &resp);
-void send_505(t_req_line rl, t_http_res &resp);
+void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_200(t_req_line rl, t_http_res &resp, int fd);
 
 //UTILS

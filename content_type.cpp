@@ -59,10 +59,10 @@ std::string get_content_type(std::string filename)
 	while (i > 0 && filename[i] != '.')
 		i--;
 	if (filename[i] != '.')
-		return ("text/plain");
+		return ("application/octet-stream");
 	std::string ext(filename.c_str() + i, tmp - i);
 	for (size_t it = 0; it < N_SUPPORTED_FILE_EXT; it++)
 		if (ext == file_ext[it])
 			return (content_type[it]);
-	return("text/plain");
+	return("application/octet-stream");
 }

@@ -12,7 +12,7 @@ void parsePorts(t_conf &conf, char *line)
 		else
 			conf.ports.push_back(port); //ADD PORT TO PORT LIST
 	}
-	for (size_t i = 1; sp[i]; i++)
+	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
 	free(sp);
 }
@@ -27,7 +27,7 @@ void parseBodyLimit(t_conf &conf, char *line)
 		excerr("Config file error: invalid body_limit", 1);
 	else
 		conf.body_limit = bl; //ADD PORT TO PORT LIST
-	for (size_t i = 1; sp[i]; i++)
+	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
 	free(sp);
 }
@@ -37,7 +37,7 @@ void parseIndex(t_conf &conf, char *line)
 	char **sp = ft_split(line, ' ');
 	for (size_t i = 1; sp[i]; i++)
 			conf.indexs.push_back(std::string(sp[i])); //ADD INDEX TO INDEX LIST
-	for (size_t i = 1; sp[i]; i++)
+	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
 	free(sp);
 }
@@ -61,9 +61,50 @@ void parseDefaultErrorPage(t_conf &conf, char *line)
 		std::cerr << "Config file warning: cannot set default page for unimplemented error code [" << std::string(sp[0] + 8) << "]" << std::endl;
 	if (!file_exists(std::string(sp[1])))
 		excerr("Config file error: default error file [" + std::string(sp[1]) + "] couldn't be find.", 1);
-	for (size_t i = 1; sp[i]; i++)
+	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
 	free(sp);
+}
+
+//Will read inside the location block, ending by reading the final '}' which will then be freed in 
+//WIP
+/*
+void parseRouteConf(t_conf &conf, char *line, int fd)
+{
+    char *tmp;
+    free(line);
+    while (get_next_line(fd, &line))
+    {
+        tmp = ft_strtrim(line, "\t ");
+        if (tmp[0] == '}')
+            break;
+        free(line);
+    }
+}
+*/
+
+void parseRoutes(t_conf &conf, char *line, int fd)
+{
+    t_route r;
+    char **sp = ft_split(line, ' ');
+    if (!sp[1])
+        excerr("Config file error: empty route field", 1);
+    if (sp[2])//USING MODIFIER
+    {
+        if ((sp[1][0] != '~' && sp[1][0] != '=') || sp[1][1])
+            excerr("Config file error: invalid modifier token for location", 1);
+        r.modifier = sp[1][0]; 
+        r.location = std::string(sp[2]);
+        conf.routes.push_back(r);
+    }
+    else //ex: location /
+    {
+       r.modifier = 0;
+       r.location = std::string(sp[1]);
+    }
+    for (size_t i = 1; sp[i]; i++)
+        free(sp[i]);
+    free(sp);
 }
 
 void set_default_settings(t_conf &conf)
@@ -96,6 +137,8 @@ t_conf parseConf(std::string filename)
 			parseBodyLimit(conf, line);
 		else if (ft_strlen(line) >= 11 && std::string(line, 8) == "default_") //11 = strlen("default_") + 3 for status code
 			parseDefaultErrorPage(conf, line);
+        else if (ft_strlen(line) > 8 && std::string(line, 8) == "location")
+            parseRoutes(conf, line, fd);
 		free(line);
 	}
 	if (ft_strlen(line) >= 5 && std::string(line, 5) == "port ")
@@ -104,6 +147,10 @@ t_conf parseConf(std::string filename)
 		parseIndex(conf, line);	
 	else if (ft_strlen(line) >= 10 && std::string(line, 11) ==  "body_limit ")
 		parseBodyLimit(conf, line);
+	else if (ft_strlen(line) >= 11 && std::string(line, 8) == "default_") //11 = strlen("default_") + 3 for status code
+		parseDefaultErrorPage(conf, line);  
+    else if (ft_strlen(line) > 8 && std::string(line, 9) == "location ")
+        parseRoutes(conf, line, fd);
 	free(line);
 	if (!conf.ports.size()) //CHECK IF AT LEAST A PORT WAS GIVEN
 		excerr("Config file error: missing port number", 1);

@@ -62,14 +62,17 @@
 #define WEBSERV_VER "0.1"
 
 //CONFIG PARSER
-typedef struct route
+typedef struct s_route
 {
 	std::string location;
 	char modifier; //Will support '=' and '~'
 	std::string root_dir;
+	std::vector<std::string> allowed_methods;
+	std::string default_dir_file;
+	bool dir_listing;
 }	t_route;
 
-typedef struct conf
+typedef struct s_conf
 {
 	std::vector<int> ports;
 	std::string host;
@@ -80,6 +83,7 @@ typedef struct conf
 }	t_conf;
 
 t_conf parseConf(std::string);
+int parseRouteFields(char *line, t_route &route);
 
 //NET
 typedef struct	s_net

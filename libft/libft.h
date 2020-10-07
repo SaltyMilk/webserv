@@ -99,6 +99,7 @@ void	fill_tempbuffer(char *tempbuffer, char *buffer, int eolp);
 int							ft_satoi(const char *str);
 size_t						ft_satost(const char *str);
 char	*ft_strlowcase(char *str);
+char	*ft_strupcase(char *str);
 #ifdef __cplusplus
 }
 #endif

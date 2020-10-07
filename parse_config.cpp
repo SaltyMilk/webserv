@@ -67,21 +67,26 @@ void parseDefaultErrorPage(t_conf &conf, char *line)
 }
 
 //Will read inside the location block, ending by reading the final '}' which will then be freed in 
-//WIP
-/*
-void parseRouteConf(t_conf &conf, char *line, int fd)
+void parseRouteConf(char *line, int fd, t_route &route)
 {
-    char *tmp;
-    free(line);
-    while (get_next_line(fd, &line))
+	bool got_in = false;
+	get_next_line(fd, &line);
+	if (!line || line[0] != '{')
+		excerr("Config file error: missing '{' at the start of the ligne after location.", 1);
+	if (line[1])
+		excerr("Config file error: unexpected token after { in location.", 1);
+	free(line);
+    while (get_next_line(fd, &line) && (got_in = true))
     {
-        tmp = ft_strtrim(line, "\t ");
-        if (tmp[0] == '}')
-            break;
-        free(line);
+		if (!parseRouteFields(line, route))
+			return;
     }
+	if (got_in && !parseRouteFields(line, route))
+		return;
+	else
+		excerr("Config file error: could not find end of location block, missing or invalid '}' token", 1);
 }
-*/
+
 
 void parseRoutes(t_conf &conf, char *line, int fd)
 {
@@ -95,14 +100,27 @@ void parseRoutes(t_conf &conf, char *line, int fd)
             excerr("Config file error: invalid modifier token for location", 1);
         r.modifier = sp[1][0]; 
         r.location = std::string(sp[2]);
-        conf.routes.push_back(r);
+		parseRouteConf(line, fd, r);
     }
     else //ex: location /
     {
-       r.modifier = 0;
-       r.location = std::string(sp[1]);
+    	r.modifier = 0;
+    	r.location = std::string(sp[1]);
+		parseRouteConf(line, fd, r);
     }
-    for (size_t i = 1; sp[i]; i++)
+//QUICK PRINT OF PARSED ROUTE FOR DEBUGING
+/*	std::cout << "Route debug infos" << std::endl;
+	std::cout << "root_dir=" << r.root_dir << "|" << std::endl;
+	std::cout << "location=" << r.location << "|" << std::endl;
+	std::cout << "modifier=" << r.modifier << "|" << std::endl;
+	std::cout << "default_dir_file=" << r.default_dir_file << "|" << std::endl;
+	std::cout << "dir_listing=" << r.dir_listing << "|" << std::endl;
+	std::cout << "allowed methods=" << std::endl;
+	for (std::vector<std::string>::iterator it = r.allowed_methods.begin(); it != r.allowed_methods.end(); it++)
+		std::cout << *it << std::endl;
+		std::cout << "End of route debug infos" << std::endl;*/
+    conf.routes.push_back(r);
+    for (size_t i = 0; sp[i]; i++)
         free(sp[i]);
     free(sp);
 }
@@ -137,7 +155,7 @@ t_conf parseConf(std::string filename)
 			parseBodyLimit(conf, line);
 		else if (ft_strlen(line) >= 11 && std::string(line, 8) == "default_") //11 = strlen("default_") + 3 for status code
 			parseDefaultErrorPage(conf, line);
-        else if (ft_strlen(line) > 8 && std::string(line, 8) == "location")
+        else if (ft_strlen(line) > 9 && std::string(line, 9) == "location ")
             parseRoutes(conf, line, fd);
 		free(line);
 	}

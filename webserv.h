@@ -120,6 +120,7 @@ int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);
 void handle_absolute_path(t_req_line &rl);
 void parse_query_from_target(t_req_line &rl);
+t_route get_route_for(t_req_line rl, t_conf conf);
 
 
 //DATE

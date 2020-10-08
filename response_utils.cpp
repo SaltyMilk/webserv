@@ -85,3 +85,27 @@ void parse_query_from_target(t_req_line &rl)
 			rl.query += rl.target[i++];
 	rl.target = targ;
 }
+
+//This returns a t_route with default settings chosen by us.
+t_route get_default_route()
+{
+	t_route route;
+	route.allowed_methods.push_back("GET");
+	route.allowed_methods.push_back("HEAD");
+	route.default_dir_file = "File_is_a_dir.html";
+	route.dir_listing = "off";
+	route.root_dir = ".";
+	route.modifier = 0;
+	route.location = "__default__";
+	return (route);
+}
+
+t_route get_route_for(t_req_line rl, t_conf conf)
+{
+	if (!conf.routes.size())
+		return	(get_default_route());
+	for (std::vector<t_route>::iterator it = conf.routes.begin(); it != conf.routes.end(); it++)
+		if ((*it).location == rl.target || (!(*it).modifier && std::string(rl.target,0, (*it).location.length()) == (*it).location))
+			return (*it);
+	return (get_default_route());
+}

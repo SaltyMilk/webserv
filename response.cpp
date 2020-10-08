@@ -45,7 +45,8 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 }
 
 int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
-{
+{	
+	t_route route;//Settings for requested ressource location
 	t_http_res resp;
 	std::string response; //This will be sent as a response to a given request
 	resp.http_ver = "HTTP/1.1";//We will always respond with the version we use
@@ -62,7 +63,8 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
 		handle_absolute_path(rl);
-		parse_query_from_target(rl);
+		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
+		route = get_route_for(rl, conf);
 		if (rl.method == "GET" || rl.method == "HEAD")
 			getorhead_resp(rl, resp, conf);
 	}

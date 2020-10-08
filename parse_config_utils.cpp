@@ -29,6 +29,8 @@ int parseRouteFields(char *line, t_route &route)
 			sp = ft_split(clean_line, ' ');
 			if (!sp[1])
 				excerr("Config file error: empty root_dir field.", 1);
+			if (ft_strlen(sp[1]) > 1 && sp[1][ft_strlen(sp[1]) - 1] == '/' ) // Remove final '/' from ex: /dir/ to get /dir
+					sp[1][ft_strlen(sp[1]) - 1] = 0;
 			route.root_dir = std::string(sp[1]);
 			for (size_t i = 0; sp[i]; i++)
 				free(sp[i]);

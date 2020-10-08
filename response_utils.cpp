@@ -109,3 +109,17 @@ t_route get_route_for(t_req_line rl, t_conf conf)
 			return (*it);
 	return (get_default_route());
 }
+
+bool method_supported(std::string method)
+{
+	return(method == "GET" || method == "HEAD" || method == "POST" || method == "PUT"
+		|| method == "DELETE" || method == "CONNECT" || method == "OPTIONS" || method == "TRACE");
+}
+
+bool method_allowed(std::string method, t_route route)
+{
+	for (std::vector<std::string>::iterator it = route.allowed_methods.begin(); it != route.allowed_methods.end(); it++)
+		if (method == *it)
+			return (true);
+	return (false);
+}

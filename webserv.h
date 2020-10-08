@@ -50,13 +50,15 @@
 #define WWW_AUTHENTICATE	17
 
 //Number of error status code supported
-#define N_ERR_IMPLEMENTED 5
+#define N_ERR_IMPLEMENTED 7
 //Defines to be used with conf::default_error
 #define ERR400 0
 #define ERR403 1
 #define ERR404 2
-#define ERR413 3
-#define ERR505 4
+#define ERR405 3
+#define ERR413 4
+#define ERR501 5
+#define ERR505 6
 
 
 #define WEBSERV_VER "0.1"
@@ -78,7 +80,7 @@ typedef struct s_conf
 	std::string host;
 	std::vector<std::string> indexs;
 	size_t body_limit;
-	std::string default_error[5];//List of all the default error pages
+	std::string default_error[N_ERR_IMPLEMENTED];//List of all the default error pages
 	std::vector<t_route> routes;//list of all routes
 }	t_conf;
 
@@ -121,6 +123,8 @@ int valid_http_ver(t_req_line rl);
 void handle_absolute_path(t_req_line &rl);
 void parse_query_from_target(t_req_line &rl);
 t_route get_route_for(t_req_line rl, t_conf conf);
+bool method_allowed(std::string method, t_route route);
+bool method_supported(std::string method);
 
 
 //DATE
@@ -132,9 +136,13 @@ std::string get_content_type(std::string filename);
 void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route rout);
 void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_200(t_req_line rl, t_http_res &resp, int fd);
+//STATUS_CODE UTILS
+std::string get_allow_header_for(t_route route);
 
 //UTILS
 int print_err(std::string s);

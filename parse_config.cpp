@@ -109,7 +109,7 @@ void parseRoutes(t_conf &conf, char *line, int fd)
 		parseRouteConf(line, fd, r);
     }
 //QUICK PRINT OF PARSED ROUTE FOR DEBUGING
-	std::cout << "Route debug infos" << std::endl;
+/*	std::cout << "Route debug infos" << std::endl;
 	std::cout << "root_dir=" << r.root_dir << "|" << std::endl;
 	std::cout << "location=" << r.location << "|" << std::endl;
 	std::cout << "modifier=" << r.modifier << "|" << std::endl;
@@ -118,7 +118,7 @@ void parseRoutes(t_conf &conf, char *line, int fd)
 	std::cout << "allowed methods=" << std::endl;
 	for (std::vector<std::string>::iterator it = r.allowed_methods.begin(); it != r.allowed_methods.end(); it++)
 		std::cout << *it << std::endl;
-		std::cout << "End of route debug infos" << std::endl;
+		std::cout << "End of route debug infos" << std::endl;*/
     conf.routes.push_back(r);
     for (size_t i = 0; sp[i]; i++)
         free(sp[i]);
@@ -131,6 +131,7 @@ void set_default_settings(t_conf &conf)
 	conf.default_error[ERR403] = "403.html";
 	conf.default_error[ERR404] = "404.html";
 	conf.default_error[ERR413] = "413.html";
+	conf.default_error[ERR501] = "501.html";
 	conf.default_error[ERR505] = "505.html";
 	
 	conf.body_limit = std::string().max_size();

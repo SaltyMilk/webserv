@@ -65,7 +65,11 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 		handle_absolute_path(rl);
 		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 		route = get_route_for(rl, conf);
-		if (rl.method == "GET" || rl.method == "HEAD")
+		if (!method_supported(rl.method))//None standard http method requested
+			send_501(rl, resp, conf);
+		else if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
+			send_405(rl, resp, conf, route);
+		else if (rl.method == "GET" || rl.method == "HEAD")
 			getorhead_resp(rl, resp, conf);
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER

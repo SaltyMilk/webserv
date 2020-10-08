@@ -42,41 +42,26 @@ int get_header_id(std::string header_field)
 	return (-1);//UNKNOW HEADER -> IGNORE IT
 }
 
+int	ft_strisupper(const char *str)
+{
+	while (*str)
+		if (!(*str >= 'A' && *str <= 'Z'))
+			return (0);
+	return (1);
+}
 
 void parse_request_line(size_t &i, t_req_line &rl, char *request)
 {
+	char	**components = ft_split(request, " ");
+
 	rl.bad_request = false;
-	//PARSE METHOD
-	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
-		rl.method += request[i++];
-	if (request[i] == '\r')
-		i++;
-	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reached end of request or req_line
-		return;
-	while (request[i] == ' ') //ignore all SP like nginx (Only one space in RFC)
-		i++;
-	//PARSE TARGET
-	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
-		rl.target += request[i++];
-	if (request[i] == '\r')
-		i++;
-	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reached end of request or req_line
-		return;
-	while (request[i] == ' ') 
-		i++;
-	//PARSE HTTP_VER
-	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
-		rl.http_ver += request[i++];
-	if (request[i] == '\r')
-		i++;
-	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reacued end of request or req_line
-		return;
-	while (request[i] == ' ') 
-		i++;
-	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reacued end of request or req_line
-		return;
-	else
+	if (ft_splitlen(components) != 2)
+		rl.bad_request = true; //faut free aussi
+	if (!ft_strisupper(components[0]))
 		rl.bad_request = true;
+	rl.method += components[0];
+	rl.target += components[1];
+	rl.http_ver += components[2];
 }
 
 

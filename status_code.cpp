@@ -74,7 +74,7 @@ void send_501(t_req_line rl, t_http_res &resp, t_conf conf)
 	resp.reason_phrase = "Not Implemented";
 	char c;
 	int efd = open(conf.default_error[ERR501].c_str(), O_RDONLY);
-	if (rl.method!= "HEAD") // No body for head method
+	if (rl.method != "HEAD") // No body for head method
 		while (read(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);

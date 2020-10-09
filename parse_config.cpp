@@ -90,7 +90,7 @@ void parseRouteConf(char *line, int fd, t_route &route)
 
 void parseRoutes(t_conf &conf, char *line, int fd)
 {
-    t_route r;
+    t_route r = get_default_route(); //Initialize with default settings
     char **sp = ft_split(line, ' ');
     if (!sp[1])
         excerr("Config file error: empty route field", 1);

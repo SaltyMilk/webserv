@@ -16,3 +16,11 @@ bool file_exists(std::string filename)
 	struct stat buff;
 	return(!stat(filename.c_str(), &buff));
 }
+
+bool file_is_dir(std::string filename)
+{
+	struct stat buff;
+	ft_bzero(&buff, sizeof(buff));
+	stat(filename.c_str(), &buff);
+	return (buff.st_mode & S_IFDIR);
+}

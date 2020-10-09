@@ -37,7 +37,12 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	int fd;
 	if (rl.target == "/" && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
-	if ((fd = open((route.root_dir + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
+	if (file_is_dir(route.root_dir + rl.target) && !route.dir_listing)//Handle directories without dir_listing
+	{
+		fd = open(route.default_dir_file.c_str(), O_RDONLY);
+		send_200(rl, resp, fd);
+	}
+	else if ((fd = open((route.root_dir + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 		send_404(rl, resp, conf);
 	else // Requested file was found.
 		send_200(rl, resp, fd);

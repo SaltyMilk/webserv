@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
 //NETWORK INCLUDES
 #include <stdlib.h>
 #include <unistd.h>
@@ -149,5 +150,5 @@ std::string get_allow_header_for(t_route route);
 int print_err(std::string s);
 void excerr(std::string msg, int c);
 bool file_exists(std::string filename);
-
+bool file_is_dir(std::string filename);
 #endif

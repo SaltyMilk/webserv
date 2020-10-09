@@ -93,7 +93,7 @@ t_route get_default_route()
 	route.allowed_methods.push_back("GET");
 	route.allowed_methods.push_back("HEAD");
 	route.default_dir_file = "File_is_a_dir.html";
-	route.dir_listing = "off";
+	route.dir_listing = false;
 	route.root_dir = ".";
 	route.modifier = 0;
 	route.location = "__default__";

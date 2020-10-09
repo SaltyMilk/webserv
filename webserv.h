@@ -127,6 +127,7 @@ t_route get_default_route();
 t_route get_route_for(t_req_line rl, t_conf conf);
 bool method_allowed(std::string method, t_route route);
 bool method_supported(std::string method);
+void get_dir_listing(std::string dir);
 
 
 //DATE
@@ -138,11 +139,12 @@ std::string get_content_type(std::string filename);
 void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route rout);
+void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
 void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_200(t_req_line rl, t_http_res &resp, int fd);
+void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route);
+void send_200_dirlist(t_req_line rl, t_http_res &resp);
 //STATUS_CODE UTILS
 std::string get_allow_header_for(t_route route);
 

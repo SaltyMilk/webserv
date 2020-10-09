@@ -123,3 +123,29 @@ bool method_allowed(std::string method, t_route route)
 			return (true);
 	return (false);
 }
+
+//Returns fd to the directory listing
+void get_dir_listing(std::string dir)
+{
+	int fd;
+	std::string start = "<html>\n<head><title>Index of "+ dir +"</title></head>\n<body bgcolor=\"white\"><h1>Index of " + dir +"</h1><hr>";
+	DIR *dptr = opendir(dir.c_str());
+	struct dirent *tmp;
+
+	fd = open(".dirlisting.html", O_CREAT | O_TRUNC | O_RDWR, 0666);//For bonus workers add worker's id to file name
+	write(fd, start.c_str(), ft_strlen(start.c_str()));
+	while ((tmp = readdir(dptr))) //build href for each file
+	{
+		write(fd, "<pre><a href=\"", 14);
+		if (std::string(tmp->d_name) == ".")
+			write(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
+		else
+			write(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
+		write(fd, "\">", 2);
+		write(fd, tmp->d_name, ft_strlen(tmp->d_name));
+		write(fd, "</a></pre>", 10);
+	}
+	write(fd, "<hr></body>\n</html>\n", 20);
+	closedir(dptr);
+	close(fd);
+}

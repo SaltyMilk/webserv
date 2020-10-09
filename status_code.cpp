@@ -87,20 +87,33 @@ void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
 	resp.reason_phrase = "HTTP Version Not Supported";
 	char c;
 	int efd = open(conf.default_error[ERR505].c_str(), O_RDONLY);
-	if (rl.method == "GET") // No body for head method
+	if (rl.method != "HEAD") // No body for head method
 		while (read(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
 
-void send_200(t_req_line rl, t_http_res &resp, int fd)
+void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 {
-		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type("." + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
+		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(route.root_dir + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 		resp.status_code = "200";
 		resp.reason_phrase = "OK";
-		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified("." + rl.target);
+		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
 		char c;
-		if (rl.method == "GET") // No body for head method
+		if (rl.method != "HEAD") // No body for head method
+			while (read(fd, &c, 1) > 0)
+				resp.body += c;
+	close(fd);
+}
+
+void send_200_dirlist(t_req_line rl, t_http_res &resp)
+{
+		int fd = open(".dirlisting.html", O_RDONLY);
+		resp.headers[CONTENT_TYPE] =  "Content-Type: " + std::string("text/html");
+		resp.status_code = "200";
+		resp.reason_phrase = "OK";
+		char c;
+		if (rl.method != "HEAD") // No body for head method
 			while (read(fd, &c, 1) > 0)
 				resp.body += c;
 	close(fd);

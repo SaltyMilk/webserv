@@ -138,6 +138,11 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 			header_value = trimmed;
 			free(trimmed);
 		}
+		if (std::string(ft_strlowcase(const_cast<char *>(header_field.c_str()))) == "content-range" && rl.method == "PUT")//SPECIAL RFC CASE FOR PUT
+		{
+			rl.bad_request = true;
+			return;
+		}
 		int id = get_header_id(header_field);
 		if (id == HOST && rl.headers[HOST].length())//CHECK FOR DUPLICATE HOST HEADER -> Bad request
 		{

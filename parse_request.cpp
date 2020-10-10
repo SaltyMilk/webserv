@@ -53,8 +53,10 @@ void parse_request_line(size_t &i, t_req_line &rl, char *request)
 		i++;
 	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reached end of request or req_line
 		return;
-	while (request[i] == ' ') //ignore all SP like nginx (Only one space in RFC)
+	if (request[i] == ' ') //ignore all SP like nginx (Only one space in RFC)
 		i++;
+	else
+		return;
 	//PARSE TARGET
 	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
 		rl.target += request[i++];
@@ -62,18 +64,16 @@ void parse_request_line(size_t &i, t_req_line &rl, char *request)
 		i++;
 	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reached end of request or req_line
 		return;
-	while (request[i] == ' ') 
+	if (request[i] == ' ') 
 		i++;
+	else
+		return;
 	//PARSE HTTP_VER
 	while (request[i] && request[i] != ' ' && request[i] != '\r' && request[i] != '\n')
 		rl.http_ver += request[i++];
 	if (request[i] == '\r')
 		i++;
-	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reacued end of request or req_line
-		return;
-	while (request[i] == ' ') 
-		i++;
-	if (!request[i] || (request[i] == '\n' && (i += 1)))//Reacued end of request or req_line
+	if ((request[i] == '\n' && (i += 1)))//Reached end of request or req_line
 		return;
 	else
 		rl.bad_request = true;

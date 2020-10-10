@@ -149,3 +149,32 @@ void get_dir_listing(std::string dir)
 	closedir(dptr);
 	close(fd);
 }
+
+// ex: for PUT /somedir/index.html if somedir doesn't exist create it
+void create_missing_dirs(std::string targ, t_route route)
+{
+	size_t i = 0;
+	std::string target = route.root_dir + targ; // later change to upload_root_dir
+	while(target[i])
+	{
+		i++;
+		size_t len = 0;
+		while (target[i + len] != '/' && target[i + len])
+			len++;
+		if (!target[i + len])
+			return;
+		i += len;
+		std::string dir_to_create = std::string(target, 0, i);
+		if (!file_exists(dir_to_create))
+			mkdir(dir_to_create.c_str(), 0777);
+	}
+}
+
+//Used to create a file with HTTP PUT method
+void create_ressource(t_req_line rl, t_route route) 
+{
+	int fd;
+	create_missing_dirs(rl.target, route);
+	fd = open((route.root_dir + rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
+	write(fd, rl.body.c_str(), rl.body.length());
+}

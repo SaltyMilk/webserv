@@ -55,6 +55,8 @@ void parseDefaultErrorPage(t_conf &conf, char *line)
 		conf.default_error[ERR404] = std::string(sp[1]);
 	else if (std::string(sp[0]) == "default_413")
 		conf.default_error[ERR413] = std::string(sp[1]);
+	else if (std::string(sp[0]) == "default_501")
+		conf.default_error[ERR501] = std::string(sp[1]);
 	else if (std::string(sp[0]) == "default_505")
 		conf.default_error[ERR505] = std::string(sp[1]);
 	else

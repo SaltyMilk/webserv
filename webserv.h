@@ -128,7 +128,7 @@ t_route get_route_for(t_req_line rl, t_conf conf);
 bool method_allowed(std::string method, t_route route);
 bool method_supported(std::string method);
 void get_dir_listing(std::string dir);
-
+void create_ressource(t_req_line rl, t_route route);
 
 //DATE
 std::string get_imf_fixdate();
@@ -145,6 +145,8 @@ void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route);
 void send_200_dirlist(t_req_line rl, t_http_res &resp);
+void send_200_put(t_req_line rl, t_http_res &resp, t_route route);
+void send_201_put(t_req_line rl, t_http_res &resp);
 //STATUS_CODE UTILS
 std::string get_allow_header_for(t_route route);
 

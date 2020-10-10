@@ -57,10 +57,27 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 {
 	if (file_exists(route.root_dir + rl.target))
-		send_200_put(rl, resp, route);
+		send_204_put(rl, resp, route);
 	else
 		send_201_put(rl, resp);
 	create_ressource(rl, route);
+}
+
+void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
+{
+	if (!file_exists(route.root_dir + rl.target))
+		send_404(rl, resp, conf);
+	else
+	{
+		if (file_is_dir(route.root_dir + rl.target))
+		{
+			empty_directory(route.root_dir + rl.target);
+			rmdir((route.root_dir + rl.target).c_str());
+		}
+		else
+			unlink((route.root_dir + rl.target).c_str());
+		send_204_delete(resp);
+	}
 }
 
 int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
@@ -92,6 +109,8 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 			getorhead_resp(rl, resp, conf, route);
 		else if (rl.method == "PUT")
 			put_resp(rl, resp, route);
+		else if (rl.method == "DELETE")
+			delete_resp(rl, resp, conf, route);
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());

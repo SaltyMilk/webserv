@@ -178,3 +178,15 @@ void create_ressource(t_req_line rl, t_route route)
 	fd = open((route.root_dir + rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
 	write(fd, rl.body.c_str(), rl.body.length());
 }
+
+void empty_directory(std::string path)
+{
+	DIR *dptr = opendir(path.c_str());
+	struct dirent *tmp;
+	while ((tmp = readdir(dptr))) 
+	{
+		if (!file_is_dir(path + "/" + tmp->d_name))
+			unlink((path+ "/" + tmp->d_name).c_str());
+	}
+	closedir(dptr);
+}

@@ -106,27 +106,6 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 	close(fd);
 }
 
-void send_200_put(t_req_line rl, t_http_res &resp, t_route route)
-{
-		int fd;
-		std::string current_representation;
-		fd = open((route.root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
-		char c;
-		while (read(fd, &c, 1) > 0)
-				current_representation += c;
-		resp.status_code = "200";
-		resp.reason_phrase = "OK";
-		if (rl.body == current_representation)
-			resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
-	close(fd);
-}
-
-void send_201_put(t_req_line rl, t_http_res &resp)
-{
-	resp.status_code = "201";
-	resp.reason_phrase = "Created";
-	resp.headers[LOCATION] = "Location: " + rl.target; // Will have to change to upload_root_dir when implemented
-}
 void send_200_dirlist(t_req_line rl, t_http_res &resp)
 {
 		int fd = open(".dirlisting.html", O_RDONLY);
@@ -139,3 +118,32 @@ void send_200_dirlist(t_req_line rl, t_http_res &resp)
 				resp.body += c;
 	close(fd);
 }
+
+void send_201_put(t_req_line rl, t_http_res &resp)
+{
+	resp.status_code = "201";
+	resp.reason_phrase = "Created";
+	resp.headers[LOCATION] = "Location: " + rl.target; // Will have to change to upload_root_dir when implemented
+}
+
+void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
+{
+		int fd;
+		std::string current_representation;
+		fd = open((route.root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
+		char c;
+		while (read(fd, &c, 1) > 0)
+				current_representation += c;
+		resp.status_code = "204";
+		resp.reason_phrase = "No Content";
+		if (rl.body == current_representation)
+			resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
+	close(fd);
+}
+
+void send_204_delete(t_http_res &resp)
+{
+		resp.status_code = "204";
+		resp.reason_phrase = "No Content";
+}
+

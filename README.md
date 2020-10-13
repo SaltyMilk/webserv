@@ -40,3 +40,4 @@ Les headers de la request sont aussi a mettre en variables environement.
 
 Une fois tout ca set, il faut utiliser fork avec execve et lancer le cgi qui est relatif a l'extension du fichier indique
 dans la requete. Par exemple, test.php doit lancer php-cgi.
+Example of how a cgi could be written in C : http://jkorpela.fi/forms/cgic.html 

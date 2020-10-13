@@ -1,4 +1,4 @@
-#include "webserv.h"
+#include "../../includes/webserv.h"
 void parsePorts(t_conf &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');

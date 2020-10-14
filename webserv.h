@@ -69,6 +69,7 @@ typedef struct s_route
 	std::string location;
 	char modifier; //Will support '=' and '~'
 	std::string root_dir;
+	std::string upload_root_dir;
 	std::vector<std::string> allowed_methods;
 	std::string default_dir_file;
 	bool dir_listing;

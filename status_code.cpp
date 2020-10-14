@@ -123,14 +123,14 @@ void send_201_put(t_req_line rl, t_http_res &resp)
 {
 	resp.status_code = "201";
 	resp.reason_phrase = "Created";
-	resp.headers[LOCATION] = "Location: " + rl.target; // Will have to change to upload_root_dir when implemented
+	resp.headers[LOCATION] = "Location: " + rl.target;
 }
 
 void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
 {
 		int fd;
 		std::string current_representation;
-		fd = open((route.root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
+		fd = open((route.upload_root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
 		char c;
 		while (read(fd, &c, 1) > 0)
 				current_representation += c;

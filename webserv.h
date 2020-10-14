@@ -61,7 +61,6 @@
 #define ERR501 5
 #define ERR505 6
 
-
 #define WEBSERV_VER "0.1"
 
 //CONFIG PARSER
@@ -107,6 +106,9 @@ typedef struct	s_request_line
 }				t_req_line;
 
 int parse_request(char *request, int fd, t_net&, t_conf);
+int get_header_id(std::string header_field);
+//PARSE REQUEST UTILS
+void parse_chunked(size_t i, t_req_line &rl, char *request);
 
 //RESPONSE
 typedef struct	s_http_res
@@ -157,4 +159,5 @@ int print_err(std::string s);
 void excerr(std::string msg, int c);
 bool file_exists(std::string filename);
 bool file_is_dir(std::string filename);
+bool is_in_set(char c, char *s);
 #endif

@@ -162,9 +162,14 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 
 void parse_body(size_t i, t_req_line &rl, char *request)
 {
-	rl.body = "";
-	while (request[i])
-		rl.body += request[i++];
+	if (std::string(ft_strlowcase(const_cast<char *>(rl.headers[TRANSFER_ENCODING].c_str()))) == "chunked")
+		parse_chunked(i, rl, request);
+	else // Body sent as plain text
+	{	
+		rl.body = "";
+		while (request[i])
+			rl.body += request[i++];
+	}
 }
 //Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
 int parse_request(char *request, int fd, t_net &snet, t_conf conf)
@@ -179,11 +184,11 @@ int parse_request(char *request, int fd, t_net &snet, t_conf conf)
 
 	parse_headers(mi, rl, request);
 
+	parse_body(mi, rl, request);
 	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
 			std::cout << rl.headers[i] << std::endl;
 
-	parse_body(mi, rl, request);
 
 	std::cout << rl.body << std::endl;
 

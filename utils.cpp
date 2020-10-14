@@ -24,3 +24,14 @@ bool file_is_dir(std::string filename)
 	stat(filename.c_str(), &buff);
 	return (buff.st_mode & S_IFDIR);
 }
+
+bool is_in_set(char c, char *s)
+{
+	while (*s)
+	{
+		if (*s == c)
+			return(true);
+		s++;
+	}
+	return (false);
+}

@@ -7,7 +7,7 @@
 #include <vector>
 #include <errno.h>
 #include <iostream>
-#include "libft/libft.h"
+#include "../libft/libft.h"
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>

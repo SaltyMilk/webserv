@@ -1,4 +1,4 @@
-#include "webserv.h"
+#include "../../includes/webserv.h"
 int print_err(std::string s)
 {
 	std::cout << s;

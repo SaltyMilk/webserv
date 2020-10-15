@@ -25,7 +25,7 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 		length += size;
 		if (!is_in_set(request[i], hexset) && (rl.bad_request = true))//chunk_size invalid
 			return;
-	 	size = ft_atoi_base(request + i, hexset);//GET chunk-size
+		size = ft_atoi_base(request + i, hexset);//GET chunk-size
 		while (request[i] && request[i] != '\n')//Skip chunk_size ligne and ignore chunk-ext
 			i++;
 		if (!request[i++] && (rl.bad_request = true))

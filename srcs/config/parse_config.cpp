@@ -129,12 +129,12 @@ void parseRoutes(t_conf &conf, char *line, int fd)
 
 void set_default_settings(t_conf &conf)
 {
-	conf.default_error[ERR400] = "400.html";
-	conf.default_error[ERR403] = "403.html";
-	conf.default_error[ERR404] = "404.html";
-	conf.default_error[ERR413] = "413.html";
-	conf.default_error[ERR501] = "501.html";
-	conf.default_error[ERR505] = "505.html";
+	conf.default_error[ERR400] = "www/400.html";
+	conf.default_error[ERR403] = "www/403.html";
+	conf.default_error[ERR404] = "www/404.html";
+	conf.default_error[ERR413] = "www/413.html";
+	conf.default_error[ERR501] = "www/501.html";
+	conf.default_error[ERR505] = "www/505.html";
 	
 	conf.body_limit = std::string().max_size();
 }

@@ -92,7 +92,7 @@ t_route get_default_route()
 	t_route route;
 	route.allowed_methods.push_back("GET");
 	route.allowed_methods.push_back("HEAD");
-	route.default_dir_file = "File_is_a_dir.html";
+	route.default_dir_file = "www/File_is_a_dir.html";
 	route.dir_listing = false;
 	route.root_dir = ".";
 	route.upload_root_dir = ".";
@@ -132,7 +132,8 @@ void get_dir_listing(std::string dir)
 	std::string start = "<html>\n<head><title>Index of "+ dir +"</title></head>\n<body bgcolor=\"white\"><h1>Index of " + dir +"</h1><hr>";
 	DIR *dptr = opendir(dir.c_str());
 	struct dirent *tmp;
-
+	if (dir[dir.length() - 1] != '/')
+		dir += "/";
 	fd = open(".dirlisting.html", O_CREAT | O_TRUNC | O_RDWR, 0666);//For bonus workers add worker's id to file name
 	write(fd, start.c_str(), ft_strlen(start.c_str()));
 	while ((tmp = readdir(dptr))) //build href for each file

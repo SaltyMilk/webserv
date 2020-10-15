@@ -11,7 +11,7 @@ CONFIG_DIR = config
 CONFIG_FILES = parse_config.cpp parse_config_utils.cpp
 
 REQUEST_DIR = request
-REQUEST_FILES = parse_request.cpp
+REQUEST_FILES = parse_request.cpp parse_request_utils.cpp
 
 RESPONSE_DIR = response
 RESPONSE_FILES = response.cpp response_utils.cpp

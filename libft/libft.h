@@ -18,6 +18,8 @@
 # include <unistd.h>
 # include <limits.h>
 
+# define LIB_LONG_MAX 9223372036854775807L
+
 //NEEDED TO LINK C LIB WITH C++
 #ifdef __cplusplus
 extern "C"{
@@ -31,6 +33,7 @@ int				ft_isprint(int c);
 int				ft_toupper(int c);
 int				ft_tolower(int c);
 int				ft_atoi(const char *str);
+int             ft_atoi_base(const char *str, const char *base);
 void			*ft_memset(void *b, int c, size_t len);
 void			ft_bzero(void *s, size_t n);
 void			*ft_memcpy(void *dst, const void *src, size_t n);

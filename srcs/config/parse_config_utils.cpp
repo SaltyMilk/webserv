@@ -36,6 +36,18 @@ int parseRouteFields(char *line, t_route &route)
 				free(sp[i]);
 			free(sp);
 		}
+		else if (ft_strlen(clean_line) >= 16 && std::string(clean_line, 16) == "upload_root_dir ")
+		{
+			sp = ft_split(clean_line, ' ');
+			if (!sp[1])
+				excerr("Config file error: empty upload_root_dir field.", 1);
+			if (ft_strlen(sp[1]) > 1 && sp[1][ft_strlen(sp[1]) - 1] == '/' ) // Remove final '/' from ex: /dir/ to get /dir
+					sp[1][ft_strlen(sp[1]) - 1] = 0;
+			route.upload_root_dir = std::string(sp[1]);
+			for (size_t i = 0; sp[i]; i++)
+				free(sp[i]);
+			free(sp);
+		}
 		else if (ft_strlen(clean_line) >= 12 && std::string(clean_line, 12) == "dir_listing ")
 		{
 			sp = ft_split(clean_line, ' ');

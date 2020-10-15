@@ -95,6 +95,7 @@ t_route get_default_route()
 	route.default_dir_file = "File_is_a_dir.html";
 	route.dir_listing = false;
 	route.root_dir = ".";
+	route.upload_root_dir = ".";
 	route.modifier = 0;
 	route.location = "__default__";
 	return (route);
@@ -154,7 +155,7 @@ void get_dir_listing(std::string dir)
 void create_missing_dirs(std::string targ, t_route route)
 {
 	size_t i = 0;
-	std::string target = route.root_dir + targ; // later change to upload_root_dir
+	std::string target = route.upload_root_dir + targ; // later change to upload_root_dir
 	while(target[i])
 	{
 		i++;
@@ -175,7 +176,7 @@ void create_ressource(t_req_line rl, t_route route)
 {
 	int fd;
 	create_missing_dirs(rl.target, route);
-	fd = open((route.root_dir + rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
+	fd = open((route.upload_root_dir + rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
 	write(fd, rl.body.c_str(), rl.body.length());
 }
 

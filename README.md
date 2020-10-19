@@ -41,7 +41,9 @@ Les headers de la request sont aussi a mettre en variables environement.
 Une fois tout ca set, il faut utiliser fork avec execve et lancer le cgi qui est relatif a l'extension du fichier indique
 dans la requete. 
 Par exemple, test.php doit lancer php-cgi. Note : c'est le user qui défine quelle cgi est appliqué sur quels extensions/ensemble de fichier grâce au systeme de location déjà implémenté.
-Example of how a cgi could be written in C : http://jkorpela.fi/forms/cgic.html 
+Example of how a cgi could be written in C : http://jkorpela.fi/forms/cgic.html
+
+La (doc)[http://nginx.org/en/docs/http/request_processing.html] qui explique comment Nginx proces une request avec et sans CGI.
 
 ## SELECT
 [GOOD VIDEO](https://www.youtube.com/watch?v=Y6pFtgRdUts)

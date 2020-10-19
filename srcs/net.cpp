@@ -30,30 +30,28 @@ int net_init(int port)
 	return 0;
 }
 
-int net_shutdown(void)
-{
-	// close socket
-	if (close(fd) == -1) {
-		printf("Couldn't close socket.\n");
-		return 1;
-	}
-
-	return 0;
-}
-
 int net_receive(t_net &snet, t_conf conf)
 {
-	char	buff[1024];//Must change to dynamic buffer
-	int len;
-
+	char	buff[BUFF_SIZE];//Must change to dynamic buffer
+	int ret;
+	std::string req;
+	int i = 0;
+	ft_bzero(buff, BUFF_SIZE);
 	for (std::list<int>::iterator it = snet.client_fds.begin() ; it != snet.client_fds.end(); it++)
 	{
-		len = read(*it, buff, sizeof(buff) - 1);
-		if (len > 0) // We received a request from this client
+		while ((ret = read(*it, buff, BUFF_SIZE - 1)) > 0 )
 		{
-			buff[len] = 0;
-			if (parse_request(buff, *it, snet, conf))
+			buff[ret] = 0;
+			req += buff;
+			ft_bzero(buff, sizeof(buff));
+		}
+		buff[i] = 0;
+		req += buff;
+		if (req.length() > 0)
+		{
+			if (parse_request(const_cast<char *>(req.c_str()), *it, snet, conf))
 				return (1);
+			snet.client_fds.remove(*it);
 			it = snet.client_fds.begin();
 		}
 	}
@@ -91,7 +89,6 @@ int net_accept(t_net &snet)
 
 int main(int argc, char **argv) 
 {
-	(void)argc;
 	t_conf conf;
 	t_net s_net;
 	ft_bzero(&conf, sizeof(conf));
@@ -105,7 +102,5 @@ int main(int argc, char **argv)
 	while (1)
 		if (net_accept(s_net) || net_receive(s_net, conf))
 			return 1;
-	if (net_shutdown())
-		return 1;
 	return 0;
 }

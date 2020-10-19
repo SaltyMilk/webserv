@@ -30,6 +30,8 @@
 //DATE INCLUDES
 #include <sys/time.h>
 
+#define BUFF_SIZE 4200
+
 //HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1

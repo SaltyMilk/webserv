@@ -102,5 +102,5 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 		rl.bad_request = true;
 	//Could add a check to verify that all chunk sizes were correct
 	//if (length != rl.body) -> bad_request;
-	rl.headers[CONTENT_LENGTH] = length;
+	rl.headers[CONTENT_LENGTH] = std::to_string(length);
 }

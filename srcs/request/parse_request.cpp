@@ -187,7 +187,7 @@ int parse_request(char *request, int fd, t_net &snet, t_conf conf)
 	parse_body(mi, rl, request);
 	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
-			std::cout << rl.headers[i] << std::endl;
+			std::cout << "header[" <<i << "]" << rl.headers[i] << std::endl;
 
 
 	std::cout << rl.body << std::endl;

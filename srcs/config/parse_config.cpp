@@ -175,5 +175,6 @@ t_conf parseConf(std::string filename)
 	free(line);
 	if (!conf.ports.size()) //CHECK IF AT LEAST A PORT WAS GIVEN
 		excerr("Config file error: missing port number", 1);
+	close(fd);
 	return (conf);
 }

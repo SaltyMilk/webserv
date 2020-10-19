@@ -43,7 +43,7 @@ dans la requete.
 Par exemple, test.php doit lancer php-cgi. Note : c'est le user qui défine quelle cgi est appliqué sur quels extensions/ensemble de fichier grâce au systeme de location déjà implémenté.
 Example of how a cgi could be written in C : http://jkorpela.fi/forms/cgic.html
 
-La (doc)[http://nginx.org/en/docs/http/request_processing.html] qui explique comment Nginx proces une request avec et sans CGI.
+La [doc](http://nginx.org/en/docs/http/request_processing.html) qui explique comment Nginx proces une request avec et sans CGI.
 
 ## SELECT
 [GOOD VIDEO](https://www.youtube.com/watch?v=Y6pFtgRdUts)

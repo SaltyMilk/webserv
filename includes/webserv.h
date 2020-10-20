@@ -94,6 +94,7 @@ int parseRouteFields(char *line, t_route &route);
 typedef struct	s_net
 {
 	std::list<int> client_fds;
+	std::vector<struct sockaddr_in> clients_net;//network information about clients
 }				t_net;
 
 //PARSER

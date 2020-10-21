@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <algorithm>
 #include <vector>
 #include <errno.h>
 #include <iostream>
@@ -79,8 +80,9 @@ typedef struct s_route
 
 typedef struct s_conf
 {
-	std::vector<unsigned int> ports;
+	std::vector<int> ports;
 	std::string host;
+	std::vector<std::string> server_names;
 	std::vector<std::string> indexs;
 	size_t body_limit;
 	std::string default_error[N_ERR_IMPLEMENTED];//List of all the default error pages
@@ -110,10 +112,11 @@ typedef struct	s_request_line
 	bool bad_request;//Allows bad_request checks before/while parsing request
 }				t_req_line;
 
-int parse_request(char *request, int fd, t_net&, t_conf);
+int parse_request(char *request, int fd, t_net&, std::vector<t_conf> servers);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
+t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers);
 
 //RESPONSE
 typedef struct	s_http_res

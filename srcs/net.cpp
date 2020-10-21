@@ -30,7 +30,7 @@ int net_init(unsigned int port)
 	return fd;
 }
 
-void net_receive(t_net &snet, t_conf conf, int client_fd)
+void net_receive(t_net &snet, std::vector<t_conf> servers, int client_fd)
 {
 	char	buff[BUFF_SIZE];//Must change to dynamic buffer
 	int ret;
@@ -45,7 +45,7 @@ void net_receive(t_net &snet, t_conf conf, int client_fd)
 	}
 	buff[i] = 0;
 	req += buff;
-	parse_request(const_cast<char *>(req.c_str()), client_fd, snet, conf);
+	parse_request(const_cast<char *>(req.c_str()), client_fd, snet, servers);
 }
 
 int net_accept(t_net &snet, int fd) 
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 					FD_SET(net_accept(s_net, serv_fd), &sockets);//add new client socket to the set fd
 				else
 				{
-					net_receive(s_net, servers[0], i);
+					net_receive(s_net, servers, i);
 					FD_CLR(i, &sockets);
 				}
 			}

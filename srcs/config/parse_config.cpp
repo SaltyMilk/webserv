@@ -127,6 +127,18 @@ void parseRoutes(t_conf &conf, char *line, int fd)
     free(sp);
 }
 
+void parseServerName(t_conf &conf, char *line)
+{
+	char **sp = ft_split(line, ' ');
+	if (!sp[1])
+			excerr("Config file error: missing argument for server_name", 1);	
+	for (size_t i = 1; sp[i]; i++)
+		conf.server_names.push_back(std::string(sp[i]));
+	for (size_t i = 0; sp[i]; i++)
+		free(sp[i]);
+	free(sp);
+}
+
 void set_default_settings(t_conf &conf)
 {
 	conf.default_error[ERR400] = "www/400.html";
@@ -159,6 +171,8 @@ t_conf parseServerBlock(int fd)
 			parseDefaultErrorPage(conf, line);
         else if (ft_strlen(line) > 9 && std::string(line, 9) == "location ")
             parseRoutes(conf, line, fd);
+		else if (ft_strlen(line) > 12 && std::string(line, 12) == "server_name ")
+			parseServerName(conf, line);
 		else if (ft_strlen(line) == 1 && line[0] == '}')
 		{
 			free(line);
@@ -180,6 +194,7 @@ t_conf parseServerBlock(int fd)
 std::vector<t_conf> parseConf(std::string filename)
 {
 	int fd;
+	bool default_serv = true;
 	std::vector<t_conf> servers;
 	if (!(fd = open(filename.c_str(), O_RDONLY)))
 		excerr("Could not open config file. Try with this synax : ./webserv conf_file", 2);	
@@ -191,7 +206,11 @@ std::vector<t_conf> parseConf(std::string filename)
 			get_next_line(fd, &line);
 			if (!(line[0] == '{' && !line[1]))
 				excerr("Config file error: missing { at the beginning of server block (line after 'server')", 1);
-			servers.push_back(parseServerBlock(fd));
+			t_conf conf = parseServerBlock(fd);
+			conf.is_default_server = default_serv; // First server block will be default
+			if (default_serv)
+				default_serv = false;
+			servers.push_back(conf);
 		}
 	}
 	close(fd);

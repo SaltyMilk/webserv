@@ -104,3 +104,45 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 	//if (length != rl.body) -> bad_request;
 	rl.headers[CONTENT_LENGTH] = std::to_string(length);
 }
+
+//ret.first is the hostname and ret.second is the port number
+std::pair<std::string, int> parsed_host_header(t_req_line &rl)
+{
+	char **sp;
+	std::pair<std::string, int> pair;
+
+	if (!(sp = ft_split(rl.headers[HOST].c_str(), ':')))
+		excerr("Internal error split failed",1);//weird bug where sometimes the next line segfaults
+	pair.first = std::string(sp[0]);
+	pair.second = -1;
+	if (!sp[1])//optional port omitted
+	{
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
+	return (pair);
+	}
+	int port = ft_satoi(sp[1]);
+	if (port < 0)//Port in header is invalid
+		rl.bad_request = true;
+	else
+		pair.second = port;
+	for (size_t i = 0; sp[i]; i++)
+		free(sp[i]);
+	free(sp);
+	return (pair);
+}
+
+t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers)
+{
+	std::pair<std::string, int> host_pair = parsed_host_header(rl);
+	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		if ((std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
+			&& host_pair.second == -1) //If no port specified in HOST header just compare server_names to the host field value
+		|| (std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
+			&& std::find((*it).ports.begin(), (*it).ports.end(), host_pair.second) != (*it).ports.end())) // Compare the ports too
+			return (*it);
+	}
+	return (servers[0]); // use default server if no other match
+}

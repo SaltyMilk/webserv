@@ -68,19 +68,18 @@ int net_accept(t_net &snet, int fd)
 
 int main(int argc, char **argv) 
 {
-	t_conf conf;
+	std::vector<t_conf> servers;
 	t_net s_net;
 	std::string conf_file = "ws.conf"; //Default path
 	fd_set sockets, ready_sockets;
 	int serv_fd;
 //HANDLE CONFIG FILE
-	ft_bzero(&conf, sizeof(conf));
 	if (argc == 2)
 		conf_file = argv[1]; //Use config file given as arg
-	conf = parseConf(conf_file);
+	servers = parseConf(conf_file);
 //START NETWORKING
 	FD_ZERO(&sockets);
-	serv_fd = net_init(conf.ports[0]); //Get socket of the serv
+	serv_fd = net_init(servers[0].ports[0]); //Get socket of the serv
 	FD_SET(serv_fd, &sockets);//add server socket to the set of fd
 	while (1)
 	{
@@ -95,7 +94,7 @@ int main(int argc, char **argv)
 					FD_SET(net_accept(s_net, serv_fd), &sockets);//add new client socket to the set fd
 				else
 				{
-					net_receive(s_net, conf, i);
+					net_receive(s_net, servers[0], i);
 					FD_CLR(i, &sockets);
 				}
 			}

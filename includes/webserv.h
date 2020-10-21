@@ -85,9 +85,10 @@ typedef struct s_conf
 	size_t body_limit;
 	std::string default_error[N_ERR_IMPLEMENTED];//List of all the default error pages
 	std::vector<t_route> routes;//list of all routes
+	bool is_default_server;// if true this is the default server to use when no other match HOST header
 }	t_conf;
 
-t_conf parseConf(std::string);
+std::vector<t_conf> parseConf(std::string);
 int parseRouteFields(char *line, t_route &route);
 
 //NET

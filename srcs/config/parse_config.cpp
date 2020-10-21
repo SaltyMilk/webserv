@@ -139,14 +139,13 @@ void set_default_settings(t_conf &conf)
 	conf.body_limit = std::string().max_size();
 }
 
-t_conf parseConf(std::string filename)
+t_conf parseServerBlock(int fd)
 {
 	t_conf conf;
-	int fd;
 
+	ft_bzero(&conf, sizeof(conf));
 	set_default_settings(conf);
-	if (!(fd = open(filename.c_str(), O_RDONLY)))
-		excerr("Could not open config file. Try with this synax : ./webserv conf_file", 2);
+
 	char *line;
 	while (get_next_line(fd, &line))
 	{
@@ -160,21 +159,41 @@ t_conf parseConf(std::string filename)
 			parseDefaultErrorPage(conf, line);
         else if (ft_strlen(line) > 9 && std::string(line, 9) == "location ")
             parseRoutes(conf, line, fd);
+		else if (ft_strlen(line) == 1 && line[0] == '}')
+		{
+			free(line);
+			return (conf);
+		}
 		free(line);
 	}
-	if (ft_strlen(line) >= 5 && std::string(line, 5) == "port ")
-		parsePorts(conf, line);
-	else if (ft_strlen(line) >= 6 && std::string(line, 6) == "index ")
-		parseIndex(conf, line);	
-	else if (ft_strlen(line) >= 10 && std::string(line, 11) ==  "body_limit ")
-		parseBodyLimit(conf, line);
-	else if (ft_strlen(line) >= 11 && std::string(line, 8) == "default_") //11 = strlen("default_") + 3 for status code
-		parseDefaultErrorPage(conf, line);  
-    else if (ft_strlen(line) > 8 && std::string(line, 9) == "location ")
-        parseRoutes(conf, line, fd);
-	free(line);
 	if (!conf.ports.size()) //CHECK IF AT LEAST A PORT WAS GIVEN
 		excerr("Config file error: missing port number", 1);
+	if (ft_strlen(line) == 1 && line[0] == '}')
+	{
+		free(line);
+		return (conf);
+	}
+	excerr("Config file error: missing '}' at end of server block", 1);
+	return (conf);//This will never happend but clang++ is retarded and gives a warning
+}
+
+std::vector<t_conf> parseConf(std::string filename)
+{
+	int fd;
+	std::vector<t_conf> servers;
+	if (!(fd = open(filename.c_str(), O_RDONLY)))
+		excerr("Could not open config file. Try with this synax : ./webserv conf_file", 2);	
+	char *line;
+	while (get_next_line(fd, &line))
+	{
+		if (std::string(line) == "server")
+		{
+			get_next_line(fd, &line);
+			if (!(line[0] == '{' && !line[1]))
+				excerr("Config file error: missing { at the beginning of server block (line after 'server')", 1);
+			servers.push_back(parseServerBlock(fd));
+		}
+	}
 	close(fd);
-	return (conf);
+	return (servers);
 }

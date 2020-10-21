@@ -32,7 +32,7 @@ int net_init(unsigned int port)
 
 void net_receive(t_net &snet, std::vector<t_conf> servers, int client_fd)
 {
-	char	buff[BUFF_SIZE];//Must change to dynamic buffer
+	char	buff[BUFF_SIZE];
 	int ret;
 	std::string req;
 	int i = 0;
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 				else
 				{
 					net_receive(s_net, servers, i);
-					FD_CLR(i, &sockets);
+					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
 			}
 		}

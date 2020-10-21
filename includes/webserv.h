@@ -79,7 +79,7 @@ typedef struct s_route
 
 typedef struct s_conf
 {
-	std::vector<int> ports;
+	std::vector<unsigned int> ports;
 	std::string host;
 	std::vector<std::string> indexs;
 	size_t body_limit;

@@ -1,7 +1,7 @@
 #include "../includes/webserv.h"
 int		client_count = 0;//Remove once project is finished, good for debugging
 
-int net_init(int port) 
+int net_init(unsigned int port) 
 {
 	int		fd; //Server's socket 
 	struct sockaddr_in	self_adr;
@@ -13,7 +13,8 @@ int net_init(int port)
 	ft_memset((void *)&self_adr, 0, sizeof(self_adr));
 	self_adr.sin_family = AF_INET;
     self_adr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    self_adr.sin_port = htons(port);
+	uint16_t goodport = (port>>8) | (port<<8); //replaces htons
+    self_adr.sin_port = goodport;
 
 	// bind socket
 	if (bind(fd, (const struct sockaddr *)&self_adr, sizeof(self_adr)) == -1)

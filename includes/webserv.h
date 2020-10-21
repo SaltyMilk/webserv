@@ -69,7 +69,7 @@
 typedef struct s_route
 {
 	std::string location;
-	char modifier; //Will support '=' and '~'
+	char modifier; //Will support '='
 	std::string root_dir;
 	std::string upload_root_dir;
 	std::vector<std::string> allowed_methods;
@@ -153,6 +153,7 @@ void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route);
 void send_200_dirlist(t_req_line rl, t_http_res &resp);
+void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route route);
 void send_201_put(t_req_line rl, t_http_res &resp);
 void send_204_put(t_req_line rl, t_http_res &resp, t_route route);
 void send_204_delete(t_http_res &resp);

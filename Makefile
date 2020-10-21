@@ -41,6 +41,7 @@ libft:
 	cp ./libft/libft.a ./libft.a
 clean:
 	make -C ./libft clean
+	rm -rf $(OBJ)
 	rm -rf libft.a
 fclean:
 	make -C ./libft fclean

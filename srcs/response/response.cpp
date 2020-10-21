@@ -40,7 +40,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	if (file_is_dir(route.root_dir + rl.target) && !route.dir_listing)//Handle directories without dir_listing
 	{
 		fd = open(route.default_dir_file.c_str(), O_RDONLY);
-		send_200(rl, resp, fd, route);
+		send_200_file_is_a_dir(rl, resp, fd, route);
 	}
 	else if (file_is_dir(route.root_dir + rl.target) && route.dir_listing)//Handle dir listing
 	{

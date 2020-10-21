@@ -101,13 +101,13 @@ void parseRoutes(t_conf &conf, char *line, int fd)
         if (sp[1][0] != '=' || sp[1][1])
             excerr("Config file error: invalid modifier token for location", 1);
         r.modifier = sp[1][0]; 
-        r.location = std::string(sp[2]);
+       	r.location = std::string(sp[2]);
 		parseRouteConf(line, fd, r);
     }
     else //ex: location /
     {
     	r.modifier = 0;
-    	r.location = std::string(sp[1]);
+       	r.location = std::string(sp[1]);
 		parseRouteConf(line, fd, r);
     }
 //QUICK PRINT OF PARSED ROUTE FOR DEBUGING

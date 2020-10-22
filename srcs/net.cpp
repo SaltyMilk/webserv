@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	fd_set sockets, ready_sockets;
 	int serv_fd;
 
-	signal(SIGINT, chandler)
+	signal(SIGINT, chandler);
 //HANDLE CONFIG FILE
 	if (argc == 2)
 		conf_file = argv[1]; //Use config file given as arg

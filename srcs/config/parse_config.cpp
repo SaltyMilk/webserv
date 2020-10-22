@@ -201,8 +201,6 @@ std::vector<t_conf> parseConf(std::string filename)
 	char *line;
 	while (get_next_line(fd, &line))
 	{
-		if (!line)
-			excerr("gnl failed ?", 1);
 		if (std::string(line) == "server")
 		{
 			free(line);

@@ -17,7 +17,7 @@ RESPONSE_DIR = response
 RESPONSE_FILES = response.cpp response_utils.cpp
 
 UTILS_DIR = utils
-UTILS_FILES = date.cpp utils.cpp content_type.cpp
+UTILS_FILES = date.cpp utils.cpp content_type.cpp signals.cpp
 
 SRC += $(addprefix $(CODES_DIR)/, $(CODES_FILES))
 SRC += $(addprefix $(CONFIG_DIR)/, $(CONFIG_FILES))

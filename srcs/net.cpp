@@ -74,6 +74,8 @@ int main(int argc, char **argv)
 	std::string conf_file = "ws.conf"; //Default path
 	fd_set sockets, ready_sockets;
 	int serv_fd;
+
+	signal(SIGINT, chandler)
 //HANDLE CONFIG FILE
 	if (argc == 2)
 		conf_file = argv[1]; //Use config file given as arg

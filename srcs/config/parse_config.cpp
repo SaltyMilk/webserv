@@ -201,8 +201,11 @@ std::vector<t_conf> parseConf(std::string filename)
 	char *line;
 	while (get_next_line(fd, &line))
 	{
+		if (!line)
+			excerr("gnl failed ?", 1);
 		if (std::string(line) == "server")
 		{
+			free(line);
 			get_next_line(fd, &line);
 			if (!(line[0] == '{' && !line[1]))
 				excerr("Config file error: missing { at the beginning of server block (line after 'server')", 1);
@@ -212,7 +215,9 @@ std::vector<t_conf> parseConf(std::string filename)
 				default_serv = false;
 			servers.push_back(conf);
 		}
+		free(line);
 	}
+	free(line);
 	close(fd);
 	return (servers);
 }

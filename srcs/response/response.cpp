@@ -119,5 +119,8 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)
 	snet.client_fds.remove(client_fd);
 	close(client_fd);
+	if (resp.body.length())
+		exit(19);
+
 	return (0);
 }

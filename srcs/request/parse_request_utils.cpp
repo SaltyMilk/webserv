@@ -110,22 +110,10 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 {
 	char **sp;
 	std::pair<std::string, int> pair;
-	std::cout << "str="<< rl.headers[HOST] << std::endl;
-	std::cout << "cstr="<< rl.headers[HOST].c_str() << std::endl;
 	if (!(sp = ft_split(rl.headers[HOST].c_str(), ':')))
 		excerr("Internal error split failed",1);//weird bug where sometimes the next line segfaults
-	std::cout << sp << std::endl;
-	std::cout << "yup" << std::endl;
-	std::cout << sp[0] << std::endl;
-	std::cout << "nope" << std::endl;
-	std::cout << sp[0][0] << std::endl;
-	//std::cout << sp[0][0] << std::endl;
-	std::cout << "addr="<<  sp << std::endl;
-	ft_putstr_fd(sp[0],1);
-	std::cout << "done" << std::endl;
 	if (sp[0])
 		pair.first = std::string(sp[0]);
-	std::cout << "got here" << std::endl;
 	pair.second = -1;
 	if (!sp[1])//optional port omitted
 	{
@@ -147,9 +135,7 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 
 t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers)
 {
-	std::cout <<"errno_start_get_serv_conf"<< strerror(errno) << std::endl;
 	std::pair<std::string, int> host_pair = parsed_host_header(rl);
-	std::cout <<"errno_End_get_serv_conf"<< strerror(errno) << std::endl;
 	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
 		if ((std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
@@ -157,9 +143,7 @@ t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers)
 		|| (std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
 			&& std::find((*it).ports.begin(), (*it).ports.end(), host_pair.second) != (*it).ports.end())) // Compare the ports too
 			{
-		std::cout <<"errno_End_get_serv_conf2"<< strerror(errno) << std::endl;
 			return (*it);}
 	}
-		std::cout <<"errno_End_get_serv_conf3"<< strerror(errno) << std::endl;
 	return (servers[0]); // use default server if no other match
 }

@@ -86,16 +86,11 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	t_http_res resp;
 	std::string response; //This will be sent as a response to a given request
 	
-	std::cout <<"errno_begin0_start_answer_req"<< strerror(errno) << std::endl;
 	resp.http_ver = "HTTP/1.1";//We will always respond with the version we use
-	std::cout <<"errno_begin1_start_answer_req"<< strerror(errno) << std::endl;
 	//Add server header to all responses
 	resp.headers[SERVER] = "Server: webserv/" + std::string(WEBSERV_VER);
-	std::cout <<"errno_begin2_start_answer_req"<< strerror(errno) << std::endl;
 	//Add date header to all responses
-	std::cout << "debug here=" << get_imf_fixdate() << std::endl;
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
-	std::cout <<"errno_start_answer_req"<< strerror(errno) << std::endl;
 	if (bad_request(rl) || rl.bad_request)
 		send_400(rl, resp, conf);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
@@ -122,9 +117,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
-	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)
-//	snet.client_fds.remove(client_fd);
+	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
-	std::cout <<"errno_end_answer_req"<< strerror(errno) << std::endl;
 	return (0);
 }

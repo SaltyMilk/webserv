@@ -32,7 +32,7 @@
 //DATE INCLUDES
 #include <sys/time.h>
 
-#define BUFF_SIZE 4200
+#define BUFF_SIZE 42
 
 //HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0

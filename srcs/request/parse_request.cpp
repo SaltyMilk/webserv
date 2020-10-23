@@ -176,7 +176,6 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers)
 {
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
-	std::cout <<"errnostart_parse_req"<< strerror(errno) << std::endl;
 	parse_request_line(mi, rl, request);
 	
 	std::cout << "REQUEST LOG:" << std::endl;
@@ -190,7 +189,6 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers)
 			std::cout << "header[" <<i << "]" << rl.headers[i] << std::endl;
 
 
-	std::cout <<"errno_End_parse_req"<< strerror(errno) << std::endl;
 	std::cout << rl.body << std::endl;
 	std::cout << "END REQUEST LOG" << std::endl;
 	answer_request(fd, rl, get_server_conf_for_request(rl, servers));

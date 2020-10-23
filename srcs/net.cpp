@@ -35,7 +35,6 @@ void net_receive(std::vector<t_conf> servers, int client_fd)
 	char	buff[BUFF_SIZE];
 	int ret;
 	std::string req;
-	int i = 0;
 	ft_bzero(buff, BUFF_SIZE);
 	while ((ret = read(client_fd, buff, BUFF_SIZE - 1)) > 0)
 	{
@@ -43,14 +42,11 @@ void net_receive(std::vector<t_conf> servers, int client_fd)
 		req += buff;
 		ft_bzero(buff, sizeof(buff));
 	}
-	buff[i] = 0;
-	req += buff;
-	std::cout <<"clientfd=" <<client_fd << std::endl;
-	std::cout << "ret=" << ret << std::endl;
-	std::cout << "START REQUEST"<< std::endl << req<< std::endl << "END REQUEST"<< std::endl;
-	std::cout <<"errno0"<< strerror(errno) << std::endl;
-	parse_request(const_cast<char *>(req.c_str()), client_fd, servers);
-	std::cout << "errno1"<< strerror(errno) << std::endl;
+	if (req.length())
+		parse_request(const_cast<char *>(req.c_str()), client_fd, servers);
+	else
+		close(client_fd);
+
 }
 
 int net_accept(t_net &snet, int fd) 

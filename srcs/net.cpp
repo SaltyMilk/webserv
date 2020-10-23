@@ -1,7 +1,7 @@
 #include "../includes/webserv.h"
 int		client_count = 0;//Remove once project is finished, good for debugging
 
-int net_init(unsigned int port) 
+int net_init(unsigned int port, std::string host_addr) 
 {
 	int		fd; //Server's socket 
 	struct sockaddr_in	self_adr;
@@ -12,7 +12,7 @@ int net_init(unsigned int port)
 
 	ft_memset((void *)&self_adr, 0, sizeof(self_adr));
 	self_adr.sin_family = AF_INET;
-    self_adr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    self_adr.sin_addr.s_addr = inet_addr(host_addr.c_str());
 	uint16_t goodport = (port>>8) | (port<<8); //replaces htons
     self_adr.sin_port = goodport;
 
@@ -30,14 +30,14 @@ int net_init(unsigned int port)
 	return fd;
 }
 
-void net_receive(t_net &snet, std::vector<t_conf> servers, int client_fd)
+void net_receive(std::vector<t_conf> servers, int client_fd)
 {
 	char	buff[BUFF_SIZE];
 	int ret;
 	std::string req;
 	int i = 0;
 	ft_bzero(buff, BUFF_SIZE);
-	while ((ret = read(client_fd, buff, BUFF_SIZE - 1)) > 0 )
+	while ((ret = read(client_fd, buff, BUFF_SIZE - 1)) > 0)
 	{
 		buff[ret] = 0;
 		req += buff;
@@ -45,7 +45,12 @@ void net_receive(t_net &snet, std::vector<t_conf> servers, int client_fd)
 	}
 	buff[i] = 0;
 	req += buff;
-	parse_request(const_cast<char *>(req.c_str()), client_fd, snet, servers);
+	std::cout <<"clientfd=" <<client_fd << std::endl;
+	std::cout << "ret=" << ret << std::endl;
+	std::cout << "START REQUEST"<< std::endl << req<< std::endl << "END REQUEST"<< std::endl;
+	std::cout <<"errno0"<< strerror(errno) << std::endl;
+	parse_request(const_cast<char *>(req.c_str()), client_fd, servers);
+	std::cout << "errno1"<< strerror(errno) << std::endl;
 }
 
 int net_accept(t_net &snet, int fd) 
@@ -64,7 +69,21 @@ int net_accept(t_net &snet, int fd)
 	// unblock socket
 	if ((fcntl(client_fd, F_GETFL, O_NONBLOCK)) == -1)
 		excerr("Couldn't unblock client's socket", 1);//Should change this to send 500 internal error in the future
+	std::cout << "client accepted with fd=" << fd << std::endl;
 	return client_fd;
+}
+
+void init_all_servers(std::vector<t_conf> servers, std::vector<int> &serv_fds, fd_set *sockets)
+{
+	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)//Init a/multiple sockets for each server
+	{
+		for (std::vector<int>::iterator itp = (*it).ports.begin(); itp != (*it).ports.end(); itp++)//Init a socket for a each port
+		{
+			int tmp_fd = net_init(*itp, (*it).host);
+			serv_fds.push_back(tmp_fd);
+			FD_SET(tmp_fd, sockets);
+		}
+	}
 }
 
 int main(int argc, char **argv) 
@@ -73,7 +92,7 @@ int main(int argc, char **argv)
 	t_net s_net;
 	std::string conf_file = "ws.conf"; //Default path
 	fd_set sockets, ready_sockets;
-	int serv_fd;
+	std::vector<int> serv_fds;
 
 	signal(SIGINT, chandler);
 //HANDLE CONFIG FILE
@@ -82,8 +101,7 @@ int main(int argc, char **argv)
 	servers = parseConf(conf_file);
 //START NETWORKING
 	FD_ZERO(&sockets);
-	serv_fd = net_init(servers[0].ports[0]); //Get socket of the serv
-	FD_SET(serv_fd, &sockets);//add server socket to the set of fd
+	init_all_servers(servers, serv_fds, &sockets);
 	while (1)
 	{
 		ready_sockets = sockets;
@@ -93,11 +111,11 @@ int main(int argc, char **argv)
 		{
 			if (FD_ISSET(i, &ready_sockets))//Socket ready for w/r operations
 			{
-				if (i == serv_fd)//Connection is being asked to the server
-					FD_SET(net_accept(s_net, serv_fd), &sockets);//add new client socket to the set fd
+				if (std::find(serv_fds.begin(), serv_fds.end(), i) != serv_fds.end())//Connection is being asked to one of the servers
+					FD_SET(net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i)), &sockets);//add new client socket to the set fd
 				else
 				{
-					net_receive(s_net, servers, i);
+					net_receive(servers, i);
 					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
 			}

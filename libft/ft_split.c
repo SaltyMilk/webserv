@@ -117,7 +117,8 @@ char			**ft_split(char const *s, char c)
 	wci[1] = -1;
 	if (!(strs = (char **)malloc(sizeof(char *) * (wci[0] + 1))))
 		return (NULL);
-	cc = get_char_count(s, c, wci[0]);
+	if (!(cc = get_char_count(s, c, wci[0])))
+		return(NULL);
 	while (++wci[1] < wci[0])
 		if (!(strs[wci[1]] = malloc(sizeof(char) * (cc[wci[1]] + 1))))
 		{

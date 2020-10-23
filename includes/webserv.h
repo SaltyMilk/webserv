@@ -89,7 +89,7 @@ typedef struct s_conf
 	std::string default_error[N_ERR_IMPLEMENTED];//List of all the default error pages
 	std::vector<t_route> routes;//list of all routes
 	bool is_default_server;// if true this is the default server to use when no other match HOST header
-
+	std::vector<int> fd;//Fd linked to this server
 }	t_conf;
 
 std::vector<t_conf> parseConf(std::string);
@@ -100,6 +100,13 @@ typedef struct	s_net
 {
 	std::vector<struct sockaddr_in> clients_net;//network information about clients
 }				t_net;
+
+typedef struct	host_port_fd //Gives us the server socket corresponding to a port and host
+{
+	std::string host;
+	int port;
+	int fd;
+}				 t_hpf;
 
 //PARSER
 typedef struct	s_request_line
@@ -113,11 +120,11 @@ typedef struct	s_request_line
 	bool bad_request;//Allows bad_request checks before/while parsing request
 }				t_req_line;
 
-int parse_request(char *request, int fd, std::vector<t_conf> servers);
+int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
-t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers);
+t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
 
 //RESPONSE
 typedef struct	s_http_res

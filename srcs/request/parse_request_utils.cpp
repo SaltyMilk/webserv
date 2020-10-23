@@ -133,17 +133,23 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 	return (pair);
 }
 
-t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers)
+t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd)
 {
 	std::pair<std::string, int> host_pair = parsed_host_header(rl);
 	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
 		if ((std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
-			&& host_pair.second == -1) //If no port specified in HOST header just compare server_names to the host field value
+			&& host_pair.second == -1 && std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end()) //If no port specified in HOST header just compare server_names to the host field value
 		|| (std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
-			&& std::find((*it).ports.begin(), (*it).ports.end(), host_pair.second) != (*it).ports.end())) // Compare the ports too
-			{
-			return (*it);}
+			&& std::find((*it).ports.begin(), (*it).ports.end(), host_pair.second) != (*it).ports.end()// Compare the ports too
+			&& std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end())) //Check that server_fd handles this serv block
+			return (*it);
 	}
+	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		if (std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end())
+			return (*it);
+	}
+	std::cout << "Shouldn't ever get here" << std::endl; //REMOVE ONCE PROJECT IS FINISHED, might save us ^-^'
 	return (servers[0]); // use default server if no other match
 }

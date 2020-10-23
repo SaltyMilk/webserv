@@ -30,7 +30,7 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-void net_receive(std::vector<t_conf> servers, int client_fd)
+void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd)
 {
 	char	buff[BUFF_SIZE];
 	int ret;
@@ -43,7 +43,7 @@ void net_receive(std::vector<t_conf> servers, int client_fd)
 		ft_bzero(buff, sizeof(buff));
 	}
 	if (req.length())
-		parse_request(const_cast<char *>(req.c_str()), client_fd, servers);
+		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd);
 	else
 		close(client_fd);
 
@@ -69,15 +69,36 @@ int net_accept(t_net &snet, int fd)
 	return client_fd;
 }
 
-void init_all_servers(std::vector<t_conf> servers, std::vector<int> &serv_fds, fd_set *sockets)
+std::vector<t_hpf>::iterator is_in_hpfs(std::string host, int port, std::vector<t_hpf> hpfs)
 {
+	std::vector<t_hpf>::iterator it;
+	for (it = hpfs.begin(); it != hpfs.end(); it++)
+		if ((*it).host == host && (*it).port == port)
+			return it;
+	return it;
+}
+
+void init_all_servers(std::vector<t_conf> &servers, std::vector<int> &serv_fds, fd_set *sockets)
+{
+	std::vector<t_hpf> hpfs;
 	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)//Init a/multiple sockets for each server
 	{
 		for (std::vector<int>::iterator itp = (*it).ports.begin(); itp != (*it).ports.end(); itp++)//Init a socket for a each port
 		{
-			int tmp_fd = net_init(*itp, (*it).host);
-			serv_fds.push_back(tmp_fd);
-			FD_SET(tmp_fd, sockets);
+			std::vector<t_hpf>::iterator ret;
+			if ((ret = is_in_hpfs((*it).host, *itp, hpfs)) != hpfs.end())//HOST/PORT ALREADY HAS A SOCKET
+				(*it).fd.push_back((*ret).fd);
+			else
+			{
+				int tmp_fd = net_init(*itp, (*it).host);
+				serv_fds.push_back(tmp_fd);
+				(*it).fd.push_back(tmp_fd);
+				t_hpf hpf;
+				hpf.host = (*it).host;
+				hpf.port = *itp;
+				hpf.fd = tmp_fd;
+				FD_SET(tmp_fd, sockets);
+			}
 		}
 	}
 }
@@ -89,6 +110,7 @@ int main(int argc, char **argv)
 	std::string conf_file = "ws.conf"; //Default path
 	fd_set sockets, ready_sockets;
 	std::vector<int> serv_fds;
+	int next_fd_to_resp = -1;
 
 	signal(SIGINT, chandler);
 //HANDLE CONFIG FILE
@@ -108,10 +130,13 @@ int main(int argc, char **argv)
 			if (FD_ISSET(i, &ready_sockets))//Socket ready for w/r operations
 			{
 				if (std::find(serv_fds.begin(), serv_fds.end(), i) != serv_fds.end())//Connection is being asked to one of the servers
+				{
+					next_fd_to_resp = i;
 					FD_SET(net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i)), &sockets);//add new client socket to the set fd
+				}
 				else
 				{
-					net_receive(servers, i);
+					net_receive(servers, i, next_fd_to_resp);
 					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
 			}

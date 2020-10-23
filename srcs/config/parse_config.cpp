@@ -139,6 +139,17 @@ void parseServerName(t_conf &conf, char *line)
 	free(sp);
 }
 
+void parseHostAddr(t_conf &conf, char *line)
+{
+	char **sp = ft_split(line, ' ');
+	if (!sp[1])
+			excerr("Config file error: missing argument for server_name", 1);	
+	conf.host = std::string(sp[1]);
+	for (size_t i = 0; sp[i]; i++)
+		free(sp[i]);
+	free(sp);
+}
+
 void set_default_settings(t_conf &conf)
 {
 	conf.default_error[ERR400] = "www/400.html";
@@ -173,6 +184,8 @@ t_conf parseServerBlock(int fd)
             parseRoutes(conf, line, fd);
 		else if (ft_strlen(line) > 12 && std::string(line, 12) == "server_name ")
 			parseServerName(conf, line);
+		else if (ft_strlen(line) > 10 && std::string(line, 10) == "host_addr ")
+			parseHostAddr(conf, line);
 		else if (ft_strlen(line) == 1 && line[0] == '}')
 		{
 			free(line);

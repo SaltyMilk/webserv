@@ -80,11 +80,12 @@ void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	}
 }
 
-int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
+int answer_request(int client_fd, t_req_line rl, t_conf conf)
 {	
 	t_route route;//Settings for requested ressource location
 	t_http_res resp;
 	std::string response; //This will be sent as a response to a given request
+	
 	resp.http_ver = "HTTP/1.1";//We will always respond with the version we use
 	//Add server header to all responses
 	resp.headers[SERVER] = "Server: webserv/" + std::string(WEBSERV_VER);
@@ -116,8 +117,7 @@ int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf)
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
-	//REMOVE ClIENT FROM CLIENT LIST AND CLOSE CONNECTION. (Fixs pending requests)
-	snet.client_fds.remove(client_fd);
+	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
 	return (0);
 }

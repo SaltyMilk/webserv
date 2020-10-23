@@ -172,18 +172,17 @@ void parse_body(size_t i, t_req_line &rl, char *request)
 	}
 }
 //Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
-int parse_request(char *request, int fd, t_net &snet, std::vector<t_conf> servers)
+int parse_request(char *request, int fd, std::vector<t_conf> servers)
 {
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
-
 	parse_request_line(mi, rl, request);
 	
 	std::cout << "REQUEST LOG:" << std::endl;
 	std::cout << rl.method << " " << rl.target << " " << rl.http_ver << std::endl;
 
 	parse_headers(mi, rl, request);
-
+	std::cout<< "host=" << rl.headers[HOST] << std::endl;
 	parse_body(mi, rl, request);
 	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
@@ -191,8 +190,7 @@ int parse_request(char *request, int fd, t_net &snet, std::vector<t_conf> server
 
 
 	std::cout << rl.body << std::endl;
-
 	std::cout << "END REQUEST LOG" << std::endl;
-	answer_request(fd, rl, snet, get_server_conf_for_request(rl, servers));
+	answer_request(fd, rl, get_server_conf_for_request(rl, servers));
 	return(0);
 }

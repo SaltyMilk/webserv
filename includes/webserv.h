@@ -32,7 +32,7 @@
 //DATE INCLUDES
 #include <sys/time.h>
 
-#define BUFF_SIZE 4200
+#define BUFF_SIZE 42
 
 //HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
@@ -82,13 +82,14 @@ typedef struct s_route
 typedef struct s_conf
 {
 	std::vector<int> ports;
-	std::string host;
+	std::string host;//ip of the server
 	std::vector<std::string> server_names;
 	std::vector<std::string> indexs;
 	size_t body_limit;
 	std::string default_error[N_ERR_IMPLEMENTED];//List of all the default error pages
 	std::vector<t_route> routes;//list of all routes
 	bool is_default_server;// if true this is the default server to use when no other match HOST header
+
 }	t_conf;
 
 std::vector<t_conf> parseConf(std::string);
@@ -97,7 +98,6 @@ int parseRouteFields(char *line, t_route &route);
 //NET
 typedef struct	s_net
 {
-	std::list<int> client_fds;
 	std::vector<struct sockaddr_in> clients_net;//network information about clients
 }				t_net;
 
@@ -113,7 +113,7 @@ typedef struct	s_request_line
 	bool bad_request;//Allows bad_request checks before/while parsing request
 }				t_req_line;
 
-int parse_request(char *request, int fd, t_net&, std::vector<t_conf> servers);
+int parse_request(char *request, int fd, std::vector<t_conf> servers);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
@@ -128,7 +128,7 @@ typedef struct	s_http_res
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
 }				t_http_res;
-int answer_request(int client_fd, t_req_line rl, t_net &snet, t_conf conf);
+int answer_request(int client_fd, t_req_line rl, t_conf conf);
 //RESPONSE UTILS
 int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);

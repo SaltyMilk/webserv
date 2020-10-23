@@ -110,10 +110,10 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 {
 	char **sp;
 	std::pair<std::string, int> pair;
-
 	if (!(sp = ft_split(rl.headers[HOST].c_str(), ':')))
 		excerr("Internal error split failed",1);//weird bug where sometimes the next line segfaults
-	pair.first = std::string(sp[0]);
+	if (sp[0])
+		pair.first = std::string(sp[0]);
 	pair.second = -1;
 	if (!sp[1])//optional port omitted
 	{
@@ -142,7 +142,8 @@ t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers)
 			&& host_pair.second == -1) //If no port specified in HOST header just compare server_names to the host field value
 		|| (std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
 			&& std::find((*it).ports.begin(), (*it).ports.end(), host_pair.second) != (*it).ports.end())) // Compare the ports too
-			return (*it);
+			{
+			return (*it);}
 	}
 	return (servers[0]); // use default server if no other match
 }

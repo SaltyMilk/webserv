@@ -106,7 +106,7 @@ typedef struct	host_port_fd //Gives us the server socket corresponding to a port
 	int port;
 	int fd;
 }				 t_hpf;
-std::string cinet_ntoa(in_addr in);
+std::string cinet_ntoa(in_addr_t in);
 
 typedef struct	s_path t_path;
 struct s_path

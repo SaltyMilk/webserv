@@ -2,7 +2,7 @@
 int		client_count = 0;//Remove once project is finished, good for debugging
 #include <stdlib.h>
 
-std::string cinet_ntoa(in_addr in)
+std::string cinet_ntoa(in_addr_t in)
 {
   unsigned char *bytes = (unsigned char *) &in;
  std::string ret = "";

@@ -31,7 +31,6 @@
 #include <errno.h>
 //DATE INCLUDES
 #include <sys/time.h>
-
 #define BUFF_SIZE 42
 
 //HEADER DEFINES, also defines the order in which headers are sent

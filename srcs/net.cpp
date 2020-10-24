@@ -1,5 +1,19 @@
 #include "../includes/webserv.h"
 int		client_count = 0;//Remove once project is finished, good for debugging
+#include <stdlib.h>
+
+std::string cinet_ntoa (in_addr_t in)
+{
+  unsigned char *bytes = (unsigned char *) &in;
+ std::string ret = "";
+  for (int i = 0; i < 4; i++)
+  {
+	  ret += std::to_string(bytes[i]);
+	  if (i != 3)
+	  	ret+= ".";
+  }
+  return ret;
+}
 
 int net_init(unsigned int port, std::string host_addr) 
 {

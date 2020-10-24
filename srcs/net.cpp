@@ -2,7 +2,7 @@
 int		client_count = 0;//Remove once project is finished, good for debugging
 #include <stdlib.h>
 
-std::string cinet_ntoa (in_addr_t in)
+std::string cinet_ntoa(in_addr in)
 {
   unsigned char *bytes = (unsigned char *) &in;
  std::string ret = "";
@@ -15,7 +15,7 @@ std::string cinet_ntoa (in_addr_t in)
   return ret;
 }
 
-int net_init(unsigned int port, std::string host_addr) 
+int net_init(unsigned int port, std::string host_addr)
 {
 	int		fd; //Server's socket 
 	struct sockaddr_in	self_adr;

@@ -106,6 +106,7 @@ typedef struct	host_port_fd //Gives us the server socket corresponding to a port
 	int port;
 	int fd;
 }				 t_hpf;
+std::string cinet_ntoa(in_addr in);
 
 typedef struct	s_path t_path;
 struct s_path
@@ -149,6 +150,7 @@ int get_header_id(std::string header_field);
 void parse_chunked(size_t i, t_req_line &rl, char *request);
 t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
 std::pair<std::string, int> parsed_host_header(t_req_line &rl);
+std::string cinet_ntoa(in_addr_t in);
 
 //RESPONSE
 typedef struct	s_http_res

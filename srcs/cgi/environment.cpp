@@ -36,7 +36,7 @@ char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client)
 	map["SERVER_SOFTWARE"] = "webserv " + std::string(WEBSERV_VER);
 	//REQUEST
 	map["QUERY_STRING"] = request.query;
-	map["REMOTE_ADDR"] = client.sin_addr.s_addr; //ip du client -- bad
+	map["REMOTE_ADDR"] = cinet_ntoa(client.sin_addr);
 	map["REQUEST_METHOD"] = request.method;
 	map["REQUEST_URI"] = request.target;
 	//AUTH

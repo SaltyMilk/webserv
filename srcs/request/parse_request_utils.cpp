@@ -97,6 +97,12 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 		if (id != -1 && id != TRANSFER_ENCODING && id != CONTENT_LENGTH && id != HOST
 			&& id != WWW_AUTHENTICATE && id != CONTENT_TYPE) //ignore forbidden headers as asked by rfc
 			rl.headers[id] = header_value;
+		if (id == AUTHORIZATION)
+		{
+			size_t pos = header_value.find(" ");
+			rl.auth.type = header_value.substr(0, pos);
+			rl.auth.ident = header_value.substr(pos + 1);
+		}
 	}
 	if (!request[i]) // NO EMPTY LINES FOUND ! nginx loops then sends empty resp, we could send 400
 		rl.bad_request = true;

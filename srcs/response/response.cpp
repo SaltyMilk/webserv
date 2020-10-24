@@ -101,6 +101,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	{
 		handle_absolute_path(rl);
 		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
+		parse_cgi(rl);
 		route = get_route_for(rl, conf);
 		if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);

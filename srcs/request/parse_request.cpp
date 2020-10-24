@@ -94,7 +94,7 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 		}
 		if (request[i] == '\r')
 			i++;
-		if (request[i] == '\n' && request[i] != ':')//Ignore this ex: DATE\r\n
+		if (request[i] == '\n')//Ignore this ex: DATE\r\n
 		{
 			i++;
 			continue;
@@ -148,6 +148,12 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 		{
 			rl.bad_request = true;
 			return;
+		}
+		if (id == AUTHORIZATION)
+		{
+			size_t pos = header_value.find(" ");
+			rl.auth.type = header_value.substr(0, pos);
+			rl.auth.ident = header_value.substr(pos + 1);
 		}
 		if (id != -1)
 			rl.headers[id] = header_value;

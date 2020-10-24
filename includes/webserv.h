@@ -108,6 +108,28 @@ typedef struct	host_port_fd //Gives us the server socket corresponding to a port
 	int fd;
 }				 t_hpf;
 
+typedef struct	s_path t_path;
+struct s_path
+{
+	std::string info;
+	std::string script;
+	std::string translated;
+};
+
+typedef struct	s_auth t_auth;
+struct s_auth
+{
+	std::string	type;
+	std::string ident;
+};
+
+typedef struct	s_headers t_headers;
+struct s_headers
+{
+	int 		id;
+	std::string	value;
+};
+
 //PARSER
 typedef struct	s_request_line
 {
@@ -117,6 +139,8 @@ typedef struct	s_request_line
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
 	std::string query;
+	t_auth 		auth;
+	t_path 		path;
 	bool bad_request;//Allows bad_request checks before/while parsing request
 }				t_req_line;
 
@@ -125,6 +149,7 @@ int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
 t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
+std::pair<std::string, int> parsed_host_header(t_req_line &rl);
 
 //RESPONSE
 typedef struct	s_http_res
@@ -148,6 +173,10 @@ bool method_supported(std::string method);
 void get_dir_listing(std::string dir);
 void create_ressource(t_req_line rl, t_route route);
 void empty_directory(std::string path);
+
+//CGI
+char	**get_cgi_envs(t_req_line &request, t_conf server, struct sockaddr_in client);
+void 	parse_cgi(t_req_line &request);
 
 //DATE
 std::string get_imf_fixdate();

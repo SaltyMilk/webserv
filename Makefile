@@ -4,6 +4,9 @@ SRC_DIR = srcs/
 
 SRC = net.cpp
 
+CGI_DIR = cgi
+CGI_FILES = cgi.cpp environment.cpp
+
 CODES_DIR = codes
 CODES_FILES = status_code.cpp status_code_utils.cpp
 
@@ -19,6 +22,7 @@ RESPONSE_FILES = response.cpp response_utils.cpp
 UTILS_DIR = utils
 UTILS_FILES = date.cpp utils.cpp content_type.cpp signals.cpp
 
+SRC += $(addprefix $(CGI_DIR)/, $(CGI_FILES))
 SRC += $(addprefix $(CODES_DIR)/, $(CODES_FILES))
 SRC += $(addprefix $(CONFIG_DIR)/, $(CONFIG_FILES))
 SRC += $(addprefix $(REQUEST_DIR)/, $(REQUEST_FILES))

@@ -1,11 +1,12 @@
 #include "../../includes/webserv.h"
 //Note for later : we might want to check that cgi_path is an actual file at some point
-std::string get_cgi_name(std::string cgi_path)
+//Removes all the subdirectories from a path to only return the name of the file
+std::string get_file_name(std::string path)
 {
-	size_t	pos;
-	if ((pos = cgi_path.rfind('/')) == std::string::npos) // No subdirectories do discard
-		return (cgi_path);
-	return (std::string(cgi_path, pos + 1));
+	size_t pos;
+	if ((pos = path.rfind('/')) == std::string::npos) // No subdirectories do discard
+		return (path);
+	return (std::string(path, pos + 1));
 }
 
 void 	parse_cgi(t_req_line &request)
@@ -26,7 +27,7 @@ std::string execute_cgi(t_req_line &request, struct sockaddr_in client, t_route 
 {
 	char 	**envs;
 	char  **argv = (char**)malloc(2*sizeof(char *));
-	argv[0] = ft_strdup(get_cgi_name(route.cgi_path).c_str());
+	argv[0] = ft_strdup(get_file_name(request.target).c_str());
 	argv[1] = NULL;
 	std::string ret;
 	char buff[BUFF_SIZE];

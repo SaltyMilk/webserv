@@ -178,7 +178,7 @@ void create_ressource(t_req_line rl, t_route route);
 void empty_directory(std::string path);
 
 //CGI
-char	**get_cgi_envs(t_req_line &request, t_conf server, struct sockaddr_in client);
+char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client);
 void 	parse_cgi(t_req_line &request);
 
 //DATE

@@ -22,7 +22,7 @@ void 	parse_cgi(t_req_line &request)
 }
 
 //returns the output of the cgi
-std::string execute_cgi(t_req_line &request, t_conf server, struct sockaddr_in client, t_route route)
+std::string execute_cgi(t_req_line &request, struct sockaddr_in client, t_route route)
 {
 	char 	**envs;
 	char  **argv = (char**)malloc(2*sizeof(char *));
@@ -33,7 +33,7 @@ std::string execute_cgi(t_req_line &request, t_conf server, struct sockaddr_in c
 	int fd[2];
 	pid_t pid;
 
-	envs = get_cgi_envs(request, server, client);
+	envs = get_cgi_envs(request, client);
 	pipe(fd);
 	pid = fork();
 	if (!pid)

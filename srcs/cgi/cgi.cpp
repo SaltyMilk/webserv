@@ -14,7 +14,7 @@ void 	parse_cgi(t_req_line &request)
 	char 	buff[4097];
 
 	getcwd(buff, 4096);
-	while (request.target[pos] != '/' && request.target[pos] != '\0')
+	while (request.target[pos] != '/' && pos < request.target.length())
 		pos++;
 	request.path.script = request.target.substr(0, pos);
 	request.path.info = request.target.substr(pos + 2);

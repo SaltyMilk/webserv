@@ -44,7 +44,7 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd)
+void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr)
 {
 	char	buff[BUFF_SIZE];
 	int ret;
@@ -57,14 +57,13 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd)
 		ft_bzero(buff, sizeof(buff));
 	}
 	if (req.length())
-		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd);
+		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr);
 	else
 		close(client_fd);
 }
 
-int net_accept(t_net &snet, int fd) 
+int net_accept(t_net &snet, int fd, struct sockaddr_in	&client_adr) 
 {
-	struct sockaddr_in	client_adr;
 	unsigned int		len;
 	int client_fd;
 	len = sizeof(client_adr);
@@ -142,14 +141,15 @@ int main(int argc, char **argv)
 		{
 			if (FD_ISSET(i, &ready_sockets))//Socket ready for w/r operations
 			{
+				struct sockaddr_in	client_adr;	
 				if (std::find(serv_fds.begin(), serv_fds.end(), i) != serv_fds.end())//Connection is being asked to one of the servers
 				{
 					next_fd_to_resp = i;
-					FD_SET(net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i)), &sockets);//add new client socket to the set fd
+					FD_SET(net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i), client_adr), &sockets);//add new client socket to the set fd
 				}
 				else
 				{
-					net_receive(servers, i, next_fd_to_resp);
+					net_receive(servers, i, next_fd_to_resp, client_adr);
 					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
 			}

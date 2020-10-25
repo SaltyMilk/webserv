@@ -144,9 +144,10 @@ typedef struct	s_request_line
 	t_auth 		auth;
 	t_path 		path;
 	bool bad_request;//Allows bad_request checks before/while parsing request
+	struct sockaddr_in	client_adr;
 }				t_req_line;
 
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd);
+int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
@@ -178,8 +179,9 @@ void create_ressource(t_req_line rl, t_route route);
 void empty_directory(std::string path);
 
 //CGI
-char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client);
+char	**get_cgi_envs(t_req_line &request);
 void 	parse_cgi(t_req_line &request);
+std::string execute_cgi(t_req_line &request, t_route route);
 
 //DATE
 std::string get_imf_fixdate();

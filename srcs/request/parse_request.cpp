@@ -178,10 +178,11 @@ void parse_body(size_t i, t_req_line &rl, char *request)
 	}
 }
 //Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd)
+int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr)
 {
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
+	rl.client_adr = client_adr;//Get client network infos
 	parse_request_line(mi, rl, request);
 	
 	std::cout << "REQUEST LOG:" << std::endl;

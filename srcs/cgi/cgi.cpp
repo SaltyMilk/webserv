@@ -18,12 +18,13 @@ void 	parse_cgi(t_req_line &request)
 	while (request.target[pos] != '/' && pos < request.target.length())
 		pos++;
 	request.path.script = request.target.substr(0, pos);
-	request.path.info = request.target.substr(pos + 2);
+	if (pos + 2 < request.target.length())
+		request.path.info = request.target.substr(pos + 2);
 	request.path.translated = buff + request.path.script;
 }
 
 //returns the output of the cgi
-std::string execute_cgi(t_req_line &request, struct sockaddr_in client, t_route route)
+std::string execute_cgi(t_req_line &request, t_route route)
 {
 	char 	**envs;
 	char  **argv = (char**)malloc(2*sizeof(char *));
@@ -34,14 +35,16 @@ std::string execute_cgi(t_req_line &request, struct sockaddr_in client, t_route 
 	int fd[2];
 	pid_t pid;
 
-	envs = get_cgi_envs(request, client);
+	envs = get_cgi_envs(request);
 	pipe(fd);
 	pid = fork();
 	if (!pid)
 	{
 		close(fd[0]);
 		dup2(fd[1], 1); //Everything that would go on stdout goes to fd[1]
+		std::cerr << "launched cgi" << std::endl;
 		execve(route.cgi_path.c_str(), argv, envs);
+		std::cerr << "end of cgi" << std::endl;
 		exit(19);
 	}
 	else
@@ -50,6 +53,7 @@ std::string execute_cgi(t_req_line &request, struct sockaddr_in client, t_route 
 		close(fd[1]);
 		while ((r = read(fd[0], buff, BUFF_SIZE - 1)) > 0)
 		{
+			std::cout << "yeahhhhh" << std::endl;
 			buff[r] = 0;
 			ret += buff;
 		}

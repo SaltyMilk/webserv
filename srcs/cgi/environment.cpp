@@ -21,7 +21,7 @@ t_headers g_headers[] =
 		{WWW_AUTHENTICATE, "WWW_AUTHENTICATE"}
 };
 
-char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client)
+char	**get_cgi_envs(t_req_line &request)
 {
 	char **envs;
 	std::map<std::string, std::string> map;
@@ -36,7 +36,7 @@ char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client)
 	map["SERVER_SOFTWARE"] = "webserv " + std::string(WEBSERV_VER);
 	//REQUEST
 	map["QUERY_STRING"] = request.query;
-	map["REMOTE_ADDR"] = cinet_ntoa(client.sin_addr.s_addr);
+	map["REMOTE_ADDR"] = cinet_ntoa(request.client_adr.sin_addr.s_addr);
 	map["REQUEST_METHOD"] = request.method;
 	map["REQUEST_URI"] = request.target;
 	//AUTH
@@ -66,5 +66,9 @@ char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client)
     for (it = map.begin(); it != map.end(); it++)
     	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());
     envs[i] = NULL;
+	std::cout << "START" << std::endl;
+	for (size_t i = 0; envs[i]; i++)
+		std::cout << envs[i] << std::endl;
+	std::cout << "END" << std::endl;
     return (envs);
 }

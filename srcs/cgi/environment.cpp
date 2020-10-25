@@ -31,7 +31,7 @@ char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client)
 	//SERVER
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	map["SERVER_NAME"] = parsed_host_header(request).first;
-	map["SERVER_PORT"] = parsed_host_header(request).second;
+	map["SERVER_PORT"] = std::to_string(parsed_host_header(request).second);
 	map["SERVER_PROTOCOL"] = "HTTP/1.1";
 	map["SERVER_SOFTWARE"] = "webserv " + std::string(WEBSERV_VER);
 	//REQUEST
@@ -53,7 +53,7 @@ char	**get_cgi_envs(t_req_line &request, struct sockaddr_in client)
     //CONTENT
     if (request.method == "POST" || request.method == "PUT")
 	{
-		map["CONTENT_LENGTH"] = request.body.length();
+		map["CONTENT_LENGTH"] = std::to_string(request.body.length());
 		map["CONTENT_TYPE"] = request.headers[CONTENT_TYPE];
 	}
     //ici il faut enum jusqu'au bout -- serait mieux avec un for

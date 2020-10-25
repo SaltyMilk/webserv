@@ -11,7 +11,7 @@ std::string get_file_name(std::string path)
 
 void 	parse_cgi(t_req_line &request)
 {
-	size_t pos = request.target.find(".");
+	size_t pos = request.target.find('.');
 	char 	buff[4097];
 
 	getcwd(buff, 4096);

@@ -2,7 +2,7 @@
 //Note for later : we might want to check that cgi_path is an actual file at some point
 std::string get_cgi_name(std::string cgi_path)
 {
-	size_t pos;
+	size_t	pos;
 	if ((pos = cgi_path.rfind('/')) == std::string::npos) // No subdirectories do discard
 		return (cgi_path);
 	return (std::string(cgi_path, pos + 1));
@@ -10,7 +10,7 @@ std::string get_cgi_name(std::string cgi_path)
 
 void 	parse_cgi(t_req_line &request)
 {
-	size_t pos = request.target.find(".");
+	size_t pos = request.target.find('.');
 	char 	buff[4097];
 
 	getcwd(buff, 4096);

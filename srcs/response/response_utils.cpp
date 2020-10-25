@@ -57,21 +57,21 @@ int bad_request(t_req_line rl)
 
 void handle_absolute_path(t_req_line &rl)
 {
-		if (rl.target[0] != '/')
+	if (rl.target[0] != '/')
+	{
+		size_t i = 0;
+		char count = 0;//Will reach 3 max
+		while (rl.target[i] && count < 3)
 		{
-			size_t i = 0;
-			char count = 0;//Will reach 3 max
-			while (rl.target[i] && count < 3)
-			{
-				if (rl.target[i] == '/')
-					count++;
-				i++;
-			}
-			if (!rl.target[i--]) 
-				rl.target = "/";
-			else
-				rl.target = std::string(rl.target, i, rl.target.length() - i);
+			if (rl.target[i] == '/')
+				count++;
+			i++;
 		}
+		if (!rl.target[i--])
+			rl.target = "/";
+		else
+			rl.target = std::string(rl.target, i, rl.target.length() - i);
+	}
 }
 
 void parse_query_from_target(t_req_line &rl)

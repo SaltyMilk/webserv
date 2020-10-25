@@ -4,15 +4,15 @@ int		client_count = 0;//Remove once project is finished, good for debugging
 
 std::string cinet_ntoa(in_addr_t in)
 {
-  unsigned char *bytes = (unsigned char *) &in;
- std::string ret = "";
-  for (int i = 0; i < 4; i++)
-  {
-	  ret += std::to_string(bytes[i]);
-	  if (i != 3)
-	  	ret+= ".";
-  }
-  return ret;
+	unsigned char *bytes = (unsigned char *) &in;
+	std::string ret = "";
+	for (int i = 0; i < 4; i++)
+	{
+		ret += std::to_string(bytes[i]);
+		if (i != 3)
+			ret+= ".";
+	}
+	return ret;
 }
 
 int net_init(unsigned int port, std::string host_addr)
@@ -60,7 +60,6 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd)
 		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd);
 	else
 		close(client_fd);
-
 }
 
 int net_accept(t_net &snet, int fd) 

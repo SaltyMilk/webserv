@@ -121,6 +121,8 @@ void parseRoutes(t_conf &conf, char *line, int fd)
 	for (std::vector<std::string>::iterator it = r.allowed_methods.begin(); it != r.allowed_methods.end(); it++)
 		std::cout << *it << std::endl;
 		std::cout << "End of route debug infos" << std::endl;*/
+	if (r.cgi && !r.cgi_path.length())
+		excerr("Config file error: cgi on but no cgi_path set.", 1);
     conf.routes.push_back(r);
     for (size_t i = 0; sp[i]; i++)
         free(sp[i]);

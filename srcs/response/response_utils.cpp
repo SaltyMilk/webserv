@@ -98,6 +98,7 @@ t_route get_default_route()
 	route.upload_root_dir = ".";
 	route.modifier = 0;
 	route.location = "__default__";
+	route.cgi = "off";
 	return (route);
 }
 

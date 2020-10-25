@@ -75,6 +75,31 @@ int parseRouteFields(char *line, t_route &route)
 				free(sp[i]);
 			free(sp);	
 		}
+		else if (ft_strlen(clean_line) >= 9 && std::string(clean_line, 9) == "cgi_path ")
+		{
+			sp = ft_split(clean_line, ' ');
+			if (!sp[1])
+				excerr("Config file error: empty cgi_path field.", 1);
+			route.cgi_path = std::string(sp[1]);
+			for (size_t i = 0; sp[i]; i++)
+				free(sp[i]);
+			free(sp);
+		}
+		else if (ft_strlen(clean_line) >= 4 && std::string(clean_line, 4) == "cgi ")
+		{
+			sp = ft_split(clean_line, ' ');
+			if (!sp[1])
+				excerr("Config file error: empty cgi field.", 1);
+			if (std::string(ft_strlowcase(sp[1])) == "off")
+				route.cgi = false;
+			else if (std::string(ft_strlowcase(sp[1])) == "on")
+				route.cgi = true;
+			else
+				excerr("Config file error: invalid value for cgi.", 1);
+			for (size_t i = 0; sp[i]; i++)
+				free(sp[i]);
+			free(sp);	
+		}
 	free(clean_line);
 	return 1;
 }

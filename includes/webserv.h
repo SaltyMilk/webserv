@@ -76,6 +76,8 @@ typedef struct s_route
 	std::vector<std::string> allowed_methods;
 	std::string default_dir_file;
 	bool dir_listing;
+	bool cgi;//on or off 
+	std::string cgi_path;
 }	t_route;
 
 typedef struct s_conf

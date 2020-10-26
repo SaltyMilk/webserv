@@ -47,3 +47,8 @@ La [doc](http://nginx.org/en/docs/http/request_processing.html) qui explique com
 
 ## SELECT
 [GOOD VIDEO](https://www.youtube.com/watch?v=Y6pFtgRdUts)
+
+## HTTP Authentication
+Mozilla explaining how [authentication](https://developer.mozilla.org/fr/docs/Web/HTTP/Authentication) works on a webserver.
+(WWW-Authenticate and Authorization headers)
+

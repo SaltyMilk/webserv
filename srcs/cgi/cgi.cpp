@@ -18,9 +18,11 @@ void 	parse_cgi(t_req_line &request)
 	while (request.target[pos] != '/' && pos < request.target.length())
 		pos++;
 	request.path.script = request.target.substr(0, pos);
+	request.path.translated = buff + request.path.script;
 	if (pos + 2 < request.target.length())
 		request.path.info = request.target.substr(pos + 2);
-	request.path.translated = buff + request.path.script;
+	else
+		request.path.info = request.path.translated;
 }
 
 //returns the output of the cgi

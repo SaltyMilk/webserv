@@ -54,15 +54,16 @@
 #define WWW_AUTHENTICATE	17
 
 //Number of error status code supported
-#define N_ERR_IMPLEMENTED 7
+#define N_ERR_IMPLEMENTED 8
 //Defines to be used with conf::default_error
 #define ERR400 0
-#define ERR403 1
-#define ERR404 2
-#define ERR405 3
-#define ERR413 4
-#define ERR501 5
-#define ERR505 6
+#define ERR401 1
+#define ERR403 2
+#define ERR404 3
+#define ERR405 4
+#define ERR413 5
+#define ERR501 6
+#define ERR505 7
 
 #define WEBSERV_VER "0.1"
 
@@ -78,6 +79,10 @@ typedef struct s_route
 	bool dir_listing;
 	bool cgi;//on or off 
 	std::string cgi_path;
+	std::string auth_name;
+	std::string auth_file;
+	std::list<std::string> users;
+	bool auth;
 }	t_route;
 
 typedef struct s_conf

@@ -13,6 +13,19 @@ void send_400(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
+void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string auth_name)
+{
+	response.status_code = "401";
+	response.reason_phrase = "Unauthorized";
+	response.headers[WWW_AUTHENTICATE] = "Basic realm=\"" + auth_name + std::string("\"");
+	char c;
+	int efd = open(conf.default_error[ERR401].c_str(), O_RDONLY);
+	if (request.method != "HEAD") // No body for head method
+		while (read(efd, &c, 1) > 0)
+			response.body += c;
+	close(efd);
+}
+
 void send_403(t_req_line rl, t_http_res &resp, t_conf conf)
 {
 	resp.headers[CONTENT_TYPE] = ("Content-Type: " + std::string("text/html"));
@@ -95,42 +108,42 @@ void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
 
 void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 {
-		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(route.root_dir + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
-		resp.status_code = "200";
-		resp.reason_phrase = "OK";
-		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
-		char c;
-		if (rl.method != "HEAD" && !route.cgi) // No body for head method
-			while (read(fd, &c, 1) > 0)
-				resp.body += c;
-		else if (route.cgi && rl.method != "HEAD")
-			resp.body = execute_cgi(rl, route);
+	resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(route.root_dir + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
+	resp.status_code = "200";
+	resp.reason_phrase = "OK";
+	resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
+	char c;
+	if (rl.method != "HEAD" && !route.cgi) // No body for head method
+		while (read(fd, &c, 1) > 0)
+			resp.body += c;
+	else if (route.cgi && rl.method != "HEAD")
+		resp.body = execute_cgi(rl, route);
 	close(fd);
 }
 
 void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route route)
 {
-		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(route.default_dir_file); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
-		resp.status_code = "200";
-		resp.reason_phrase = "OK";
-		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.default_dir_file);
-		char c;
-		if (rl.method != "HEAD") // No body for head method
-			while (read(fd, &c, 1) > 0)
-				resp.body += c;
+	resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(route.default_dir_file); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
+	resp.status_code = "200";
+	resp.reason_phrase = "OK";
+	resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.default_dir_file);
+	char c;
+	if (rl.method != "HEAD") // No body for head method
+		while (read(fd, &c, 1) > 0)
+			resp.body += c;
 	close(fd);
 }
 
 void send_200_dirlist(t_req_line rl, t_http_res &resp)
 {
-		int fd = open(".dirlisting.html", O_RDONLY);
-		resp.headers[CONTENT_TYPE] =  "Content-Type: " + std::string("text/html");
-		resp.status_code = "200";
-		resp.reason_phrase = "OK";
-		char c;
-		if (rl.method != "HEAD") // No body for head method
-			while (read(fd, &c, 1) > 0)
-				resp.body += c;
+	int fd = open(".dirlisting.html", O_RDONLY);
+	resp.headers[CONTENT_TYPE] =  "Content-Type: " + std::string("text/html");
+	resp.status_code = "200";
+	resp.reason_phrase = "OK";
+	char c;
+	if (rl.method != "HEAD") // No body for head method
+		while (read(fd, &c, 1) > 0)
+			resp.body += c;
 	close(fd);
 }
 
@@ -143,22 +156,22 @@ void send_201_put(t_req_line rl, t_http_res &resp)
 
 void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
 {
-		int fd;
-		std::string current_representation;
-		fd = open((route.upload_root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
-		char c;
-		while (read(fd, &c, 1) > 0)
-				current_representation += c;
-		resp.status_code = "204";
-		resp.reason_phrase = "No Content";
-		if (rl.body == current_representation)
-			resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
+	int fd;
+	std::string current_representation;
+	fd = open((route.upload_root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
+	char c;
+	while (read(fd, &c, 1) > 0)
+		current_representation += c;
+	resp.status_code = "204";
+	resp.reason_phrase = "No Content";
+	if (rl.body == current_representation)
+		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
 	close(fd);
 }
 
 void send_204_delete(t_http_res &resp)
 {
-		resp.status_code = "204";
-		resp.reason_phrase = "No Content";
+	resp.status_code = "204";
+	resp.reason_phrase = "No Content";
 }
 

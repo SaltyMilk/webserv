@@ -37,7 +37,13 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	int fd;
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
-	if (file_is_dir(route.root_dir + rl.target) && !route.dir_listing)//Handle directories without dir_listing
+	if (route.auth)
+	{
+		//here check base64 in request with base64 in .htpasswd file -- for tomorrow
+		for (std::list<std::string>::iterator user = route.users.begin(); user != route.users.end(); user++)
+			;
+	}
+	else if (file_is_dir(route.root_dir + rl.target) && !route.dir_listing)//Handle directories without dir_listing
 	{
 		fd = open(route.default_dir_file.c_str(), O_RDONLY);
 		send_200_file_is_a_dir(rl, resp, fd, route);

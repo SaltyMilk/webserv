@@ -109,13 +109,15 @@ int parseRouteFields(char *line, t_route &route)
 	}
 	else if (ft_strlen(clean_line) >= 11 && std::string(clean_line, 11) == "auth_basic ")
 	{
-		sp = ft_split(clean_line, ' ');
+		sp = ft_splitquotes(clean_line);
 		if (!sp[1])
 			excerr("Config file error: empty auth_basic field.", 1);
-		route.auth_name = std::string(sp[1]);
-		for (size_t i = 0; sp[i]; i++)
-			free(sp[i]);
-		free(sp);
+		temp = std::string(sp[1]);
+		if (temp[0] == '"')
+			route.auth_name = temp.substr(1, temp.length() - 1);
+		else
+			route.auth_name = temp;
+		ft_freesplit(sp);
 	}
 	else if (ft_strlen(clean_line) >= 10 && std::string(clean_line, 10) == "auth_user ")
 	{
@@ -123,9 +125,7 @@ int parseRouteFields(char *line, t_route &route)
 		if (!sp[1])
 			excerr("Config file error: no auth_user set.", 1);
 		route.auth_user = std::string(sp[1]);
-		for (size_t i = 0; sp[i]; i++)
-			free(sp[i]);
-		free(sp);
+		ft_freesplit(sp);
 	}
 	free(clean_line);
 	return (1);

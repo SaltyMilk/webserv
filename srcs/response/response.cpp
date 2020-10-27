@@ -37,12 +37,6 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	int fd;
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
-	if (route.auth)
-	{
-		//here check base64 in request with base64 in .htpasswd file -- for tomorrow
-		for (std::list<std::string>::iterator user = route.users.begin(); user != route.users.end(); user++)
-			;
-	}
 	else if (file_is_dir(route.root_dir + rl.target) && !route.dir_listing)//Handle directories without dir_listing
 	{
 		fd = open(route.default_dir_file.c_str(), O_RDONLY);
@@ -109,7 +103,9 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 		parse_cgi(rl);
 		route = get_route_for(rl, conf);
-		if (!method_supported(rl.method))//None standard http method requested
+		if (route.auth && (rl.auth.ident.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
+			send_401(rl, resp, conf, route.auth_name);
+		else if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);
 		else if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
 			send_405(rl, resp, conf, route);

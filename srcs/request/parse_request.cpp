@@ -153,7 +153,7 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 		{
 			size_t pos = header_value.find(" ");
 			rl.auth.type = header_value.substr(0, pos);
-			rl.auth.ident = header_value.substr(pos + 1);
+			rl.auth.ident = b64decode(header_value.substr(pos + 1));
 		}
 		if (id != -1)
 			rl.headers[id] = header_value;

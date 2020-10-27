@@ -117,23 +117,16 @@ int parseRouteFields(char *line, t_route &route)
 			free(sp[i]);
 		free(sp);
 	}
-	else if (ft_strlen(clean_line) >= 20 && std::string(clean_line, 20) == "auth_basic_user_file ")
+	else if (ft_strlen(clean_line) >= 10 && std::string(clean_line, 10) == "auth_user ")
 	{
 		sp = ft_split(clean_line, ' ');
 		if (!sp[1])
-			excerr("Config file error: empty auth_basic_user_file field.", 1);
-		if (sp[2])
-			excerr("Config file error, you can't mention two .htpasswd files.", 1);
-		temp = std::string(sp[1]);
-		if (!file_exists(temp) || file_is_dir(temp))
-			excerr("Config file error, file does not exist or is directory.", 1);
-		if (!endsWith(temp, ".htpasswd"))
-			excerr("Config file error, file is not .htpasswd", 1);
-		route.auth_file = temp;
+			excerr("Config file error: no auth_user set.", 1);
+		route.auth_user = std::string(sp[1]);
 		for (size_t i = 0; sp[i]; i++)
 			free(sp[i]);
 		free(sp);
 	}
 	free(clean_line);
-	return 1;
+	return (1);
 }

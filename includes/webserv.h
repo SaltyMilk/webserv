@@ -80,8 +80,7 @@ typedef struct s_route
 	bool cgi;//on or off 
 	std::string cgi_path;
 	std::string auth_name;
-	std::string auth_file;
-	std::list<std::string> users;
+	std::string auth_user;
 	bool auth;
 }	t_route;
 
@@ -195,6 +194,7 @@ std::string get_last_modified(std::string filename);
 std::string get_content_type(std::string filename);
 //STATUS_CODE
 void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string auth_name);
 void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
@@ -217,4 +217,5 @@ bool file_exists(std::string filename);
 bool file_is_dir(std::string filename);
 bool is_in_set(char c, char *s);
 void chandler(int sig_num);
+std::string b64decode(const std::string& str64);
 #endif

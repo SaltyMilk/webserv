@@ -127,6 +127,8 @@ int parseRouteFields(char *line, t_route &route)
 		route.auth_user = std::string(sp[1]);
 		ft_freesplit(sp);
 	}
+	if (!route.auth_name.empty() && !route.auth_user.empty())
+		route.auth = true;
 	free(clean_line);
 	return (1);
 }

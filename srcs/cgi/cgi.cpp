@@ -29,9 +29,10 @@ void 	parse_cgi(t_req_line &request)
 std::string execute_cgi(t_req_line &request, t_route route)
 {
 	char 	**envs;
-	char  **argv = (char**)malloc(2*sizeof(char *));
-	argv[0] = ft_strdup(get_file_name(request.target).c_str());
-	argv[1] = NULL;
+	char  **argv = (char**)malloc(3*sizeof(char *));
+	argv[0] = ft_strdup(route.cgi_path.c_str());
+	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
+	argv[2] = NULL;
 	std::string ret;
 	char buff[BUFF_SIZE];
 	int fd[2];
@@ -44,9 +45,7 @@ std::string execute_cgi(t_req_line &request, t_route route)
 	{
 		close(fd[0]);
 		dup2(fd[1], 1); //Everything that would go on stdout goes to fd[1]
-		std::cerr << "launched cgi" << std::endl;
 		execve(route.cgi_path.c_str(), argv, envs);
-		std::cerr << "end of cgi" << std::endl;
 		exit(19);
 	}
 	else
@@ -55,7 +54,6 @@ std::string execute_cgi(t_req_line &request, t_route route)
 		close(fd[1]);
 		while ((r = read(fd[0], buff, BUFF_SIZE - 1)) > 0)
 		{
-			std::cout << "yeahhhhh" << std::endl;
 			buff[r] = 0;
 			ret += buff;
 		}

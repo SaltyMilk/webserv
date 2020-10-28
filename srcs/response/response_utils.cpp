@@ -80,7 +80,7 @@ void parse_query_from_target(t_req_line &rl)
 	size_t i = 0;
 	while (rl.target[i] && rl.target[i] != '?')
 		targ += rl.target[i++];
-	if (rl.target[i] == '?')
+	if (rl.target[i++] == '?')
 		while(rl.target[i])
 			rl.query += rl.target[i++];
 	rl.target = targ;

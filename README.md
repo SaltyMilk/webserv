@@ -45,6 +45,7 @@ Example of how a cgi could be written in C : http://jkorpela.fi/forms/cgic.html
 
 La [doc](http://nginx.org/en/docs/http/request_processing.html) qui explique comment Nginx proces une request avec et sans CGI.
 
+[MORE DOC](https://www.oreilly.com/library/view/cgi-programming-on/9781565921689/06_chapter-03.html)
 ## SELECT
 [GOOD VIDEO](https://www.youtube.com/watch?v=Y6pFtgRdUts)
 

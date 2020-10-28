@@ -20,7 +20,7 @@ RESPONSE_DIR = response
 RESPONSE_FILES = response.cpp response_utils.cpp
 
 UTILS_DIR = utils
-UTILS_FILES = date.cpp utils.cpp content_type.cpp signals.cpp
+UTILS_FILES = date.cpp utils.cpp content_type.cpp signals.cpp base64.cpp
 
 SRC += $(addprefix $(CGI_DIR)/, $(CGI_FILES))
 SRC += $(addprefix $(CODES_DIR)/, $(CODES_FILES))

@@ -134,6 +134,7 @@ struct s_headers
 {
 	int 		id;
 	std::string	value;
+	std::string name;
 };
 
 //PARSER
@@ -185,6 +186,8 @@ void empty_directory(std::string path);
 //CGI
 char	**get_cgi_envs(t_req_line &request);
 void 	parse_cgi(t_req_line &request);
+std::string	format_header(int header, std::string value);
+std::string get_header_field(int header);
 std::string execute_cgi(t_req_line &request, t_route route);
 
 //DATE
@@ -208,7 +211,7 @@ void send_201_put(t_req_line rl, t_http_res &resp);
 void send_204_put(t_req_line rl, t_http_res &resp, t_route route);
 void send_204_delete(t_http_res &resp);
 //STATUS_CODE UTILS
-std::string get_allow_header_for(t_route route);
+std::string get_allowed_methods(t_route route);
 
 //UTILS
 int print_err(std::string s);

@@ -1,48 +1,5 @@
 #include "../../includes/webserv.h"
 
-int get_header_id(std::string header_field)
-{
-	char *lowcase_hf = ft_strlowcase(const_cast<char *>(header_field.c_str()));
-	if (!ft_strncmp(lowcase_hf, "accept-charsets", 15))
-		return (ACCEPT_CHARSETS);
-	if (!ft_strncmp(lowcase_hf, "accept-language", 15))
-		return (ACCEPT_LANGUAGE);
-	if (!ft_strncmp(lowcase_hf, "allow", 5))
-		return (ALLOW);
-	if (!ft_strncmp(lowcase_hf, "authorization", 13))
-		return (AUTHORIZATION);
-	if (!ft_strncmp(lowcase_hf, "content-language", 16))
-		return (CONTENT_LANGUAGE);
-	if (!ft_strncmp(lowcase_hf, "content-length", 14))
-		return (CONTENT_LENGTH);
-	if (!ft_strncmp(lowcase_hf, "content-location", 16))
-		return (CONTENT_LOCATION);
-	if (!ft_strncmp(lowcase_hf, "content-type", 12))
-		return (CONTENT_TYPE);
-	if (!ft_strncmp(lowcase_hf, "date", 4))
-		return (DATE);
-	if (!ft_strncmp(lowcase_hf, "host", 4))
-		return (HOST);
-	if (!ft_strncmp(lowcase_hf, "last-modified", 13))
-		return (LAST_MODIFIED);
-	if (!ft_strncmp(lowcase_hf, "location", 8))
-		return (LOCATION);
-	if (!ft_strncmp(lowcase_hf, "referer", 7))
-		return (REFERER);
-	if (!ft_strncmp(lowcase_hf, "retry-after", 11))
-		return (RETRY_AFTER);
-	if (!ft_strncmp(lowcase_hf, "server", 6))
-		return (SERVER);
-	if (!ft_strncmp(lowcase_hf, "transfer-encoding", 17))
-		return (TRANSFER_ENCODING);
-	if (!ft_strncmp(lowcase_hf, "user-agent", 10))
-		return (USER_AGENT);
-	if (!ft_strncmp(lowcase_hf, "www-authenticate", 16))
-		return (WWW_AUTHENTICATE);
-	return (-1);//UNKNOW HEADER -> IGNORE IT
-}
-
-
 void parse_request_line(size_t &i, t_req_line &rl, char *request)
 {
 	rl.bad_request = false;
@@ -193,7 +150,7 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 	parse_body(mi, rl, request);
 	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
-			std::cout << "header[" <<i << "]" << rl.headers[i] << std::endl;
+			std::cout << format_header(i, rl.headers[i]) << std::endl;
 
 
 	std::cout << rl.body << std::endl;

@@ -103,7 +103,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 		parse_cgi(rl);
 		route = get_route_for(rl, conf);
-		if (route.auth && (rl.auth.ident.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
+		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty() || route.auth_user != rl.auth.ident))
 			send_401(rl, resp, conf, route.auth_name);
 		else if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);

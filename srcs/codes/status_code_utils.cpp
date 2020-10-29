@@ -1,8 +1,8 @@
 #include "../../includes/webserv.h"
 
-std::string get_allow_header_for(t_route route)
+std::string get_allowed_methods(t_route route)
 {
-	std::string ret = "Allow: ";
+	std::string ret;
 	size_t i = 0;
 	while (i < route.allowed_methods.size())
 	{
@@ -12,5 +12,5 @@ std::string get_allow_header_for(t_route route)
 			ret += route.allowed_methods[i];
 		i++;
 	}
-	return (ret);
+	return (format_header(ALLOW, ret));
 }

@@ -181,7 +181,8 @@ void empty_directory(std::string path);
 //CGI
 char	**get_cgi_envs(t_req_line &request);
 void 	parse_cgi(t_req_line &request);
-std::string execute_cgi(t_req_line &request, t_route route);
+std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp);
+int parse_cgi_headers(t_http_res &resp, const char *output);
 
 //DATE
 std::string get_imf_fixdate();

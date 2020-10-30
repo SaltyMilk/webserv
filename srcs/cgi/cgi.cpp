@@ -26,14 +26,14 @@ void 	parse_cgi(t_req_line &request)
 }
 
 //returns the output of the cgi
-std::string execute_cgi(t_req_line &request, t_route route)
+std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 {
 	char 	**envs;
 	char  **argv = (char**)malloc(3*sizeof(char *));
 	argv[0] = ft_strdup(route.cgi_path.c_str());
 	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
 	argv[2] = NULL;
-	std::string ret;
+	std::string output;
 	char buff[BUFF_SIZE];
 	int fd[2];
 	pid_t pid;
@@ -55,15 +55,15 @@ std::string execute_cgi(t_req_line &request, t_route route)
 		while ((r = read(fd[0], buff, BUFF_SIZE - 1)) > 0)
 		{
 			buff[r] = 0;
-			ret += buff;
+			output += buff;
 		}
 	}
-	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << ret << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
+	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
 	free(argv[0]);//free argv
 	free(argv);
 	for (size_t i = 0; envs[i]; i++)//Free envs
 		free(envs[i]);
 	free(envs);
-	return (ret);
+	return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
 }
 

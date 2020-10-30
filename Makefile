@@ -5,7 +5,7 @@ SRC_DIR = srcs/
 SRC = net.cpp
 
 CGI_DIR = cgi
-CGI_FILES = cgi.cpp environment.cpp
+CGI_FILES = cgi.cpp environment.cpp cgi_utils.cpp
 
 CODES_DIR = codes
 CODES_FILES = status_code.cpp status_code_utils.cpp

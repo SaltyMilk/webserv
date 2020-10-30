@@ -104,7 +104,7 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 			while (read(fd, &c, 1) > 0)
 				resp.body += c;
 		else if (route.cgi && rl.method != "HEAD")
-			resp.body = execute_cgi(rl, route);
+			resp.body = execute_cgi(rl, route, resp);
 	close(fd);
 }
 

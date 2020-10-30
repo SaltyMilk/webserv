@@ -100,6 +100,17 @@ int parseRouteFields(char *line, t_route &route)
 				free(sp[i]);
 			free(sp);	
 		}
+		else if (ft_strlen(clean_line) >= 8 && std::string(clean_line, 8) == "cgi_ext ")
+		{
+			sp = ft_split(clean_line, ' ');
+			if (!sp[1])
+				excerr("Config file error: empty cgi_ext field.", 1);
+			for (size_t i = 1; sp[i]; i++)
+				route.cgi_exts.push_back(std::string(sp[i]));
+			for (size_t i = 0; sp[i]; i++)
+				free(sp[i]);
+			free(sp);
+		}
 	free(clean_line);
 	return 1;
 }

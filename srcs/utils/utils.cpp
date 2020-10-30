@@ -10,6 +10,16 @@ void excerr(std::string msg, int c)
 	std::cerr << msg << std::endl;
 	exit(c);
 }
+//works with file's path too
+std::string get_file_ext(std::string file)
+{
+	size_t i = file.length() - 1;
+	while (i > 0 && file[i] != '.' && file[i] != '/')
+		i--;
+	if (file[i] == '/' || !i)
+		return (std::string(""));//No extension for file
+	return (std::string(file, i));
+}
 
 bool file_exists(std::string filename)
 {

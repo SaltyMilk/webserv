@@ -78,6 +78,7 @@ typedef struct s_route
 	bool dir_listing;
 	bool cgi;//on or off 
 	std::string cgi_path;
+	std::vector<std::string> cgi_exts;
 }	t_route;
 
 typedef struct s_conf
@@ -212,5 +213,6 @@ void excerr(std::string msg, int c);
 bool file_exists(std::string filename);
 bool file_is_dir(std::string filename);
 bool is_in_set(char c, char *s);
+std::string get_file_ext(std::string file);
 void chandler(int sig_num);
 #endif

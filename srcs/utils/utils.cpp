@@ -45,3 +45,36 @@ bool is_in_set(char c, char *s)
 	}
 	return (false);
 }
+//Return a string with first occurence of old_key replaced by new_key substituted in str
+//MAIN USE IS FOR TARGET PARSING WITH LOCATIONS USE WITH CAUTION
+std::string str_replace(std::string str, std::string old_key, std::string new_key)
+{
+	std::string ret;
+	size_t i = 0;
+	size_t j = 0;
+	char found = 0;
+	while (str[i])
+	{
+		while (found != 2 && str[i + j] && old_key[i + j] && str[i + j] == old_key[i + j])
+			j++;
+		if (!old_key[j] && (str[i + j] == '/' || !str[i+j]))
+			found = 1;
+		if (found == 1)
+		{
+			size_t k = 0;
+			while (new_key[k])//add new_key where the old_key was
+				ret += new_key[k++];
+			k = 0;
+			while (str[i] == old_key[k])//skip the old_key in str
+			{
+				k++;
+				i++;
+			}
+			found = 2;
+		}
+		else
+			ret += str[i++];		
+		j = 0;
+	}
+	return (ret);
+}

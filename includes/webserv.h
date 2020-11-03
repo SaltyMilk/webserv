@@ -215,4 +215,5 @@ bool file_is_dir(std::string filename);
 bool is_in_set(char c, char *s);
 std::string get_file_ext(std::string file);
 void chandler(int sig_num);
+std::string str_replace(std::string str, std::string old_key, std::string new_key);
 #endif

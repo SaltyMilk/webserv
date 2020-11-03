@@ -95,10 +95,10 @@ void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
 
 void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 {
-		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(route.root_dir + rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
+		resp.headers[CONTENT_TYPE] =  "Content-Type: "+ get_content_type(rl.target); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 		resp.status_code = "200";
 		resp.reason_phrase = "OK";
-		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
+		resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(rl.target);
 		char c;
 		if (rl.method != "HEAD" && (!route.cgi || std::find(route.cgi_exts.begin(),route.cgi_exts.end(), get_file_ext(rl.target)) == route.cgi_exts.end())) // No body for head method
 			while (read(fd, &c, 1) > 0)
@@ -152,7 +152,7 @@ void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
 		resp.status_code = "204";
 		resp.reason_phrase = "No Content";
 		if (rl.body == current_representation)
-			resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(route.root_dir + rl.target);
+			resp.headers[LAST_MODIFIED] = "Last-Modified: " + get_last_modified(rl.target);
 	close(fd);
 }
 

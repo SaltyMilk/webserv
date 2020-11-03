@@ -37,17 +37,17 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	int fd;
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
-	if (file_is_dir(route.root_dir + rl.target) && !route.dir_listing)//Handle directories without dir_listing
+	if (file_is_dir(rl.target) && !route.dir_listing)//Handle directories without dir_listing
 	{
 		fd = open(route.default_dir_file.c_str(), O_RDONLY);
 		send_200_file_is_a_dir(rl, resp, fd, route);
 	}
-	else if (file_is_dir(route.root_dir + rl.target) && route.dir_listing)//Handle dir listing
+	else if (file_is_dir(rl.target) && route.dir_listing)//Handle dir listing
 	{
-		get_dir_listing(route.root_dir + rl.target);
+		get_dir_listing(rl.target);
 		send_200_dirlist(rl, resp);
 	}
-	else if ((fd = open((route.root_dir + rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
+	else if ((fd = open((rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 		send_404(rl, resp, conf);
 	else // Requested file was found.
 		send_200(rl, resp, fd, route);
@@ -56,26 +56,26 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 
 void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 {
-	if (file_exists(route.root_dir + rl.target))
+	if (file_exists(rl.target))
 		send_204_put(rl, resp, route);
 	else
 		send_201_put(rl, resp);
 	create_ressource(rl, route);
 }
 
-void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
+void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 {
-	if (!file_exists(route.root_dir + rl.target))
+	if (!file_exists(rl.target))
 		send_404(rl, resp, conf);
 	else
 	{
-		if (file_is_dir(route.root_dir + rl.target))
+		if (file_is_dir(rl.target))
 		{
-			empty_directory(route.root_dir + rl.target);
-			rmdir((route.root_dir + rl.target).c_str());
+			empty_directory(rl.target);
+			rmdir((rl.target).c_str());
 		}
 		else
-			unlink((route.root_dir + rl.target).c_str());
+			unlink((rl.target).c_str());
 		send_204_delete(resp);
 	}
 }
@@ -103,6 +103,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 		parse_cgi(rl);
 		route = get_route_for(rl, conf);
+		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
 		if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);
 		else if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
@@ -112,7 +113,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		else if (rl.method == "PUT")
 			put_resp(rl, resp, route);
 		else if (rl.method == "DELETE")
-			delete_resp(rl, resp, conf, route);
+			delete_resp(rl, resp, conf);
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());

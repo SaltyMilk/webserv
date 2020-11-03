@@ -112,12 +112,14 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 	resp.reason_phrase = "OK";
 	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, get_content_type(route.root_dir + rl.target)); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 	resp.headers[LAST_MODIFIED] = format_header(LAST_MODIFIED, get_last_modified(route.root_dir + rl.target));
+	std::cout << "debug this= " << resp.headers[CONTENT_TYPE] << std::endl;
 	char c;
 	if (rl.method != "HEAD" && (!route.cgi || std::find(route.cgi_exts.begin(),route.cgi_exts.end(), get_file_ext(rl.target)) == route.cgi_exts.end())) // No body for head method
 		while (read(fd, &c, 1) > 0)
 			resp.body += c;
 	else if (route.cgi && rl.method != "HEAD")
 		resp.body = execute_cgi(rl, route, resp);
+	std::cout << "debug this= " << resp.headers[CONTENT_TYPE] << std::endl;
 	close(fd);
 }
 

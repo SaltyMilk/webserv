@@ -2,24 +2,24 @@
 
 t_headers g_headers[18] =
 {
-		{ACCEPT_CHARSETS, "ACCEPT_CHARSETS", "Accept-Charsets"},
-		{ACCEPT_LANGUAGE, "ACCEPT_LANGUAGE", "Accept-Language"},
+		{ACCEPT_CHARSETS, "ACCEPT-CHARSETS", "Accept-Charsets"},
+		{ACCEPT_LANGUAGE, "ACCEPT-LANGUAGE", "Accept-Language"},
 		{ALLOW, "ALLOW", "Allow"},
 		{AUTHORIZATION, "AUTHORIZATION", "Authorization"},
-		{CONTENT_LANGUAGE, "CONTENT_LANGUAGE", "Content-Language"},
-		{CONTENT_LENGTH, "CONTENT_LENGTH", "Content-Length"},
-		{CONTENT_LOCATION, "CONTENT_LOCATION", "Content-Location"},
-		{CONTENT_TYPE, "CONTENT_TYPE", "Content-Type"},
+		{CONTENT_LANGUAGE, "CONTENT-LANGUAGE", "Content-Language"},
+		{CONTENT_LENGTH, "CONTENT-LENGTH", "Content-Length"},
+		{CONTENT_LOCATION, "CONTENT-LOCATION", "Content-Location"},
+		{CONTENT_TYPE, "CONTENT-TYPE", "Content-Type"},
 		{DATE, "DATE", "Date"},
 		{HOST, "HOST", "Host"},
-		{LAST_MODIFIED, "LAST_MODIFIED", "Last-Modified"},
+		{LAST_MODIFIED, "LAST-MODIFIED", "Last-Modified"},
 		{LOCATION, "LOCATION", "Location"},
 		{REFERER, "REFERER", "Referer"},
-		{RETRY_AFTER, "RETRY_AFTER", "Retry-After"},
+		{RETRY_AFTER, "RETRY-AFTER", "Retry-After"},
 		{SERVER, "SERVER", "Server"},
-		{TRANSFER_ENCODING, "TRANSFER_ENCODING", "Transfer-Encoding"},
-		{USER_AGENT, "USER_AGENT", "User-Agent"},
-		{WWW_AUTHENTICATE, "WWW_AUTHENTICATE", "WWW-Authenticate"}
+		{TRANSFER_ENCODING, "TRANSFER-ENCODING", "Transfer-Encoding"},
+		{USER_AGENT, "USER-AGENT", "User-Agent"},
+		{WWW_AUTHENTICATE, "WWW-AUTHENTICATE", "WWW-Authenticate"}
 };
 
 std::string	format_header(int header, std::string value)

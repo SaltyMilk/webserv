@@ -97,7 +97,7 @@ t_route get_default_route()
 	route.root_dir = ".";
 	route.upload_root_dir = ".";
 	route.modifier = 0;
-	route.location = "__default__";
+	route.location = "/";
 	route.cgi = false;
 	return (route);
 }

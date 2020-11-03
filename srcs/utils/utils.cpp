@@ -55,9 +55,9 @@ std::string str_replace(std::string str, std::string old_key, std::string new_ke
 	char found = 0;
 	while (str[i])
 	{
-		while (found != 2 && str[i + j] && old_key[i + j] && str[i + j] == old_key[i + j])
+		while (found != 2 && str[i + j] && old_key[j] && str[i + j] == old_key[j])
 			j++;
-		if (!old_key[j] && (str[i + j] == '/' || !str[i+j]))
+		if (!old_key[j] && (str[i + j] == '/' || !str[i+j] || (str[i] == '/' &&  j == 1 && i == 0)))
 			found = 1;
 		if (found == 1)
 		{
@@ -65,7 +65,7 @@ std::string str_replace(std::string str, std::string old_key, std::string new_ke
 			while (new_key[k])//add new_key where the old_key was
 				ret += new_key[k++];
 			k = 0;
-			while (str[i] == old_key[k])//skip the old_key in str
+			while (str[i] && str[i] == old_key[k])//skip the old_key in str
 			{
 				k++;
 				i++;

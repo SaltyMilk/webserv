@@ -80,6 +80,17 @@ void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 	}
 }
 
+void post(t_req_line rl, t_http_res &resp, t_route route, t_conf conf)
+{
+	int fd;
+
+	if ((fd = open((rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server might need change, nginx works like this though
+		send_404(rl, resp, conf);
+	else // Requested file was found.
+		send_200(rl, resp, fd, route);
+
+}
+
 int answer_request(int client_fd, t_req_line rl, t_conf conf)
 {	
 	t_route route;//Settings for requested ressource location
@@ -118,6 +129,8 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 			put_resp(rl, resp, route);
 		else if (rl.method == "DELETE")
 			delete_resp(rl, resp, conf);
+		else if (rl.method == "POST")
+			post(rl, resp, route, conf);
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());

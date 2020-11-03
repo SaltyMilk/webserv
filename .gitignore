@@ -262,3 +262,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+### Custom ###
+# Executable webserv
+webserv

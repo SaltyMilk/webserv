@@ -54,15 +54,16 @@
 #define WWW_AUTHENTICATE	17
 
 //Number of error status code supported
-#define N_ERR_IMPLEMENTED 7
+#define N_ERR_IMPLEMENTED 8
 //Defines to be used with conf::default_error
 #define ERR400 0
-#define ERR403 1
-#define ERR404 2
-#define ERR405 3
-#define ERR413 4
-#define ERR501 5
-#define ERR505 6
+#define ERR401 1
+#define ERR403 2
+#define ERR404 3
+#define ERR405 4
+#define ERR413 5
+#define ERR501 6
+#define ERR505 7
 
 #define WEBSERV_VER "0.1"
 
@@ -79,6 +80,9 @@ typedef struct s_route
 	bool cgi;//on or off 
 	std::string cgi_path;
 	std::vector<std::string> cgi_exts;
+	std::string auth_name;
+	std::string auth_user;
+	bool auth;
 }	t_route;
 
 typedef struct s_conf
@@ -131,6 +135,7 @@ struct s_headers
 {
 	int 		id;
 	std::string	value;
+	std::string name;
 };
 
 //PARSER
@@ -182,6 +187,9 @@ void empty_directory(std::string path);
 //CGI
 char	**get_cgi_envs(t_req_line &request);
 void 	parse_cgi(t_req_line &request);
+std::string	format_header(int header, std::string value);
+std::string get_header_field(int header);
+std::string execute_cgi(t_req_line &request, t_route route);
 std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp);
 int parse_cgi_headers(t_http_res &resp, const char *output);
 
@@ -192,6 +200,7 @@ std::string get_last_modified(std::string filename);
 std::string get_content_type(std::string filename);
 //STATUS_CODE
 void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string auth_name);
 void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
@@ -205,7 +214,7 @@ void send_201_put(t_req_line rl, t_http_res &resp);
 void send_204_put(t_req_line rl, t_http_res &resp, t_route route);
 void send_204_delete(t_http_res &resp);
 //STATUS_CODE UTILS
-std::string get_allow_header_for(t_route route);
+std::string get_allowed_methods(t_route route);
 
 //UTILS
 int print_err(std::string s);
@@ -215,5 +224,6 @@ bool file_is_dir(std::string filename);
 bool is_in_set(char c, char *s);
 std::string get_file_ext(std::string file);
 void chandler(int sig_num);
+std::string b64decode(const std::string& str64);
 std::string str_replace(std::string str, std::string old_key, std::string new_key);
 #endif

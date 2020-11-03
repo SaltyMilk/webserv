@@ -14,13 +14,13 @@ CONFIG_DIR = config
 CONFIG_FILES = parse_config.cpp parse_config_utils.cpp
 
 REQUEST_DIR = request
-REQUEST_FILES = parse_request.cpp parse_request_utils.cpp
+REQUEST_FILES = parse_request.cpp parse_request_utils.cpp headers.cpp
 
 RESPONSE_DIR = response
 RESPONSE_FILES = response.cpp response_utils.cpp
 
 UTILS_DIR = utils
-UTILS_FILES = date.cpp utils.cpp content_type.cpp signals.cpp
+UTILS_FILES = date.cpp utils.cpp content_type.cpp signals.cpp base64.cpp
 
 SRC += $(addprefix $(CGI_DIR)/, $(CGI_FILES))
 SRC += $(addprefix $(CODES_DIR)/, $(CODES_FILES))

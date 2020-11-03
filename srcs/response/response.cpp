@@ -104,7 +104,9 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		parse_cgi(rl);
 		route = get_route_for(rl, conf);
 		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
-		if (!method_supported(rl.method))//None standard http method requested
+		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty() || route.auth_user != rl.auth.ident))
+			send_401(rl, resp, conf, route.auth_name);
+		else if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);
 		else if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
 			send_405(rl, resp, conf, route);

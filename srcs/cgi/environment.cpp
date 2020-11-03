@@ -1,26 +1,5 @@
 #include "../../includes/webserv.h"
 
-t_headers g_headers[] =
-{
-		{ACCEPT_CHARSETS, "ACCEPT_CHARSETS"},
-		{ACCEPT_LANGUAGE, "ACCEPT_LANGUAGE"},
-		{ALLOW, "ALLOW"},
-		{AUTHORIZATION, "AUTHORIZATION"},
-		{CONTENT_LANGUAGE, "CONTENT_LANGUAGE"},
-		{CONTENT_LENGTH, "CONTENT_LENGTH"},
-		{CONTENT_LOCATION, "CONTENT_LOCATION"},
-		{CONTENT_TYPE, "CONTENT_TYPE"},
-		{DATE, "DATE"},
-		{HOST, "HOST"},
-		{LOCATION, "LOCATION"},
-		{REFERER, "REFERER"},
-		{RETRY_AFTER, "RETRY_AFTER"},
-		{SERVER, "SERVER"},
-		{TRANSFER_ENCODING, "TRANSFER_ENCODING"},
-		{USER_AGENT, "USER_AGENT"},
-		{WWW_AUTHENTICATE, "WWW_AUTHENTICATE"}
-};
-
 char	**get_cgi_envs(t_req_line &request)
 {
 	char **envs;
@@ -59,7 +38,7 @@ char	**get_cgi_envs(t_req_line &request)
     //ici il faut enum jusqu'au bout -- serait mieux avec un for
     while (i < request.headers->length()) {
 		if (!request.headers[i].empty())
-			map["HTTP_" + g_headers[i].value] = request.headers[i];
+			map["HTTP_" + get_header_field(i)] = request.headers[i];
 	}
     envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
     i = 0;

@@ -49,6 +49,8 @@ void parseDefaultErrorPage(t_conf &conf, char *line)
 		excerr("Config file error: missing argument for " + std::string(sp[0]), 1);
 	if (std::string(sp[0]) == "default_400")
 		conf.default_error[ERR400] = std::string(sp[1]);
+	else if (std::string(sp[0]) == "default_401")
+		conf.default_error[ERR401] = std::string(sp[1]);
 	else if (std::string(sp[0]) == "default_403")
 		conf.default_error[ERR403] = std::string(sp[1]);
 	else if (std::string(sp[0]) == "default_404")
@@ -78,8 +80,9 @@ void parseRouteConf(char *line, int fd, t_route &route)
 	if (line[1])
 		excerr("Config file error: unexpected token after { in location.", 1);
 	free(line);
-    while (get_next_line(fd, &line) && (got_in = true))
+    while (get_next_line(fd, &line))
     {
+    	got_in = true;
 		if (!parseRouteFields(line, route))
 			return;
     }
@@ -155,6 +158,7 @@ void parseHostAddr(t_conf &conf, char *line)
 void set_default_settings(t_conf &conf)
 {
 	conf.default_error[ERR400] = "www/400.html";
+	conf.default_error[ERR401] = "www/401.html";
 	conf.default_error[ERR403] = "www/403.html";
 	conf.default_error[ERR404] = "www/404.html";
 	conf.default_error[ERR413] = "www/413.html";

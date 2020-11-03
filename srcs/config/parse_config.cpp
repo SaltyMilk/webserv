@@ -215,8 +215,10 @@ std::vector<t_conf> parseConf(std::string filename)
 	int fd;
 	bool default_serv = true;
 	std::vector<t_conf> servers;
-	if (!(fd = open(filename.c_str(), O_RDONLY)))
-		excerr("Could not open config file. Try with this synax : ./webserv conf_file", 2);	
+	if (file_is_dir(filename))
+		excerr("webserv: argument is a directory.", 2);
+	if ((fd = open(filename.c_str(), O_RDONLY)) < 0)
+		excerr("Config file error: " + std::string(strerror(errno)), 2);
 	char *line;
 	while (get_next_line(fd, &line))
 	{
@@ -225,7 +227,7 @@ std::vector<t_conf> parseConf(std::string filename)
 			free(line);
 			get_next_line(fd, &line);
 			if (!(line[0] == '{' && !line[1]))
-				excerr("Config file error: missing { at the beginning of server block (line after 'server')", 1);
+				excerr("Config file error: missing { at the beginning of server block (line after 'server')", 2);
 			t_conf conf = parseServerBlock(fd);
 			conf.is_default_server = default_serv; // First server block will be default
 			if (default_serv)
@@ -234,6 +236,8 @@ std::vector<t_conf> parseConf(std::string filename)
 		}
 		free(line);
 	}
+	if (servers.empty())
+		excerr("webserv: no server block in config file", 2);
 	free(line);
 	close(fd);
 	return (servers);

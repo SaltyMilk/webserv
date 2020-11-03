@@ -45,6 +45,15 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 	{
 		close(fd[0]);
 		dup2(fd[1], 1); //Everything that would go on stdout goes to fd[1]
+		if (request.method == "POST")
+		{
+			int fd;
+			fd = open(".tmpfile", O_WRONLY | O_TRUNC | O_CREAT, 0666);
+			ft_putstr_fd(const_cast<char*>(request.body.c_str()), fd);
+			close(fd);
+			fd = open(".tmpfile", O_RDONLY);
+			dup2(fd, 0);
+		}
 		execve(route.cgi_path.c_str(), argv, envs);
 		exit(19);
 	}

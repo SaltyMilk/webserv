@@ -104,8 +104,8 @@ t_route get_default_route()
 
 t_route get_route_for(t_req_line rl, t_conf conf)
 {
-	if (!conf.routes.size())
-		return	(get_default_route());
+	if (conf.routes.empty())
+		return (get_default_route());
 	for (std::vector<t_route>::iterator it = conf.routes.begin(); it != conf.routes.end(); it++)
 		if ((*it).location == rl.target || (!(*it).modifier && std::string(rl.target,0, (*it).location.length()) == (*it).location))
 			return (*it);

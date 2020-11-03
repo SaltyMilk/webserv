@@ -78,3 +78,8 @@ std::string str_replace(std::string str, std::string old_key, std::string new_ke
 	}
 	return (ret);
 }
+
+void debug(std::string name, std::string content)
+{
+	std::cout << name << content << std::endl;
+}

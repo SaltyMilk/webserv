@@ -225,4 +225,5 @@ std::string get_file_ext(std::string file);
 void chandler(int sig_num);
 std::string b64decode(const std::string& str64);
 std::string str_replace(std::string str, std::string old_key, std::string new_key);
+void debug(std::string name, std::string content);
 #endif

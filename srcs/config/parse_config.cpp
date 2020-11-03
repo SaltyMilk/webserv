@@ -1,4 +1,5 @@
 #include "../../includes/webserv.h"
+
 void parsePorts(t_conf &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
@@ -103,7 +104,7 @@ void parseRoutes(t_conf &conf, char *line, int fd)
     {
         if (sp[1][0] != '=' || sp[1][1])
             excerr("Config file error: invalid modifier token for location", 1);
-        r.modifier = sp[1][0]; 
+        r.modifier = sp[1][0];
        	r.location = std::string(sp[2]);
 		parseRouteConf(line, fd, r);
     }
@@ -199,7 +200,7 @@ t_conf parseServerBlock(int fd)
 		}
 		free(line);
 	}
-	if (!conf.ports.size()) //CHECK IF AT LEAST A PORT WAS GIVEN
+	if (conf.ports.empty()) //CHECK IF AT LEAST A PORT WAS GIVEN
 		excerr("Config file error: missing port number", 1);
 	if (ft_strlen(line) == 1 && line[0] == '}')
 	{

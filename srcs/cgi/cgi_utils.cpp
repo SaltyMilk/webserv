@@ -55,7 +55,8 @@ int parse_cgi_headers(t_http_res &resp, const char *output)
 			/*if (id == CONTENT_TYPE)//THIS IS A TEMP FIX PLEASE USE new function get_header_field after merge !
 				resp.headers[id] = "Content-type: " + header_value;*/
 			//del lines aboves and uncomment the line under this after merge
-			resp.headers[id] = get_header_field(id) + header_value; 
+			//resp.headers[id] = get_header_field(id) + header_value;
+			resp.headers[id] = format_header(id, header_value);
 		}
 	}
 	if (output[i] == '\n')

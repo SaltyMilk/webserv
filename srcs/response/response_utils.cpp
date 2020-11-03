@@ -99,6 +99,7 @@ t_route get_default_route()
 	route.modifier = 0;
 	route.location = "/";
 	route.cgi = false;
+	route.auth = false;
 	return (route);
 }
 

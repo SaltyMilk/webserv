@@ -160,6 +160,7 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 {
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
+	rl.bad_request = false;
 	rl.client_adr = client_adr;//Get client network infos
 	parse_request_line(mi, rl, request);
 	

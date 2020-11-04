@@ -1,9 +1,7 @@
 #include "../includes/webserv.h"
 int		client_count = 0;//Remove once project is finished, good for debugging
 std::vector<int> 	serv_socket;
-#include <stdlib.h>
 
-int serv_socket;
 std::string cinet_ntoa(in_addr_t in)
 {
 	unsigned char *bytes = (unsigned char *) &in;

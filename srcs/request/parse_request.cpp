@@ -36,6 +36,21 @@ void parse_request_line(size_t &i, t_req_line &rl, char *request)
 		rl.bad_request = true;
 }
 
+std::list<std::string> parse_content(std::string header_value)
+{
+	int c = -1;
+	char **split = ft_split(header_value.c_str(), ',');
+	std::string temp;
+	std::list<std::string> content;
+	while (split[++c])
+	{
+		temp = std::string(split[c]).substr(split[c][0] == ' ' ? 1 : 0);
+		if (temp.find(';') > 0)
+			temp = temp.substr(0, temp.find(';'));
+		content.push_back(temp);
+	}
+	return (content);
+}
 
 void parse_headers(size_t &i, t_req_line &rl, char *request)
 {
@@ -108,10 +123,14 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 		}
 		if (id == AUTHORIZATION)
 		{
-			size_t pos = header_value.find(" ");
+			size_t pos = header_value.find(' ');
 			rl.auth.type = header_value.substr(0, pos);
 			rl.auth.ident = b64decode(header_value.substr(pos + 1));
 		}
+		if (id == ACCEPT_LANGUAGE)
+			rl.languages = parse_content(header_value);
+		if (id == ACCEPT_CHARSETS)
+			rl.charsets = parse_content(header_value);
 		if (id != -1)
 			rl.headers[id] = header_value;
 	}
@@ -151,8 +170,8 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
 			std::cout << format_header(i, rl.headers[i]) << std::endl;
-
-
+	for (std::list<std::string>::iterator it = rl.languages.begin(); it != rl.languages.end(); it++)
+		debug("language: ", *it);
 	std::cout << rl.body << std::endl;
 	std::cout << "END REQUEST LOG" << std::endl;
 	answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd));

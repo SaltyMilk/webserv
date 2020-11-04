@@ -32,14 +32,14 @@ function create_sample_file {
   touch $file
   printf "server\n{\n" >> $file
   #general server settings
-  printf '\thost_addr %s\n\tserver_name %s\n\tport %s\n' "$ip" "$name" "$port" >> $file
-  printf "\tcgi on\n\tcgi_ext .bla\n\tcgi_path tests/cgi_test\n\n" >> $file
+  printf 'host_addr %s\nserver_name %s\nport %s\n' "$ip" "$name" "$port" >> $file
+  printf "cgi on\ncgi_ext .bla\ncgi_path tests/cgi_test\n\n" >> $file
 
   #locations
-  printf "\tlocation /\n\t{\n\t\tallow_method GET\n\t}\n\t" >> $file
-  printf "\tlocation /put_test/*\n\t{\n\t\tallow_method GET PUT\n\t\tupload_root_dir uploads\n\t}\n" >> $file
-  printf "\tlocation /post_body\n\t{\n\t\tallow_method PUT\n\t\tbody_limit 100\n\t}\n" >> $file
-  printf "\tlocation /directory/\n\t{\n\t\tallow_method GET\n\t\troot_directory tests/YoupiBanane\n\t}\n}" >> $file
+  printf "location /\n{\n\tallow_method GET\n}\n" >> $file
+  printf "location /put_test/*\n{\n\tallow_method GET PUT\n\tupload_root_dir uploads\n}\n" >> $file
+  printf "location /post_body\n{\n\tallow_method PUT\n\tbody_limit 100\n}\n" >> $file
+  printf "location /directory/\n{\n\tallow_method GET\n\troot_directory tests/YoupiBanane\n}\n}" >> $file
 }
 
 echo "Do you want to install the directory structure ?"

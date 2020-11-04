@@ -1,5 +1,6 @@
 #include "../includes/webserv.h"
 int		client_count = 0;//Remove once project is finished, good for debugging
+std::vector<int> 	serv_socket;
 #include <stdlib.h>
 
 int serv_socket;
@@ -24,6 +25,7 @@ int net_init(unsigned int port, std::string host_addr)
 	if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
 		excerr("Couldn't open server socket.", 1);
 
+	serv_socket.push_back(fd);
 	ft_memset((void *)&self_adr, 0, sizeof(self_adr));
 	self_adr.sin_family = AF_INET;
     self_adr.sin_addr.s_addr = inet_addr(host_addr.c_str());
@@ -41,7 +43,6 @@ int net_init(unsigned int port, std::string host_addr)
 	// listen socket
 	if (listen(fd, 10) == -1) 
 		excerr("Couldn't listen on server socket.", 1);
-	serv_socket = fd;
 	return fd;
 }
 
@@ -126,7 +127,6 @@ void init_all_servers(std::vector<t_conf> &servers, std::vector<int> &serv_fds, 
 
 int main(int argc, char **argv) 
 {
-	serv_socket = 0;
 	std::vector<t_conf> servers;
 	t_net s_net;
 	std::string conf_file = "ws.conf"; //Default path

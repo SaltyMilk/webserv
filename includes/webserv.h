@@ -158,6 +158,8 @@ typedef struct	s_request_line
 	struct sockaddr_in	client_adr;
 }				t_req_line;
 
+extern std::vector<int> 	serv_socket;
+
 int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS

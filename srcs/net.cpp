@@ -56,6 +56,7 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, stru
 		req += buff;
 		ft_bzero(buff, sizeof(buff));
 	}
+	std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
 	if (req.length())
 		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr);
 	else

@@ -102,7 +102,16 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	resp.headers[SERVER] = "Server: webserv/" + std::string(WEBSERV_VER);
 	//Add date header to all responses
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
-	if (bad_request(rl) || rl.bad_request)
+	handle_absolute_path(rl);
+	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
+	parse_cgi(rl);
+	route = get_route_for(rl, conf);
+	if (route.location == "/" && route.root_dir == ".")
+		route.root_dir = "./";
+	rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
+	if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
+		send_405(rl, resp, conf, route);
+	else if (bad_request(rl) || rl.bad_request)
 		send_400(rl, resp, conf);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp, conf);
@@ -110,19 +119,11 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		send_413(rl, resp, conf);
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
-		handle_absolute_path(rl);
-		parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
-		parse_cgi(rl);
-		route = get_route_for(rl, conf);
-		if (route.location == "/" && route.root_dir == ".")
-			route.root_dir = "./";
-		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
+
 		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
 			send_401(rl, resp, conf, route.auth_name);
 		else if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);
-		else if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
-			send_405(rl, resp, conf, route);
 		else if (rl.method == "GET" || rl.method == "HEAD")
 			getorhead_resp(rl, resp, conf, route);
 		else if (rl.method == "PUT")

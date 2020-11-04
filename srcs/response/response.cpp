@@ -106,6 +106,10 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 	parse_cgi(rl);
 	route = get_route_for(rl, conf);
+	std::cout << "allowed methods" << std::endl;
+	for (std::vector<std::string>::iterator it = route.allowed_methods.begin(); it != route.allowed_methods.end();it++)
+		std::cout << *it << std::endl;
+	std::cout << "END allowed methods" << std::endl;
 	if (route.location == "/" && route.root_dir == ".")
 		route.root_dir = "./";
 	if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
@@ -137,6 +141,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
+	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl ;
 	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);

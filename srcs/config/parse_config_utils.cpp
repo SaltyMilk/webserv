@@ -17,6 +17,7 @@ int parseRouteFields(char *line, t_route &route)
 	}
 	else if (ft_strlen(clean_line) >= 13 && std::string(clean_line, 13) == "allow_method ")
 	{
+		route.allowed_methods.erase(route.allowed_methods.begin(), route.allowed_methods.end());
 		sp = ft_split(clean_line, ' ');
 		if (!sp[1])
 			excerr("Config file error: empty allow_method field.", 1);

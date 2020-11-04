@@ -4,7 +4,7 @@ void send_400(t_req_line rl, t_http_res &resp, t_conf conf)
 {
 	resp.status_code = "400";
 	resp.reason_phrase = "Bad Request";
-	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, "test/html");
+	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, "text/html");
 	char c;
 	int efd = open(conf.default_error[ERR400].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method

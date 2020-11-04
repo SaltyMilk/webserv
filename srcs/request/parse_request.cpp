@@ -128,9 +128,11 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 			rl.auth.ident = b64decode(header_value.substr(pos + 1));
 		}
 		if (id == ACCEPT_LANGUAGE)
-			rl.languages = parse_content(header_value);
+			rl.alanguages = parse_content(header_value);
 		if (id == ACCEPT_CHARSETS)
 			rl.charsets = parse_content(header_value);
+		if (id == CONTENT_LANGUAGE)
+			rl.clanguages = parse_content(header_value);
 		if (id != -1)
 			rl.headers[id] = header_value;
 	}

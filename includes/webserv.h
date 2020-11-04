@@ -145,7 +145,8 @@ typedef struct	s_request_line
 	std::string target; // ex: /index, http://https://profile.intra.42.fr/,...
 	std::string http_ver;// ex : HTTP/1.1
 	std::string headers[18]; //headers are indexed like in project's subject
-	std::list<std::string> languages;
+	std::list<std::string> alanguages;
+	std::list<std::string> clanguages;
 	std::list<std::string> charsets;
 	std::string body;
 	std::string query;

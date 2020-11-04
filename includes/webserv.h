@@ -67,6 +67,7 @@
 
 #define WEBSERV_VER "0.1"
 
+
 //CONFIG PARSER
 typedef struct s_route
 {
@@ -137,6 +138,7 @@ struct s_headers
 	std::string	value;
 	std::string name;
 };
+
 
 //PARSER
 typedef struct	s_request_line

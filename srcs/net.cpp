@@ -2,6 +2,7 @@
 int		client_count = 0;//Remove once project is finished, good for debugging
 #include <stdlib.h>
 
+int serv_socket;
 std::string cinet_ntoa(in_addr_t in)
 {
 	unsigned char *bytes = (unsigned char *) &in;
@@ -14,10 +15,9 @@ std::string cinet_ntoa(in_addr_t in)
 	}
 	return ret;
 }
-
 int net_init(unsigned int port, std::string host_addr)
 {
-	int		fd; //Server's socket 
+	int		fd; //Server's socket
 	struct sockaddr_in	self_adr;
 
 	// open socket
@@ -41,6 +41,7 @@ int net_init(unsigned int port, std::string host_addr)
 	// listen socket
 	if (listen(fd, 10) == -1) 
 		excerr("Couldn't listen on server socket.", 1);
+	serv_socket = fd;
 	return fd;
 }
 
@@ -125,6 +126,7 @@ void init_all_servers(std::vector<t_conf> &servers, std::vector<int> &serv_fds, 
 
 int main(int argc, char **argv) 
 {
+	serv_socket = 0;
 	std::vector<t_conf> servers;
 	t_net s_net;
 	std::string conf_file = "ws.conf"; //Default path

@@ -106,10 +106,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 	parse_cgi(rl);
 	route = get_route_for(rl, conf);
-	std::cout << "allowed methods" << std::endl;
-	for (std::vector<std::string>::iterator it = route.allowed_methods.begin(); it != route.allowed_methods.end();it++)
-		std::cout << *it << std::endl;
-	std::cout << "END allowed methods" << std::endl;
+	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 	if (route.location == "/" && route.root_dir == ".")
 		route.root_dir = "./";
 	if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
@@ -120,11 +117,11 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		send_413(rl, resp, conf);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp, conf);
-	
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
-
+	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
+		std::cout <<  "target=" << rl.target << std::endl;
 		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
 			send_401(rl, resp, conf, route.auth_name);
 		else if (!method_supported(rl.method))//None standard http method requested

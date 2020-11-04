@@ -64,8 +64,6 @@ int parseRouteFields(char *line, t_route &route)
 		if (!sp[1])
 			excerr("Config file error: empty default_dir_file field.", 1);
 		route.default_dir_file = std::string(sp[1]);
-		if (!file_exists(route.default_dir_file))
-			excerr("Config file error: provided default_dir_file couldn't be find.", 1);
 		ft_freesplit(sp);
 	}
 	else if (ft_strlen(clean_line) >= 9 && std::string(clean_line, 9) == "cgi_path ")

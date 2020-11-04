@@ -172,8 +172,6 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
 			std::cout << format_header(i, rl.headers[i]) << std::endl;
-	for (std::list<std::string>::iterator it = rl.languages.begin(); it != rl.languages.end(); it++)
-		debug("language: ", *it);
 	std::cout << rl.body << std::endl;
 	std::cout << "END REQUEST LOG" << std::endl;
 	answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd));

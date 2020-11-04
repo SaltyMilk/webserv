@@ -1,5 +1,6 @@
 #include "../includes/webserv.h"
 int		client_count = 0;//Remove once project is finished, good for debugging
+std::vector<int> 	serv_socket;
 #include <stdlib.h>
 
 std::string cinet_ntoa(in_addr_t in)
@@ -24,6 +25,7 @@ int net_init(unsigned int port, std::string host_addr)
 	if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1)
 		excerr("Couldn't open server socket.", 1);
 
+	serv_socket.push_back(fd);
 	ft_memset((void *)&self_adr, 0, sizeof(self_adr));
 	self_adr.sin_family = AF_INET;
     self_adr.sin_addr.s_addr = inet_addr(host_addr.c_str());

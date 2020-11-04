@@ -18,28 +18,32 @@ function create_structure {
   echo "This file is the not_happy.bad_extension file in the Yeah directory" >> not_happy.bad_extension
 
   cd ..
+  cd ..
 }
 
 function create_sample_file {
   echo "Give a name to the sample config file"
   read -rp "file: " file
 
-  echo "Enter ip, port and server name for the config file"
+  echo "Enter ip, port, server name and cgi_test path for the config file"
   read -rp "ip: " ip
   read -rp "port: " port
   read -rp "name: " name
+  read -e -rp "cgi_tester path: " cgi
 
   touch $file
   printf "server\n{\n" >> $file
   #general server settings
   printf 'host_addr %s\nserver_name %s\nport %s\n' "$ip" "$name" "$port" >> $file
-  printf "cgi on\ncgi_ext .bla\ncgi_path tests/cgi_test\n\n" >> $file
+  printf "cgi on\ncgi_ext .bla\ncgi_path %s\n\n" "$cgi" >> $file
 
   #locations
   printf "location /\n{\n\tallow_method GET\n}\n" >> $file
   printf "location /put_test/*\n{\n\tallow_method GET PUT\n\tupload_root_dir uploads\n}\n" >> $file
   printf "location /post_body\n{\n\tallow_method PUT\n\tbody_limit 100\n}\n" >> $file
   printf "location /directory/\n{\n\tallow_method GET\n\troot_directory tests/YoupiBanane\n}\n}" >> $file
+
+  echo "File $file has successfully been created..."
 }
 
 echo "Do you want to install the directory structure ?"

@@ -79,7 +79,6 @@ void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	close(efd);
 }
 
-
 void send_501(t_req_line rl, t_http_res &resp, t_conf conf)
 {
 	resp.status_code = "501";

@@ -73,6 +73,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 	for (size_t i = 0; envs[i]; i++)//Free envs
 		free(envs[i]);
 	free(envs);
+	parse_cgi_status(resp, output.c_str());
 	return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
 }
 

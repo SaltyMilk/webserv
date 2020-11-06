@@ -38,11 +38,8 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
 	if (file_is_dir(rl.target) && !route.dir_listing)//Handle directories without dir_listing
-	{
-		fd = open(route.default_dir_file.c_str(), O_RDONLY);
-		send_200_file_is_a_dir(rl, resp, fd, route);
-	}
-	else if (file_is_dir(rl.target) && route.dir_listing)//Handle dir listing
+		rl.target = rl.target + "/" + route.default_dir_file;
+	if (file_is_dir(rl.target) && route.dir_listing)//Handle dir listing
 	{
 		get_dir_listing(rl.target);
 		send_200_dirlist(rl, resp);

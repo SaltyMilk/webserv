@@ -46,27 +46,34 @@ int net_init(unsigned int port, std::string host_addr)
 
 void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr)
 {
-//	char	buff[BUFF_SIZE];
+	char	buff[BUFF_SIZE];
 	int ret;
 	std::string req;
-/*	ft_bzero(buff, BUFF_SIZE);
-	while ((ret = read(client_fd, buff, BUFF_SIZE - 1)) > 0)
+	ft_bzero(buff, BUFF_SIZE);
+	while ((ret = recv(client_fd, buff, BUFF_SIZE - 1, 0)))
 	{
+		if (errno == EAGAIN)
+		{
+			usleep(200);
+			ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
+			if (errno == EAGAIN)
+				break;
+		}
 		buff[ret] = 0;
 		req += buff;
 		ft_bzero(buff, sizeof(buff));
-	}*/
-	char buff;
+	}
+/*	char buff;
 	while ((ret = recv(client_fd, &buff, 1, 0)) > 0)
 	{
 		req += buff;
 		usleep(50);
-	}
+	}*/
 	if (ret == 0)
 		req += buff;
 	if (ret == -1)
 		std::cout << "errno=" << strerror(errno) << std::endl;
-	std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
+	//std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
 	if (req.length())
 		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr);
 	else

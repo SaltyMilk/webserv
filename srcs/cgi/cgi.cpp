@@ -68,6 +68,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 			buff[r] = 0;
 			output += buff;
 		}
+		unlink(".tmpfile");
 	}
 	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
 	free(argv[0]);//free argv

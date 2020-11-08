@@ -157,8 +157,10 @@ void get_dir_listing(std::string dir)
 // ex: for PUT /somedir/index.html if somedir doesn't exist create it
 void create_missing_dirs(std::string targ, t_route route)
 {
+	(void)route;
 	size_t i = 0;
-	std::string target = route.upload_root_dir + targ; // later change to upload_root_dir
+	std::string target = targ; // later change to upload_root_dir
+	std::cout << "dirtarg=" << target<< std::endl;
 	while(target[i])
 	{
 		i++;
@@ -168,7 +170,7 @@ void create_missing_dirs(std::string targ, t_route route)
 		if (!target[i + len])
 			return;
 		i += len;
-		std::string dir_to_create = std::string(target, 0, i);
+		std::string dir_to_create = std::string(target, 0, i );
 		if (!file_exists(dir_to_create))
 			mkdir(dir_to_create.c_str(), 0777);
 	}
@@ -179,7 +181,7 @@ void create_ressource(t_req_line rl, t_route route)
 {
 	int fd;
 	create_missing_dirs(rl.target, route);
-	fd = open((route.upload_root_dir + rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
+	fd = open((rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
 	write(fd, rl.body.c_str(), rl.body.length());
 }
 

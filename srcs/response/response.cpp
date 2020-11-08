@@ -53,6 +53,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 
 void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 {
+	rl.target = str_replace(rl.target, route.root_dir, route.upload_root_dir);
 	if (file_exists(rl.target))
 		send_204_put(rl, resp, route);
 	else
@@ -101,7 +102,6 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
 	handle_absolute_path(rl);
 	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
-	parse_cgi(rl);
 	route = get_route_for(rl, conf);
 	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 	if (route.location == "/" && route.root_dir == ".")
@@ -117,6 +117,8 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
 		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
+		if (route.cgi)
+			parse_cgi(rl);
 		std::cout << "target=" << rl.target << std::endl;
 		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
 			send_401(rl, resp, conf, route.auth_name);
@@ -134,8 +136,19 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
-	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl ;
-	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
+	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
+	if (response.length() > 1000)
+	{
+		char *rep = const_cast<char *>(response.c_str());
+		size_t i = 0;//number of bytes written
+		while (i < response.length())
+		{
+			write(client_fd, rep + i, 1000);
+			i += 1000;
+		}
+	}
+	else 
+		write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
 	return (0);

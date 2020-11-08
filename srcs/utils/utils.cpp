@@ -14,9 +14,12 @@ void excerr(std::string msg, int c)
 std::string get_file_ext(std::string file)
 {
 	size_t i = file.length() - 1;
+
+	if (i == std::string::npos)
+		return (std::string(""));
 	while (i > 0 && file[i] != '.' && file[i] != '/')
 		i--;
-	if (file[i] == '/' || !i)
+	if (i <= 0 || file[i] == '/')
 		return (std::string(""));//No extension for file
 	return (std::string(file, i));
 }

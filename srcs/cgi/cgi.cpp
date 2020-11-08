@@ -14,6 +14,8 @@ void 	parse_cgi(t_req_line &request)
 	size_t pos = request.target.find('.');
 	char 	buff[4097];
 
+	if (pos == std::string::npos)
+		return ;
 	getcwd(buff, 4096);
 	while (request.target[pos] != '/' && pos < request.target.length())
 		pos++;

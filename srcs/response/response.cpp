@@ -136,19 +136,26 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
-	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
+	std::cout << "Response status code=" << resp.status_code << std::endl;
+//	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
+	int ret = 0;
+	
 	if (response.length() > 1000)
 	{
-		char *rep = const_cast<char *>(response.c_str());
 		size_t i = 0;//number of bytes written
-		while (i < response.length())
+		while (i < response.length() - 1000)
 		{
-			write(client_fd, rep + i, 1000);
+			write(client_fd, response.c_str() + i, 1000);
 			i += 1000;
 		}
+		if (response.length() - i)
+			write(client_fd, response.c_str() + i, response.length() - i);
+		ret = i;
 	}
 	else 
-		write(client_fd, response.c_str(), ft_strlen(response.c_str()));
+		ret = write(client_fd, response.c_str(), ft_strlen(response.c_str()));
+	std::cout << "resp length= " << response.length() << std::endl;
+	std::cout << ret << " bytes written" << std::endl;
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
 	return (0);

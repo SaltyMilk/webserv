@@ -21,10 +21,12 @@ void 	parse_cgi(t_req_line &request)
 		pos++;
 	request.path.script = request.target.substr(0, pos);
 	request.path.translated = buff + request.path.script;
-	if (pos + 2 < request.target.length())
+	request.path.info = request.target;
+	/*if (pos + 2 < request.target.length())
 		request.path.info = request.target.substr(pos + 2);
 	else
 		request.path.info = request.path.translated;
+*/
 }
 
 //returns the output of the cgi
@@ -36,7 +38,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
 	argv[2] = NULL;
 	std::string output;
-	char buff[BUFF_SIZE];
+	char buff[1000];
 	int fd[2];
 	pid_t pid;
 
@@ -57,26 +59,28 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 			dup2(fd, 0);
 		}
 		execve(route.cgi_path.c_str(), argv, envs);
-		exit(19);
+		exit(0);
 	}
 	else
 	{
 		int r;
 		close(fd[1]);
-		while ((r = read(fd[0], buff, BUFF_SIZE - 1)) > 0)
+		while ((r = read(fd[0], buff, 1000 -1)) > 0)
 		{
 			buff[r] = 0;
 			output += buff;
 		}
 		unlink(".tmpfile");
 	}
-	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
+//	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
 	free(argv[0]);//free argv
 	free(argv);
 	for (size_t i = 0; envs[i]; i++)//Free envs
 		free(envs[i]);
 	free(envs);
+	std::cout << "gonna parse status" << std::endl;
 	parse_cgi_status(resp, output.c_str());
+	std::cout << "finished parsing status" << std::endl;
 	return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
 }
 

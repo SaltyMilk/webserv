@@ -54,7 +54,7 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, stru
 	{
 		if (errno == EAGAIN)
 		{
-			usleep(200);
+			usleep(420);
 			ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
 			if (errno == EAGAIN)
 				break;

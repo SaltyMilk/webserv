@@ -38,11 +38,8 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
 		return (0);
 	if (file_is_dir(rl.target) && !route.dir_listing)//Handle directories without dir_listing
-	{
-		fd = open(route.default_dir_file.c_str(), O_RDONLY);
-		send_200_file_is_a_dir(rl, resp, fd, route);
-	}
-	else if (file_is_dir(rl.target) && route.dir_listing)//Handle dir listing
+		rl.target = rl.target + "/" + route.default_dir_file;
+	if (file_is_dir(rl.target) && route.dir_listing)//Handle dir listing
 	{
 		get_dir_listing(rl.target);
 		send_200_dirlist(rl, resp);
@@ -56,6 +53,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 
 void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 {
+	rl.target = str_replace(rl.target, route.root_dir, route.upload_root_dir);
 	if (file_exists(rl.target))
 		send_204_put(rl, resp, route);
 	else
@@ -104,7 +102,6 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	resp.headers[DATE] = "Date: " + get_imf_fixdate();
 	handle_absolute_path(rl);
 	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
-	parse_cgi(rl);
 	route = get_route_for(rl, conf);
 	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 	if (route.location == "/" && route.root_dir == ".")
@@ -119,9 +116,10 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		send_505(rl, resp, conf);
 	else // REQUEST SHOULD BE VALID NOW AND READY FOR PROCESSING
 	{
-	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
-		std::cout <<  "target=" << rl.target << std::endl;
+		if (route.cgi)
+			parse_cgi(rl);
+		std::cout << "target=" << rl.target << std::endl;
 		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
 			send_401(rl, resp, conf, route.auth_name);
 		else if (!method_supported(rl.method))//None standard http method requested
@@ -138,8 +136,26 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
-	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl ;
-	write(client_fd, response.c_str(), ft_strlen(response.c_str()));
+	std::cout << "Response status code=" << resp.status_code << std::endl;
+//	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
+	int ret = 0;
+	
+	if (response.length() > 1000)
+	{
+		size_t i = 0;//number of bytes written
+		while (i < response.length() - 1000)
+		{
+			write(client_fd, response.c_str() + i, 1000);
+			i += 1000;
+		}
+		if (response.length() - i)
+			write(client_fd, response.c_str() + i, response.length() - i);
+		ret = i;
+	}
+	else 
+		ret = write(client_fd, response.c_str(), ft_strlen(response.c_str()));
+	std::cout << "resp length= " << response.length() << std::endl;
+	std::cout << ret << " bytes written" << std::endl;
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
 	return (0);

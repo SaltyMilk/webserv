@@ -31,7 +31,11 @@
 #include <errno.h>
 //DATE INCLUDES
 #include <sys/time.h>
-#define BUFF_SIZE 42
+
+#ifndef BUFF_SIZE
+	#define BUFF_SIZE 42
+#endif
+
 
 //HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
@@ -198,6 +202,7 @@ std::string	format_header(int header, std::string value);
 std::string get_header_field(int header);
 std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp);
 int parse_cgi_headers(t_http_res &resp, const char *output);
+void parse_cgi_status(t_http_res &resp, const char *output);
 
 //DATE
 std::string get_imf_fixdate();

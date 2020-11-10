@@ -46,24 +46,34 @@ int net_init(unsigned int port, std::string host_addr)
 
 void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr)
 {
-//	char	buff[BUFF_SIZE];
+	char	buff[BUFF_SIZE];
 	int ret;
 	std::string req;
-/*	ft_bzero(buff, BUFF_SIZE);
-	while ((ret = read(client_fd, buff, BUFF_SIZE - 1)) > 0)
+	ft_bzero(buff, BUFF_SIZE);
+	while ((ret = recv(client_fd, buff, BUFF_SIZE - 1, 0)))
 	{
+		if (errno == EAGAIN)
+		{
+			usleep(420);
+			ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
+			if (errno == EAGAIN)
+				break;
+		}
 		buff[ret] = 0;
 		req += buff;
 		ft_bzero(buff, sizeof(buff));
-	}*/
-	char buff;
-	while ((ret = read(client_fd, &buff, 1)) > 0)
+	}
+/*	char buff;
+	while ((ret = recv(client_fd, &buff, 1, 0)) > 0)
 	{
 		req += buff;
-	}
+		usleep(50);
+	}*/
 	if (ret == 0)
 		req += buff;
-	std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
+	if (ret == -1)
+		std::cout << "errno=" << strerror(errno) << std::endl;
+	//std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
 	if (req.length())
 		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr);
 	else
@@ -84,7 +94,7 @@ int net_accept(t_net &snet, int fd, struct sockaddr_in	&client_adr)
 	snet.clients_net.push_back(client_adr);
 	// unblock socket
 	if ((fcntl(client_fd, F_GETFL, O_NONBLOCK)) == -1)
-		excerr("Couldn't unblock client's socket", 1);//Should change this to send 500 internal error in the future
+		excerr("Couldn't unblock client's socket", 1);
 	std::cout << "client accepted with fd=" << fd << std::endl;
 	return client_fd;
 }

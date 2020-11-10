@@ -1,5 +1,37 @@
 #include "../../includes/webserv.h"
 
+void parse_cgi_status(t_http_res &resp, const char *output)
+{
+	size_t i = 0;
+	while (output[i] && output[i] != '\r' && output[i] != '\n')
+		i++;
+	if (i < 0)
+		return;
+	char first_line[i + 1];
+	size_t j = 0;
+	while (j < i)
+	{
+		first_line[j] = output[j];
+		j++; 
+	}
+	first_line[j] = 0;
+	char **sp;
+	sp = ft_split(first_line, ' ');
+	if (std::string(sp[0]) == "Status:")
+	{
+		resp.status_code = std::string(sp[1]);
+		resp.reason_phrase = "";
+		size_t k = 2;
+		while (sp[k])
+		{
+			if (k > 2)
+				resp.reason_phrase += " ";
+			resp.reason_phrase += std::string(sp[k++]);
+		}
+	}
+	ft_freesplit(sp);
+}
+
 int parse_cgi_headers(t_http_res &resp, const char *output)
 {
 	size_t i = 0;

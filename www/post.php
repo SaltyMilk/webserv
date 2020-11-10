@@ -5,6 +5,6 @@ if (isset($_POST["name"]))
 }
 else
 {
-	echo 'Bonjour inconnu !';	
+	http_response_code(404);
 }
 ?>

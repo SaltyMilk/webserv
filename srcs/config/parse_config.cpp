@@ -46,29 +46,31 @@ void parseIndex(t_conf &conf, char *line)
 void parseDefaultErrorPage(t_conf &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
+	std::string	field = sp[0];
 	if (!sp[1])
-		excerr("Config file error: missing argument for " + std::string(sp[0]), 1);
-	if (std::string(sp[0]) == "default_400")
-		conf.default_error[ERR400] = std::string(sp[1]);
-	else if (std::string(sp[0]) == "default_401")
-		conf.default_error[ERR401] = std::string(sp[1]);
-	else if (std::string(sp[0]) == "default_403")
-		conf.default_error[ERR403] = std::string(sp[1]);
-	else if (std::string(sp[0]) == "default_404")
-		conf.default_error[ERR404] = std::string(sp[1]);
-	else if (std::string(sp[0]) == "default_413")
-		conf.default_error[ERR413] = std::string(sp[1]);
-	else if (std::string(sp[0]) == "default_501")
-		conf.default_error[ERR501] = std::string(sp[1]);
-	else if (std::string(sp[0]) == "default_505")
-		conf.default_error[ERR505] = std::string(sp[1]);
+		excerr("Config file error: missing argument for " + field, 2);
+	std::string	value = sp[1];
+	if (field == "default_400")
+		conf.default_error[ERR400] = value;
+	else if (field == "default_401")
+		conf.default_error[ERR401] = value;
+	else if (field == "default_403")
+		conf.default_error[ERR403] = value;
+	else if (field == "default_404")
+		conf.default_error[ERR404] = value;
+	else if (field == "default_413")
+		conf.default_error[ERR413] = value;
+	else if (field == "default_500")
+		conf.default_error[ERR500] = value;
+	else if (field == "default_501")
+		conf.default_error[ERR501] = value;
+	else if (field == "default_505")
+		conf.default_error[ERR505] = value;
 	else
 		std::cerr << "Config file warning: cannot set default page for unimplemented error code [" << std::string(sp[0] + 8) << "]" << std::endl;
-	if (!file_exists(std::string(sp[1])))
-		excerr("Config file error: default error file [" + std::string(sp[1]) + "] couldn't be find.", 1);
-	for (size_t i = 0; sp[i]; i++)
-		free(sp[i]);
-	free(sp);
+	if (!file_exists(value))
+		excerr("Config file error: default error file [" + value + "] couldn't be find.", 1);
+	ft_freesplit(sp);
 }
 
 //Will read inside the location block, ending by reading the final '}' which will then be freed in 
@@ -163,6 +165,7 @@ void set_default_settings(t_conf &conf)
 	conf.default_error[ERR403] = "www/403.html";
 	conf.default_error[ERR404] = "www/404.html";
 	conf.default_error[ERR413] = "www/413.html";
+	conf.default_error[ERR500] = "www/500.html";
 	conf.default_error[ERR501] = "www/501.html";
 	conf.default_error[ERR505] = "www/505.html";
 	

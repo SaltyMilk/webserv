@@ -79,6 +79,28 @@ void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	close(efd);
 }
 
+void send_418(t_http_res &resp)
+{
+	resp.status_code = "418";
+	resp.reason_phrase = "I'm a teapot";
+	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, "message/teapot");
+}
+
+void send_500(t_req_line &rl, t_http_res &resp, t_conf conf)
+{
+	resp.status_code = "500";
+	resp.reason_phrase = "Internal Server Error";
+	char	c;
+	int		fd;
+	if (rl.method != "HEAD")
+	{
+		fd = open(conf.default_error[ERR500].c_str(), O_RDONLY);
+		while (read(fd, &c, 1) > 0)
+			resp.body += c;
+		close(fd);
+	}
+}
+
 void send_501(t_req_line rl, t_http_res &resp, t_conf conf)
 {
 	resp.status_code = "501";

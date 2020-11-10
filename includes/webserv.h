@@ -58,7 +58,7 @@
 #define WWW_AUTHENTICATE	17
 
 //Number of error status code supported
-#define N_ERR_IMPLEMENTED 8
+#define N_ERR_IMPLEMENTED 9
 //Defines to be used with conf::default_error
 #define ERR400 0
 #define ERR401 1
@@ -66,8 +66,9 @@
 #define ERR404 3
 #define ERR405 4
 #define ERR413 5
-#define ERR501 6
-#define ERR505 7
+#define ERR500 6
+#define ERR501 7
+#define ERR505 8
 
 #define WEBSERV_VER "0.1"
 
@@ -216,6 +217,8 @@ void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
 void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_418(t_http_res &resp);
+void send_500(t_req_line &rl, t_http_res &resp, t_conf conf);
 void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route);

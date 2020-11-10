@@ -39,9 +39,11 @@ void parse_request_line(size_t &i, t_req_line &rl, char *request)
 std::list<std::string> parse_content(std::string header_value)
 {
 	int c = -1;
-	char **split = ft_split(header_value.c_str(), ',');
+	char **split;
 	std::string temp;
 	std::list<std::string> content;
+	if (!(split = ft_split(header_value.c_str(), ',')))
+		return (content); //ici on est dans le cas d'une 500
 	while (split[++c])
 	{
 		temp = std::string(split[c]).substr(split[c][0] == ' ' ? 1 : 0);

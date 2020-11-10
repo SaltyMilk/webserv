@@ -33,19 +33,31 @@ void 	parse_cgi(t_req_line &request)
 std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 {
 	char 	**envs;
-	char  **argv = (char**)malloc(3*sizeof(char *));
+	char 	**argv = (char**)malloc(3 * sizeof(char *));
 	argv[0] = ft_strdup(route.cgi_path.c_str());
 	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
 	argv[2] = NULL;
+	if (!argv[0] && !argv[1])
+	{
+		free(argv);
+		resp.status_code = "500";
+		resp.reason_phrase = "Internal Server Error";
+		return ("");
+	}
 	std::string output;
 	char buff[1000];
 	int fd[2];
 	pid_t pid;
 
-	envs = get_cgi_envs(request);
+	if (!(envs = get_cgi_envs(request)))
+	{
+		ft_freesplit(argv);
+		resp.status_code = "500";
+		resp.reason_phrase = "Internal Server Error";
+		return ("");
+	}
 	pipe(fd);
-	pid = fork();
-	if (!pid)
+	if ((pid = fork()) < 0)
 	{
 		close(fd[0]);
 		dup2(fd[1], 1); //Everything that would go on stdout goes to fd[1]

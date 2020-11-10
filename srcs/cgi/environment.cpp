@@ -40,7 +40,8 @@ char	**get_cgi_envs(t_req_line &request)
 		if (!request.headers[i].empty())
 			map["HTTP_" + get_header_field(i)] = request.headers[i];
 	}
-    envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
+    if (!(envs = (char **)ft_memalloc(sizeof(char *) * (map.size() + 1))))
+		return (NULL);
     i = 0;
     for (it = map.begin(); it != map.end(); it++)
     	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());

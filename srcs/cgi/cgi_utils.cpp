@@ -15,10 +15,16 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 		j++; 
 	}
 	first_line[j] = 0;
-	char **sp;
-	sp = ft_split(first_line, ' ');
-	if (std::string(sp[0]) == "Status:")
+	std::string status = std::string(first_line);
+	if (status.compare(0, 7, "Status:") == 0)
 	{
+		char **sp;
+		if (!(sp = ft_split(first_line, ' ')))
+		{
+			resp.status_code = "500";
+			resp.reason_phrase = "Internal Server Error";
+			return ;
+		}
 		resp.status_code = std::string(sp[1]);
 		resp.reason_phrase = "";
 		size_t k = 2;
@@ -28,8 +34,8 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 				resp.reason_phrase += " ";
 			resp.reason_phrase += std::string(sp[k++]);
 		}
+		ft_freesplit(sp);
 	}
-	ft_freesplit(sp);
 }
 
 int parse_cgi_headers(t_http_res &resp, const char *output)
@@ -75,19 +81,17 @@ int parse_cgi_headers(t_http_res &resp, const char *output)
 		}
 		char *trimmed = ft_strtrim(header_value.c_str(), " "); //TRIM extra spaces after header value
 		if (!trimmed)
-			std::cerr << "ERROR LOG: malloc failed." << std::endl;
+			std::cerr << "ERROR LOG: malloc failed." << std::endl; //on fait quoi ici ?
 		else
 		{
 			header_value = trimmed;
 			free(trimmed);
 		}
-		int id = get_header_id(header_field);
-		if (id != -1)
+		if (int id = get_header_id(header_field) != -1)
 		{
 			/*if (id == CONTENT_TYPE)//THIS IS A TEMP FIX PLEASE USE new function get_header_field after merge !
 				resp.headers[id] = "Content-type: " + header_value;*/
 			//del lines aboves and uncomment the line under this after merge
-			//resp.headers[id] = get_header_field(id) + header_value;
 			resp.headers[id] = format_header(id, header_value);
 		}
 	}

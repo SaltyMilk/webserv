@@ -99,7 +99,7 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 			rl.headers[id] = header_value;
 		if (id == AUTHORIZATION)
 		{
-			size_t pos = header_value.find(" ");
+			size_t pos = header_value.find(' ');
 			rl.auth.type = header_value.substr(0, pos);
 			rl.auth.ident = b64decode(header_value.substr(pos + 1));
 		}
@@ -121,7 +121,7 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 	if (pos > 0)
 	{
 		pair.first = rl.headers[HOST].substr(0, pos);
-		port = ft_satoi(rl.headers[HOST].substr(pos).c_str());
+		port = ft_satoi(rl.headers[HOST].substr(pos + 1).c_str());
 		if (port < 0)
 			rl.bad_request = true;
 		else

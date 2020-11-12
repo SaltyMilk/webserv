@@ -53,7 +53,7 @@ $(NAME): $(OBJ)
 	@printf "Compiling $(NAME) "
 	@$(CC) $(CFLAGS) $(LIB) -I$(INC) -o $(NAME) $(OBJ) -fsanitize=address
 	@printf $(cclightgray)[$(ccgreenhard)√$(cclightgray)]$(ccreset)
-	@printf "                                                     \n"
+	@printf "\n"
 
 %.o: %.cpp
 	@printf $(ccblue)

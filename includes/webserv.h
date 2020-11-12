@@ -36,7 +36,7 @@
 	#define BUFF_SIZE 42
 #endif
 
-
+#define WRITE_SIZE 100
 //HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1
@@ -192,7 +192,7 @@ t_route get_route_for(t_req_line rl, t_conf conf);
 bool method_allowed(std::string method, t_route route);
 bool method_supported(std::string method);
 void get_dir_listing(std::string dir);
-void create_ressource(t_req_line rl, t_route route);
+void create_ressource(t_req_line rl, t_route route, t_http_res &resp);
 void empty_directory(std::string path);
 
 //CGI

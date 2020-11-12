@@ -15,6 +15,7 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 		j++; 
 	}
 	first_line[j] = 0;
+	std::cout << "cgi first line =" << first_line << std::endl;
 	char **sp;
 	sp = ft_split(first_line, ' ');
 	if (std::string(sp[0]) == "Status:")

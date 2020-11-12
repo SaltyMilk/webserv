@@ -58,7 +58,7 @@ void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 		send_204_put(rl, resp, route);
 	else
 		send_201_put(rl, resp);
-	create_ressource(rl, route);
+	create_ressource(rl, route, resp);
 }
 
 void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
@@ -78,12 +78,15 @@ void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 	}
 }
 
-void post(t_req_line rl, t_http_res &resp, t_route route, t_conf conf)
+void post(t_req_line rl, t_http_res &resp, t_route route)
 {
 	int fd;
 
 	if ((fd = open((rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server might need change, nginx works like this though
-		send_404(rl, resp, conf);
+	{
+		send_201_put(rl, resp);
+		create_ressource(rl, route, resp);
+	}
 	else // Requested file was found.
 		send_200(rl, resp, fd, route);
 
@@ -131,30 +134,33 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		else if (rl.method == "DELETE")
 			delete_resp(rl, resp, conf);
 		else if (rl.method == "POST")
-			post(rl, resp, route, conf);
+			post(rl, resp, route);
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
 	std::cout << "Response status code=" << resp.status_code << std::endl;
+		
+	//	std::cout << "Response LOG"<< std::endl << response << std::endl << "END RESPONSE LOG" << std::endl;
 //	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
 	int ret = 0;
-	
-	if (response.length() > 1000)
+	int rret = 0;	
+	if (response.length() > WRITE_SIZE)
 	{
 		size_t i = 0;//number of bytes written
-		while (i < response.length() - 1000)
+		while (i < response.length() - WRITE_SIZE)
 		{
-			write(client_fd, response.c_str() + i, 1000);
-			i += 1000;
+			rret += write(client_fd, response.c_str() + i, WRITE_SIZE);
+			i += WRITE_SIZE;
 		}
 		if (response.length() - i)
-			write(client_fd, response.c_str() + i, response.length() - i);
-		ret = i;
+			rret += write(client_fd, response.c_str() + i, response.length() - i);
+		ret = i + (response.length() - i);
 	}
 	else 
 		ret = write(client_fd, response.c_str(), ft_strlen(response.c_str()));
 	std::cout << "resp length= " << response.length() << std::endl;
+	std::cout << rret << " bytes really written" << std::endl;
 	std::cout << ret << " bytes written" << std::endl;
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);

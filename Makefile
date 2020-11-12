@@ -35,17 +35,32 @@ OBJ = $(SRCS:.cpp=.o)
 CC = clang++
 CFLAGS = -Wall -Wextra -Werror
 LIB = -Llibft -lft
-
 INC = includes
 INC_LIB = libft
+
+ccblue = "\33[0;34m"
+ccred = "\033[0;91m"
+ccgreen = "\033[0;92m"
+ccgreenhard = "\033[0;32m"
+cccyan = "\033[0;96m"
+ccreset = "\033[0;0m"
+cclightgray = "\033[0;37m"
 
 all: libft $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(LIB) -I$(INC) -o $(NAME) $(OBJ) -fsanitize=address
+	@printf $(cccyan)
+	@printf "Compiling $(NAME) "
+	@$(CC) $(CFLAGS) $(LIB) -I$(INC) -o $(NAME) $(OBJ) -fsanitize=address
+	@printf $(cclightgray)[$(ccgreenhard)√$(cclightgray)]$(ccreset)
+	@printf "                                                     \n"
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -I$(INC) -I$(INC_LIB) -o $@ -c $<
+	@printf $(ccblue)
+	@printf "Compiling $(notdir $<) "
+	@$(CC) $(CFLAGS) -I$(INC) -I$(INC_LIB) -o $@ -c $<
+	@printf $(cclightgray)[$(ccgreenhard)√$(cclightgray)]$(ccreset)
+	@printf "\n"
 
 libft:
 	@make -C ./libft

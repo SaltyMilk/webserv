@@ -73,11 +73,8 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 		unlink(".tmpfile");
 	}
 //	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
-	free(argv[0]);//free argv
-	free(argv);
-	for (size_t i = 0; envs[i]; i++)//Free envs
-		free(envs[i]);
-	free(envs);
+	ft_freesplit(argv);
+	ft_freesplit(envs);
 	std::cout << "gonna parse status" << std::endl;
 	parse_cgi_status(resp, output.c_str());
 	std::cout << "finished parsing status" << std::endl;

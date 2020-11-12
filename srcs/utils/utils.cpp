@@ -70,7 +70,11 @@ char **addEnvVar(char **envs, char *var)
 	size_t i = 0;
 	while (envs[i])
 		i++;
-	ret = (char**)malloc(sizeof(char *) * (i+2));
+	if (!(ret = (char**)ft_memalloc(sizeof(char *) * (i+2))))
+	{
+		ft_freesplit(envs);
+		return (NULL);
+	}
 	i= 0;
 	while (envs[i])
 	{

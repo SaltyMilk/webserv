@@ -33,26 +33,32 @@ SRCS = $(addprefix $(SRC_DIR), $(SRC))
 OBJ = $(SRCS:.cpp=.o)
 
 CC = clang++
-CFLAGS = -Wall -Wextra -Werror -Iincludes -lft -L. -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror
+LIB = -Llibft -lft
+
+INC = includes
+INC_LIB = libft
 
 all: libft $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) -o $(NAME) $(SRCS)
+	$(CC) $(CFLAGS) $(LIB) -I$(INC) -o $(NAME) $(OBJ) -fsanitize=address
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -I$(INC) -I$(INC_LIB) -o $@ -c $<
 
 libft:
-	make -C ./libft
-	cp ./libft/libft.a ./libft.a
-clean:
-	make -C ./libft clean
-	rm -rf $(OBJ)
-	rm -rf libft.a
-fclean:
-	make -C ./libft fclean
-	rm -rf $(OBJ)
-	rm -rf libft.a
-	rm -rf webserv
-re: fclean all
+	@make -C ./libft
 
+clean:
+	@make -C ./libft clean
+	@rm -rf $(OBJ)
+
+fclean:
+	@make -C ./libft fclean
+	@rm -rf $(OBJ)
+	@rm -rf $(NAME)
+
+re: fclean all
 
 .PHONY: libft all $(NAME)

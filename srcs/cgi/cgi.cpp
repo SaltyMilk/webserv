@@ -22,18 +22,13 @@ void 	parse_cgi(t_req_line &request)
 	request.path.script = request.target.substr(0, pos);
 	request.path.translated = buff + request.path.script;
 	request.path.info = request.target;
-	/*if (pos + 2 < request.target.length())
-		request.path.info = request.target.substr(pos + 2);
-	else
-		request.path.info = request.path.translated;
-*/
 }
 
 //returns the output of the cgi
 std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, char **&envp)
 {
 	char 	**envs;
-	char 	**argv = (char**)malloc(3 * sizeof(char *));
+	char 	**argv = (char**)ft_memalloc(3 * sizeof(char *));
 	argv[0] = ft_strdup(route.cgi_path.c_str());
 	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
 	argv[2] = NULL;
@@ -81,6 +76,14 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 		{
 			buff[r] = 0;
 			output += buff;
+		}
+		if (r == -1)
+		{
+			ft_freesplit(argv);
+			ft_freesplit(envs);
+			resp.status_code = "500";
+			resp.reason_phrase = "Internal Server Error";
+			return ("");
 		}
 		unlink(".tmpfile");
 	}

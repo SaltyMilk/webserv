@@ -17,7 +17,7 @@ char	**get_cgi_envs(t_req_line &request, char**&envp)
 	map["QUERY_STRING"] = request.query;
 	map["REMOTE_ADDR"] = cinet_ntoa(request.client_adr.sin_addr.s_addr);
 	map["REQUEST_METHOD"] = request.method;
-	map["REQUEST_URI"] = request.target;
+	map["REQUEST_URI"] = "/" + request.target;
 	//AUTH
 	if (!request.headers[AUTHORIZATION].empty())
 	{
@@ -36,13 +36,16 @@ char	**get_cgi_envs(t_req_line &request, char**&envp)
 		map["CONTENT_TYPE"] = request.headers[CONTENT_TYPE];
 	}
     //ici il faut enum jusqu'au bout -- serait mieux avec un for
-    while (i < request.headers->length()) {
+    while (i < 18)
+	{
 		if (!request.headers[i].empty())
 			map["HTTP_" + get_header_field(i)] = request.headers[i];
+		i++;
 	}
    // envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
     for (it = map.begin(); it != map.end(); it++)
- 	  	envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()));
+ 	  	if (!(envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()))))
+ 	  		return (NULL);
   	//  	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());
 	std::cout << "START" << std::endl;
 	for (size_t i = 0; envp[i]; i++)

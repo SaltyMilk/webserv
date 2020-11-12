@@ -63,12 +63,6 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, stru
 		req += buff;
 		ft_bzero(buff, sizeof(buff));
 	}
-/*	char buff;
-	while ((ret = recv(client_fd, &buff, 1, 0)) > 0)
-	{
-		req += buff;
-		usleep(50);
-	}*/
 	if (ret == 0)
 		req += buff;
 	if (ret == -1)

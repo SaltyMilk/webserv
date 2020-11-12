@@ -87,6 +87,7 @@ typedef struct s_route
 	std::vector<std::string> cgi_exts;
 	std::string auth_name;
 	std::string auth_user;
+	size_t body_limit;
 	bool auth;
 }	t_route;
 

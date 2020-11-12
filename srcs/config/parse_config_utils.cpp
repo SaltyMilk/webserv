@@ -1,5 +1,18 @@
 #include "../../includes/webserv.h"
-
+void parseBodyLimit(t_route &route, char *line)
+{
+	char **sp = ft_split(line, ' ');
+	size_t bl;
+	if (!sp[1])
+		excerr("Config file error: missing argument for body_limit", 1);
+	if ((bl = ft_satost(sp[1])) == (size_t)-1) //STRICT ATOI
+		excerr("Config file error: invalid body_limit", 1);
+	else
+		route.body_limit = bl; //ADD PORT TO PORT LIST
+	for (size_t i = 0; sp[i]; i++)
+		free(sp[i]);
+	free(sp);
+}
 int parseRouteFields(char *line, t_route &route)
 {
 	char *clean_line;
@@ -118,6 +131,8 @@ int parseRouteFields(char *line, t_route &route)
 		route.auth_user = std::string(sp[1]);
 		ft_freesplit(sp);
 	}
+	else if (ft_strlen(clean_line) >= 11 && std::string(clean_line, 11) == "body_limit ")
+		parseBodyLimit(route, clean_line);
 	if (!route.auth_name.empty() && !route.auth_user.empty())
 		route.auth = true;
 	free(clean_line);

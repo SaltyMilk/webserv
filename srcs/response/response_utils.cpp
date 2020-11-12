@@ -100,6 +100,7 @@ t_route get_default_route()
 	route.location = "/";
 	route.cgi = false;
 	route.auth = false;
+	route.body_limit = (size_t)-1;
 	return (route);
 }
 

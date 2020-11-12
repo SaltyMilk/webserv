@@ -114,7 +114,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 		send_405(rl, resp, conf, route);
 	else if (bad_request(rl) || rl.bad_request)
 		send_400(rl, resp, conf);
-	else if (rl.body.length() > conf.body_limit)//Request body was too large for server
+	else if (rl.body.length() > route.body_limit)//Request body was too large for server
 		send_413(rl, resp, conf);
 	else if (!valid_http_ver(rl)) //SEND 505 to invalid HTTP VERSION REQUEST
 		send_505(rl, resp, conf);

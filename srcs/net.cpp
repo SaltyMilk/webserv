@@ -44,7 +44,7 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr)
+void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr, char **envp)
 {
 	char	buff[BUFF_SIZE];
 	int ret;
@@ -73,9 +73,14 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, stru
 		req += buff;
 	if (ret == -1)
 		std::cout << "errno=" << strerror(errno) << std::endl;
+			std::cout <<  "DEBUG BEGINING OF REQUEST OUTPUT" << std::endl;
+	size_t k = 0;
+	while (req[k] && !(req[k] == '\r' && req[k + 1] == '\n' && req[k+2] == '\r' && req[k +3] == '\n'))
+		write(1, req.c_str() + k++, 1);
+	std::cout <<std::endl << "DEBUG END OF REQUEST OUTPUT" << std::endl;
 	//std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
 	if (req.length())
-		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr);
+		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr, envp);
 	else
 		close(client_fd);
 }
@@ -133,7 +138,7 @@ void init_all_servers(std::vector<t_conf> &servers, std::vector<int> &serv_fds, 
 	}
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv, char **envp) 
 {
 	std::vector<t_conf> servers;
 	t_net s_net;
@@ -167,7 +172,7 @@ int main(int argc, char **argv)
 				}
 				else
 				{
-					net_receive(servers, i, next_fd_to_resp, client_adr);
+					net_receive(servers, i, next_fd_to_resp, client_adr, envp);
 					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
 			}

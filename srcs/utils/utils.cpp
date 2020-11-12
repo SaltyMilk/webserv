@@ -63,3 +63,22 @@ void debug(std::string name, std::string content)
 {
 	std::cout << name << content << std::endl;
 }
+
+char **addEnvVar(char **envs, char *var)
+{
+	char **ret;
+	size_t i = 0;
+	while (envs[i])
+		i++;
+	ret = (char**)malloc(sizeof(char *) * (i+2));
+	i= 0;
+	while (envs[i])
+	{
+		ret[i] = ft_strdup(envs[i]);
+		i++;
+	}
+	ret[i] = var;
+	ret[i + 1] = NULL;
+	ft_freesplit(envs);
+	return (ret);
+}

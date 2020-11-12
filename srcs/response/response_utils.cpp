@@ -100,6 +100,7 @@ t_route get_default_route()
 	route.location = "/";
 	route.cgi = false;
 	route.auth = false;
+	route.body_limit = (size_t)-1;
 	return (route);
 }
 
@@ -177,12 +178,18 @@ void create_missing_dirs(std::string targ, t_route route)
 }
 
 //Used to create a file with HTTP PUT method
-void create_ressource(t_req_line rl, t_route route) 
+void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&envp) 
 {
 	int fd;
+	std::string ressource_content = rl.body;
 	create_missing_dirs(rl.target, route);
 	fd = open((rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
-	write(fd, rl.body.c_str(), rl.body.length());
+	if (rl.method == "POST")
+	{
+		ressource_content = execute_cgi(rl, route, resp, envp);
+		resp.body = ressource_content;
+	}
+	write(fd, ressource_content.c_str(), ressource_content.length());
 }
 
 void empty_directory(std::string path)

@@ -15,6 +15,7 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 		j++; 
 	}
 	first_line[j] = 0;
+	std::cout << "cgi first line =" << first_line << std::endl;
 	std::string status = std::string(first_line);
 	if (status.compare(0, 7, "Status:") == 0)
 	{

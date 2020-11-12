@@ -30,7 +30,7 @@ void 	parse_cgi(t_req_line &request)
 }
 
 //returns the output of the cgi
-std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
+std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, char **&envp)
 {
 	char 	**envs;
 	char 	**argv = (char**)malloc(3 * sizeof(char *));
@@ -49,7 +49,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 	int fd[2];
 	pid_t pid;
 
-	if (!(envs = get_cgi_envs(request)))
+	if (!(envs = get_cgi_envs(request, envp)))
 	{
 		ft_freesplit(argv);
 		resp.status_code = "500";
@@ -89,7 +89,11 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp)
 	ft_freesplit(envs);
 	std::cout << "gonna parse status" << std::endl;
 	parse_cgi_status(resp, output.c_str());
-	std::cout << "finished parsing status" << std::endl;
+	size_t k = 0;
+	std::cout <<  "DEBUG BEGINING OF CGI OUTPUT" << std::endl;
+	while (output[k] && !(output[k] == '\r' && output[k + 1] == '\n' && output[k+2] == '\r' && output[k +3] == '\n'))
+		write(1, output.c_str() + k++, 1);
+	std::cout << std::endl <<  "DEBUG END OF CGI OUTPUT" << std::endl;
 	return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
 }
 

@@ -174,3 +174,20 @@ t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, 
 	std::cout << "Shouldn't ever get here" << std::endl; //REMOVE ONCE PROJECT IS FINISHED, might save us ^-^'
 	return (servers[0]); // use default server if no other match
 }
+
+char **dupEnv(char **envs)
+{
+	char **ret;
+	size_t i = 0;
+	while (envs[i])
+		i++;
+	ret = (char**)malloc(sizeof(char *) * (i+1));
+	i = 0;
+	while (envs[i])
+	{
+		ret[i] = ft_strdup(envs[i]);
+		i++;
+	}
+	ret[i] = 0;
+	return (ret);
+}

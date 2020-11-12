@@ -164,13 +164,14 @@ typedef struct	s_request_line
 
 extern std::vector<int> 	serv_socket;
 
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr);
+int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
 t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
 std::pair<std::string, int> parsed_host_header(t_req_line &rl);
 std::string cinet_ntoa(in_addr_t in);
+char **dupEnv(char **envs);
 
 //RESPONSE
 typedef struct	s_http_res
@@ -181,7 +182,7 @@ typedef struct	s_http_res
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
 }				t_http_res;
-int answer_request(int client_fd, t_req_line rl, t_conf conf);
+int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp);
 //RESPONSE UTILS
 int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);
@@ -192,15 +193,15 @@ t_route get_route_for(t_req_line rl, t_conf conf);
 bool method_allowed(std::string method, t_route route);
 bool method_supported(std::string method);
 void get_dir_listing(std::string dir);
-void create_ressource(t_req_line rl, t_route route, t_http_res &resp);
+void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char**&envp);
 void empty_directory(std::string path);
 
 //CGI
-char	**get_cgi_envs(t_req_line &request);
+char	**get_cgi_envs(t_req_line &request, char**&envp);
 void 	parse_cgi(t_req_line &request);
 std::string	format_header(int header, std::string value);
 std::string get_header_field(int header);
-std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp);
+std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, char **&envp);
 int parse_cgi_headers(t_http_res &resp, const char *output);
 void parse_cgi_status(t_http_res &resp, const char *output);
 
@@ -218,7 +219,7 @@ void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
 void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route);
+void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&envp);
 void send_200_dirlist(t_req_line rl, t_http_res &resp);
 void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route route);
 void send_201_put(t_req_line rl, t_http_res &resp);
@@ -238,4 +239,5 @@ void chandler(int sig_num);
 std::string b64decode(const std::string& str64);
 std::string str_replace(std::string str, const std::string &old_key, const std::string &new_key);
 void debug(std::string name, std::string content);
+char **addEnvVar(char **envs, char *var);
 #endif

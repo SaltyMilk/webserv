@@ -1,12 +1,11 @@
 #include "../../includes/webserv.h"
 
-char	**get_cgi_envs(t_req_line &request)
+char	**get_cgi_envs(t_req_line &request, char**&envp)
 {
-	char **envs;
+	//char **envs;
 	std::map<std::string, std::string> map;
 	std::map<std::string, std::string>::iterator it;
 	size_t i = 0;
-
 	//SERVER
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	map["SERVER_NAME"] = parsed_host_header(request).first;
@@ -40,14 +39,13 @@ char	**get_cgi_envs(t_req_line &request)
 		if (!request.headers[i].empty())
 			map["HTTP_" + get_header_field(i)] = request.headers[i];
 	}
-    envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
-    i = 0;
-    for (it = map.begin(); it != map.end(); it++)
-    	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());
-    envs[i] = NULL;
+   // envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
+    for (it = map.begin(); it != map.end(); it++) 
+ 	  	envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()));
+  	//  	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());
 	std::cout << "START" << std::endl;
-	for (size_t i = 0; envs[i]; i++)
-		std::cout << envs[i] << std::endl;
+	for (size_t i = 0; envp[i]; i++)
+		std::cout << envp[i] << std::endl;
 	std::cout << "END" << std::endl;
-    return (envs);
+    return (envp);
 }

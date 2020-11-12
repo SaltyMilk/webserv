@@ -32,7 +32,7 @@ std::string construct_response(t_http_res resp)
 	return (response);
 }
 
-int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
+int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route, char**&envp)
 {
 	int fd;
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
@@ -47,18 +47,19 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	else if ((fd = open((rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server
 		send_404(rl, resp, conf);
 	else // Requested file was found.
-		send_200(rl, resp, fd, route);
+		send_200(rl, resp, fd, route, envp);
 	return (0);
 }
 
 void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 {
+	char **tmp;
 	rl.target = str_replace(rl.target, route.root_dir, route.upload_root_dir);
 	if (file_exists(rl.target))
 		send_204_put(rl, resp, route);
 	else
 		send_201_put(rl, resp);
-	create_ressource(rl, route, resp);
+	create_ressource(rl, route, resp, tmp);
 }
 
 void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
@@ -78,21 +79,21 @@ void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 	}
 }
 
-void post(t_req_line rl, t_http_res &resp, t_route route)
+void post(t_req_line rl, t_http_res &resp, t_route route, char **&envp)
 {
 	int fd;
 
 	if ((fd = open((rl.target).c_str(), O_RDONLY)) == -1) //Couldn't find requested file on server might need change, nginx works like this though
 	{
 		send_201_put(rl, resp);
-		create_ressource(rl, route, resp);
+		create_ressource(rl, route, resp, envp);
 	}
 	else // Requested file was found.
-		send_200(rl, resp, fd, route);
+		send_200(rl, resp, fd, route, envp);
 
 }
 
-int answer_request(int client_fd, t_req_line rl, t_conf conf)
+int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 {	
 	t_route route;//Settings for requested ressource location
 	t_http_res resp;
@@ -128,13 +129,13 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf)
 		else if (!method_supported(rl.method))//None standard http method requested
 			send_501(rl, resp, conf);
 		else if (rl.method == "GET" || rl.method == "HEAD")
-			getorhead_resp(rl, resp, conf, route);
+			getorhead_resp(rl, resp, conf, route, envp);
 		else if (rl.method == "PUT")
 			put_resp(rl, resp, route);
 		else if (rl.method == "DELETE")
 			delete_resp(rl, resp, conf);
 		else if (rl.method == "POST")
-			post(rl, resp, route);
+			post(rl, resp, route, envp);
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());

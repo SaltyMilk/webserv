@@ -105,7 +105,7 @@ void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
+void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&envp)
 {
 	resp.status_code = "200";
 	resp.reason_phrase = "OK";
@@ -117,7 +117,7 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route)
 		while (read(fd, &c, 1) > 0)
 			resp.body += c;
 	else if (route.cgi && rl.method != "HEAD")
-		resp.body = execute_cgi(rl, route, resp);
+		resp.body = execute_cgi(rl, route, resp, envp);
 	close(fd);
 }
 

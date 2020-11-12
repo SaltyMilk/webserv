@@ -177,7 +177,7 @@ void create_missing_dirs(std::string targ, t_route route)
 }
 
 //Used to create a file with HTTP PUT method
-void create_ressource(t_req_line rl, t_route route, t_http_res &resp) 
+void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&envp) 
 {
 	int fd;
 	std::string ressource_content = rl.body;
@@ -185,7 +185,7 @@ void create_ressource(t_req_line rl, t_route route, t_http_res &resp)
 	fd = open((rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
 	if (rl.method == "POST")
 	{
-		ressource_content = execute_cgi(rl, route, resp);
+		ressource_content = execute_cgi(rl, route, resp, envp);
 		resp.body = ressource_content;
 	}
 	write(fd, ressource_content.c_str(), ressource_content.length());

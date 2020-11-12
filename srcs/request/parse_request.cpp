@@ -52,7 +52,7 @@ std::list<std::string> parse_content(std::string header_value)
 	return (content);
 }
 
-void parse_headers(size_t &i, t_req_line &rl, char *request)
+void parse_headers(size_t &i, t_req_line &rl, char *request, char **&envp)
 {
 	while (request[i] && !((request[i] == '\r' && request[i + 1] == '\n') || request[i] == '\n')) // If end of request or end of headers
 	{
@@ -116,6 +116,19 @@ void parse_headers(size_t &i, t_req_line &rl, char *request)
 			return;
 		}
 		int id = get_header_id(header_field);
+		//ADD HEADER AS ENV_VAR FOR CGI
+		size_t l = 0;
+		while (header_field[l])
+		{
+			if (header_field[l] == '-')
+				header_field[l] = '_';
+			l++;
+		}
+		header_field = ft_strupcase(const_cast<char*>(header_field.c_str()));
+		std::string env_header = "HTTP_" + header_field + "=" + header_value;
+		if (id == -1) //temp fix might accept all header later
+			envp = addEnvVar(envp, ft_strdup(env_header.c_str()));
+		//HEADER ADDED AS ENV_VAR FOR CGI
 		if (id == HOST && rl.headers[HOST].length())//CHECK FOR DUPLICATE HOST HEADER -> Bad request
 		{
 			rl.bad_request = true;
@@ -156,8 +169,9 @@ void parse_body(size_t i, t_req_line &rl, char *request)
 	}
 }
 //Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr)
+int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp)
 {
+	char **serv_env = dupEnv(envp);
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
 	rl.bad_request = false;
@@ -167,7 +181,7 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 	std::cout << "OLD_REQUEST LOG:" << std::endl;
 	std::cout << rl.method << " " << rl.target << " " << rl.http_ver << std::endl;
 
-	parse_headers(mi, rl, request);
+	parse_headers(mi, rl, request, serv_env);
 	//std::cout<< "host=" << rl.headers[HOST] << std::endl;
 	parse_body(mi, rl, request);
 	for (int i = 0; i < 18; i++)
@@ -175,6 +189,6 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 			std::cout << format_header(i, rl.headers[i]) << std::endl;
 //	std::cout << rl.body << std::endl;
 	std::cout << "END REQUEST LOG" << std::endl;
-	answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd));
+	answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd), serv_env);
 	return(0);
 }

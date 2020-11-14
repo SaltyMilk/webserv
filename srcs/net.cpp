@@ -44,7 +44,7 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr, char **envp)
+t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr, char **envp)
 {
 	char	buff[BUFF_SIZE];
 	int ret;
@@ -70,7 +70,10 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, stru
 		usleep(50);
 	}*/
 	if (ret == 0)
+	{
+		std::cout << "MAN WTF RECV RETURNED 0" << std::endl;
 		req += buff;
+	}
 	if (ret == -1)
 		std::cout << "errno=" << strerror(errno) << std::endl;
 			std::cout <<  "DEBUG BEGINING OF REQUEST OUTPUT" << std::endl;
@@ -80,9 +83,12 @@ void net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, stru
 	std::cout <<std::endl << "DEBUG END OF REQUEST OUTPUT" << std::endl;
 	//std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
 	if (req.length())
-		parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr, envp);
+		return parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr, envp);
 	else
 		close(client_fd);
+	//Doesn't matter we won't answer this
+	t_ans_arg arg;
+	return(arg);
 }
 
 int net_accept(t_net &snet, int fd, struct sockaddr_in	&client_adr) 
@@ -144,7 +150,9 @@ int main(int argc, char **argv, char **envp)
 	t_net s_net;
 	std::string conf_file = "ws.conf"; //Default path
 	fd_set sockets, ready_sockets;
+	fd_set wsockets, ready_wsockets;
 	std::vector<int> serv_fds;
+	std::vector<t_ans_arg> requests;
 	int next_fd_to_resp = -1;
 
 	signal(SIGINT, chandler);
@@ -155,26 +163,41 @@ int main(int argc, char **argv, char **envp)
 //START NETWORKING
 	FD_ZERO(&sockets);
 	init_all_servers(servers, serv_fds, &sockets);
+	wsockets = sockets;
 	while (1)
 	{
 		ready_sockets = sockets;
-		if (select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL) == -1)
+		ready_wsockets = wsockets;
+		if (select(FD_SETSIZE, &ready_sockets, &wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
 		for (int i = 0; i < FD_SETSIZE; i++)
 		{
-			if (FD_ISSET(i, &ready_sockets))//Socket ready for w/r operations
+			if (FD_ISSET(i, &ready_sockets))//Socket ready for read operations
 			{
 				struct sockaddr_in	client_adr;	
 				if (std::find(serv_fds.begin(), serv_fds.end(), i) != serv_fds.end())//Connection is being asked to one of the servers
 				{
 					next_fd_to_resp = i;
-					FD_SET(net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i), client_adr), &sockets);//add new client socket to the set fd
+					int fd = net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i), client_adr);
+					FD_SET(fd, &sockets);//add new client socket to the set fd
+					FD_SET(fd, &wsockets);//add new client socket to the set fd
 				}
 				else
 				{
-					net_receive(servers, i, next_fd_to_resp, client_adr, envp);
+					requests.push_back(net_receive(servers, i, next_fd_to_resp, client_adr, envp));
 					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
+			}
+			if (FD_ISSET(i, &wsockets))//Socket ready for write operations
+			{
+				for (std::vector<t_ans_arg>::iterator it = requests.begin(); it != requests.end(); it++)
+					if ((*it).client_fd == i)
+					{
+						answer_request((*it).client_fd, (*it).rl, (*it).conf, (*it).envp);
+						requests.erase(it);
+						FD_CLR(i, &wsockets);
+						break;
+					}
 			}
 		}
 	}

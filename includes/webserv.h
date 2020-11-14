@@ -163,9 +163,17 @@ typedef struct	s_request_line
 	struct sockaddr_in	client_adr;
 }				t_req_line;
 
+typedef struct s_ans_arg
+{
+	int client_fd;
+	t_req_line rl;
+	t_conf conf;
+	char **envp;
+}				t_ans_arg;
+
 extern std::vector<int> 	serv_socket;
 
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp);
+t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp);
 int get_header_id(std::string header_field);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);

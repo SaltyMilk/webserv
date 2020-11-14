@@ -5,7 +5,7 @@ char	**get_cgi_envs(t_req_line &request, char**&envp)
 	//char **envs;
 	std::map<std::string, std::string> map;
 	std::map<std::string, std::string>::iterator it;
-	size_t i = 0;
+	//size_t i = 0;
 	//SERVER
 	map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	map["SERVER_NAME"] = parsed_host_header(request).first;
@@ -35,10 +35,10 @@ char	**get_cgi_envs(t_req_line &request, char**&envp)
 		map["CONTENT_TYPE"] = request.headers[CONTENT_TYPE];
 	}
     //ici il faut enum jusqu'au bout -- serait mieux avec un for
-    while (i < request.headers->length()) {
+ /*   while (i < request.headers->length()) {
 		if (!request.headers[i].empty())
 			map["HTTP_" + get_header_field(i)] = request.headers[i];
-	}
+	}*/
    // envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
     for (it = map.begin(); it != map.end(); it++) 
  	  	envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()));

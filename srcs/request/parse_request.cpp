@@ -169,8 +169,9 @@ void parse_body(size_t i, t_req_line &rl, char *request)
 	}
 }
 //Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp)
+t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp)
 {
+	t_ans_arg arg;
 	char **serv_env = dupEnv(envp);
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
@@ -189,6 +190,11 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 			std::cout << format_header(i, rl.headers[i]) << std::endl;
 //	std::cout << rl.body << std::endl;
 	std::cout << "END REQUEST LOG" << std::endl;
-	answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd), serv_env);
-	return(0);
+	//answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd), serv_env);
+	//Return args for answer
+	arg.client_fd = fd;
+	arg.rl = rl;
+	arg.conf = get_server_conf_for_request(rl, servers, server_fd);
+	arg.envp = serv_env;
+	return(arg);
 }

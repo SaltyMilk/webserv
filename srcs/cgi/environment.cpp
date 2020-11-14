@@ -43,9 +43,9 @@ char	**get_cgi_envs(t_req_line &request, char**&envp)
     for (it = map.begin(); it != map.end(); it++) 
  	  	envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()));
   	//  	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());
-	std::cout << "START" << std::endl;
+/*	std::cout << "START" << std::endl;
 	for (size_t i = 0; envp[i]; i++)
 		std::cout << envp[i] << std::endl;
-	std::cout << "END" << std::endl;
+	std::cout << "END" << std::endl;*/
     return (envp);
 }

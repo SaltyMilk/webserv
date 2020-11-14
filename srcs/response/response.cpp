@@ -151,15 +151,15 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 		size_t i = 0;//number of bytes written
 		while (i < response.length() - WRITE_SIZE)
 		{
-			rret += write(client_fd, response.c_str() + i, WRITE_SIZE);
+			rret += send(client_fd, response.c_str() + i, WRITE_SIZE, 0);
 			i += WRITE_SIZE;
 		}
 		if (response.length() - i)
-			rret += write(client_fd, response.c_str() + i, response.length() - i);
+			rret += send(client_fd, response.c_str() + i, response.length() - i, 0);
 		ret = i + (response.length() - i);
 	}
 	else 
-		ret = write(client_fd, response.c_str(), ft_strlen(response.c_str()));
+		ret = send(client_fd, response.c_str(), ft_strlen(response.c_str()), 0);
 	std::cout << "resp length= " << response.length() << std::endl;
 	std::cout << rret << " bytes really written" << std::endl;
 	std::cout << ret << " bytes written" << std::endl;

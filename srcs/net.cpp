@@ -44,8 +44,9 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, struct sockaddr_in	client_adr, char **envp)
+t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, const struct sockaddr_in	client_adr, char **envp)
 {
+	std::cout << "starting to receive" << std::endl;
 	char	buff[BUFF_SIZE];
 	int ret;
 	std::string req;
@@ -54,7 +55,7 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	{
 		if (errno == EAGAIN)
 		{
-			usleep(420);
+			usleep(4200);
 			ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
 			if (errno == EAGAIN)
 				break;
@@ -63,12 +64,6 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 		req += buff;
 		ft_bzero(buff, sizeof(buff));
 	}
-/*	char buff;
-	while ((ret = recv(client_fd, &buff, 1, 0)) > 0)
-	{
-		req += buff;
-		usleep(50);
-	}*/
 	if (ret == 0)
 	{
 		std::cout << "MAN WTF RECV RETURNED 0" << std::endl;
@@ -77,9 +72,12 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	if (ret == -1)
 		std::cout << "errno=" << strerror(errno) << std::endl;
 			std::cout <<  "DEBUG BEGINING OF REQUEST OUTPUT" << std::endl;
-	size_t k = 0;
-	while (req[k] && !(req[k] == '\r' && req[k + 1] == '\n' && req[k+2] == '\r' && req[k +3] == '\n'))
-		write(1, req.c_str() + k++, 1);
+//	size_t k = 0;
+	std::cout << "done receiving" << std::endl;
+	if (req.length() < 2000)
+		std::cout << req << std::endl;
+	/*while (req[k] && !(req[k] == '\r' && req[k + 1] == '\n' && req[k+2] == '\r' && req[k +3] == '\n'))
+		write(1, req.c_str() + k++, 1);*/
 	std::cout <<std::endl << "DEBUG END OF REQUEST OUTPUT" << std::endl;
 	//std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
 	if (req.length())
@@ -109,7 +107,7 @@ int net_accept(t_net &snet, int fd, struct sockaddr_in	&client_adr)
 	// unblock socket
 	if ((fcntl(client_fd, F_GETFL, O_NONBLOCK)) == -1)
 		excerr("Couldn't unblock client's socket", 1);
-	std::cout << "client accepted with fd=" << fd << std::endl;
+	std::cout << "client accepted with fd=" << client_fd << std::endl;
 	return client_fd;
 }
 
@@ -166,18 +164,23 @@ int main(int argc, char **argv, char **envp)
 	servers = parseConf(conf_file);
 //START NETWORKING
 	FD_ZERO(&sockets);
+	FD_ZERO(&wsockets);
 	init_all_servers(servers, serv_fds, &sockets);
-	wsockets = sockets;
 	//Find biggest socket from serv fds
+		std::cout << "max sock=" << max_fd << std::endl;
 	for (std::vector<int>::iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
 		if (*it > max_fd)
 			max_fd = *it;
+		std::cout << "max sock=" << max_fd << std::endl;
 	while (1)
 	{
 		ready_sockets = sockets;
 		ready_wsockets = wsockets;
-		if (select(max_fd +1, &ready_sockets, &wsockets, NULL, NULL) == -1)
+		std::cout <<"sockets=" << *(unsigned int*)sockets.fds_bits << std::endl;
+		std::cout << "selecting" << std::endl;
+		if (select(max_fd +1, &ready_sockets, &ready_wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
+		std::cout << "done selecting" << std::endl;
 		for (int i = 0; i <= max_fd; i++)
 		{
 			if (FD_ISSET(i, &ready_sockets))//Socket ready for read operations
@@ -192,13 +195,13 @@ int main(int argc, char **argv, char **envp)
 					if (fd > max_fd)
 						max_fd = fd;
 				}
-				else
+				else//
 				{
 					requests.push_back(net_receive(servers, i, next_fd_to_resp, client_adr, envp));
 					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
 				}
 			}
-			if (FD_ISSET(i, &wsockets))//Socket ready for write operations
+			if (FD_ISSET(i, &ready_wsockets))//Socket ready for write operations
 			{
 				for (std::vector<t_ans_arg>::iterator it = requests.begin(); it != requests.end(); it++)
 					if ((*it).client_fd == i)

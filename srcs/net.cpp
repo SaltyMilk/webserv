@@ -85,7 +85,10 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	if (req.length())
 		return parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr, envp);
 	else
+	{
+		std::cout << "WTF WHY DID I GET HERE ?" << std::endl;
 		close(client_fd);
+	}
 	//Doesn't matter we won't answer this
 	t_ans_arg arg;
 	return(arg);
@@ -153,6 +156,7 @@ int main(int argc, char **argv, char **envp)
 	fd_set wsockets, ready_wsockets;
 	std::vector<int> serv_fds;
 	std::vector<t_ans_arg> requests;
+	int max_fd = 0;
 	int next_fd_to_resp = -1;
 
 	signal(SIGINT, chandler);
@@ -164,13 +168,17 @@ int main(int argc, char **argv, char **envp)
 	FD_ZERO(&sockets);
 	init_all_servers(servers, serv_fds, &sockets);
 	wsockets = sockets;
+	//Find biggest socket from serv fds
+	for (std::vector<int>::iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
+		if (*it > max_fd)
+			max_fd = *it;
 	while (1)
 	{
 		ready_sockets = sockets;
 		ready_wsockets = wsockets;
-		if (select(FD_SETSIZE, &ready_sockets, &wsockets, NULL, NULL) == -1)
+		if (select(max_fd +1, &ready_sockets, &wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
-		for (int i = 0; i < FD_SETSIZE; i++)
+		for (int i = 0; i <= max_fd; i++)
 		{
 			if (FD_ISSET(i, &ready_sockets))//Socket ready for read operations
 			{
@@ -181,6 +189,8 @@ int main(int argc, char **argv, char **envp)
 					int fd = net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i), client_adr);
 					FD_SET(fd, &sockets);//add new client socket to the set fd
 					FD_SET(fd, &wsockets);//add new client socket to the set fd
+					if (fd > max_fd)
+						max_fd = fd;
 				}
 				else
 				{

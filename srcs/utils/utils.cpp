@@ -67,6 +67,13 @@ void debug(std::string name, std::string content)
 char **addEnvVar(char **envs, char *var)
 {
 	char **ret;
+	if (!envs)
+	{
+		ret = (char **) malloc(sizeof(char *)*2);
+		ret[0] = var;
+		ret[1] = 0;
+		return (ret);
+	}
 	size_t i = 0;
 	while (envs[i])
 		i++;

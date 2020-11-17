@@ -36,7 +36,9 @@ int parseRouteFields(char *line, t_route &route)
 			excerr("Config file error: empty allow_method field.", 1);
 		for (size_t i = 1; sp[i]; i++)
 			route.allowed_methods.push_back(std::string(ft_strupcase(sp[i]))); //add method in CAPITAL LETTERS
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 9 && std::string(clean_line, 9) == "root_dir ")
 	{
@@ -46,7 +48,9 @@ int parseRouteFields(char *line, t_route &route)
 		if (ft_strlen(sp[1]) > 1 && sp[1][ft_strlen(sp[1]) - 1] == '/' ) // Remove final '/' from ex: /dir/ to get /dir
 			sp[1][ft_strlen(sp[1]) - 1] = 0;
 		route.root_dir = std::string(sp[1]);
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 16 && std::string(clean_line, 16) == "upload_root_dir ")
 	{
@@ -56,7 +60,9 @@ int parseRouteFields(char *line, t_route &route)
 		if (ft_strlen(sp[1]) > 1 && sp[1][ft_strlen(sp[1]) - 1] == '/' ) // Remove final '/' from ex: /dir/ to get /dir
 			sp[1][ft_strlen(sp[1]) - 1] = 0;
 		route.upload_root_dir = std::string(sp[1]);
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 12 && std::string(clean_line, 12) == "dir_listing ")
 	{
@@ -69,7 +75,9 @@ int parseRouteFields(char *line, t_route &route)
 			route.dir_listing = true;
 		else
 			excerr("Config file error: invalid value for dir_listing.", 1);
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 17 && std::string(clean_line, 17) == "default_dir_file ")
 	{
@@ -77,7 +85,9 @@ int parseRouteFields(char *line, t_route &route)
 		if (!sp[1])
 			excerr("Config file error: empty default_dir_file field.", 1);
 		route.default_dir_file = std::string(sp[1]);
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 9 && std::string(clean_line, 9) == "cgi_path ")
 	{
@@ -85,7 +95,9 @@ int parseRouteFields(char *line, t_route &route)
 		if (!sp[1])
 			excerr("Config file error: empty cgi_path field.", 1);
 		route.cgi_path = std::string(sp[1]);
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 4 && std::string(clean_line, 4) == "cgi ")
 	{
@@ -98,7 +110,9 @@ int parseRouteFields(char *line, t_route &route)
 			route.cgi = true;
 		else
 			excerr("Config file error: invalid value for cgi.", 1);
-		ft_freesplit(sp);
+		for (size_t i = 0; sp[i]; i++)
+			free(sp[i]);
+		free(sp);
 	}
 	else if (ft_strlen(clean_line) >= 8 && std::string(clean_line, 8) == "cgi_ext ")
 	{

@@ -33,7 +33,7 @@ SRCS = $(addprefix $(SRC_DIR), $(SRC))
 OBJ = $(SRCS:.cpp=.o)
 
 CC = clang++
-CFLAGS = -Wall -Wextra -Werror -Iincludes -lft -L. -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -Iincludes -lft -L. 
 
 all: libft $(NAME)
 

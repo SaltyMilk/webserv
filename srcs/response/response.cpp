@@ -165,5 +165,8 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 	std::cout << ret << " bytes written" << std::endl;
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
+	for (size_t i = 0; envp[i]; i++)
+			free(envp[i]);
+		free(envp);
 	return (0);
 }

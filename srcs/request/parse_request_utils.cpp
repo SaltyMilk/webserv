@@ -181,11 +181,16 @@ char **dupEnv(char **envs)
 	size_t i = 0;
 	while (envs[i])
 		i++;
-	ret = (char**)malloc(sizeof(char *) * (i+1));
+	if (!(ret = (char**)ft_memalloc(sizeof(char *) * (i + 1))))
+		return (NULL);
 	i = 0;
 	while (envs[i])
 	{
-		ret[i] = ft_strdup(envs[i]);
+		if (!(ret[i] = ft_strdup(envs[i])))
+		{
+			ft_freesplit(ret);
+			return (NULL);
+		}
 		i++;
 	}
 	ret[i] = 0;

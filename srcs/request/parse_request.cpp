@@ -38,20 +38,16 @@ void parse_request_line(size_t &i, t_req_line &rl, char *request)
 
 std::list<std::string> parse_content(std::string header_value)
 {
-	int c = -1;
-	char **split;
-	std::string temp;
 	std::list<std::string> content;
-	if (!(split = ft_split(header_value.c_str(), ',')))
-		return (content); //ici on est dans le cas d'une 500
-	while (split[++c])
-	{
-		temp = std::string(split[c]).substr(split[c][0] == ' ' ? 1 : 0);
-		if (temp.find(';') > 0)
-			temp = temp.substr(0, temp.find(';'));
-		content.push_back(temp);
+	size_t pos = 0;
+	std::string token;
+	while ((pos = header_value.find(',')) != std::string::npos) {
+		token = header_value.substr(0, pos);
+		content.push_back(token);
+		header_value.erase(0, pos + 2);
 	}
-	return (content);
+	content.push_back(header_value);
+	return content;
 }
 
 void parse_headers(size_t &i, t_req_line &rl, char *request, char **&envp)
@@ -178,6 +174,9 @@ int parse_request(char *request, int fd, std::vector<t_conf> servers, int server
 	size_t mi = 0; //Master index to parse request
 	rl.bad_request = false;
 	rl.client_adr = client_adr;//Get client network infos
+
+	if (!serv_env)
+		excerr("Not enough memory.", 2);
 	parse_request_line(mi, rl, request);
 	
 	std::cout << "OLD_REQUEST LOG:" << std::endl;

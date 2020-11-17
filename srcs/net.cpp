@@ -92,7 +92,7 @@ int net_accept(t_net &snet, int fd, struct sockaddr_in	&client_adr)
 	std::cout << "Client " << client_count << " connected!" << std::endl;
 	snet.clients_net.push_back(client_adr);
 	// unblock socket
-	if ((fcntl(client_fd, F_GETFL, O_NONBLOCK)) == -1)
+	if ((fcntl(client_fd, F_SETFL, O_NONBLOCK)) == -1)
 		excerr("Couldn't unblock client's socket", 1);
 	std::cout << "client accepted with fd=" << fd << std::endl;
 	return client_fd;

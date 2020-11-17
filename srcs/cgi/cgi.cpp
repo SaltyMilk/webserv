@@ -32,7 +32,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 	argv[0] = ft_strdup(route.cgi_path.c_str());
 	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
 	argv[2] = NULL;
-	if (!argv[0] && !argv[1])
+	if (argv != NULL && !argv[0] && !argv[1])
 	{
 		free(argv);
 		resp.status_code = "500";

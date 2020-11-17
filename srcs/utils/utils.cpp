@@ -78,11 +78,17 @@ char **addEnvVar(char **envs, char *var)
 	i= 0;
 	while (envs[i])
 	{
-		ret[i] = ft_strdup(envs[i]);
+		if (!(ret[i] = ft_strdup(envs[i])))
+		{
+			ft_freesplit(ret);
+			ft_freesplit(envs);
+			return NULL;
+		}
 		i++;
 	}
 	ret[i] = var;
 	ret[i + 1] = NULL;
+	ft_strdel(&var);
 	ft_freesplit(envs);
 	return (ret);
 }

@@ -33,7 +33,7 @@
 #include <sys/time.h>
 
 #ifndef BUFF_SIZE
-	#define BUFF_SIZE 42
+	#define BUFF_SIZE 42420
 #endif
 
 #define WRITE_SIZE 100
@@ -71,6 +71,7 @@
 
 #define WEBSERV_VER "0.1"
 
+#define TIMEOUT_SEC 10
 
 //CONFIG PARSER
 typedef struct s_route
@@ -163,18 +164,31 @@ typedef struct	s_request_line
 	struct sockaddr_in	client_adr;
 }				t_req_line;
 
+typedef struct s_client_buff
+{	
+	int client_fd;
+	time_t sec_since_recv; //Used to timeout incomplete HTTP request -> send 400
+	std::string req_buff;
+	int req_buff_len;
+	t_req_line rl;
+	bool rl_set;
+}				t_client_buff;
+
 typedef struct s_ans_arg
 {
 	int client_fd;
 	t_req_line rl;
 	t_conf conf;
 	char **envp;
+	bool incomplete;//is the request complete ? -> used to check if we finished recved
 }				t_ans_arg;
 
 extern std::vector<int> 	serv_socket;
 
-t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp);
+t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in client_adr, char **envp);
 int get_header_id(std::string header_field);
+void parse_request_line(size_t &i, t_req_line &rl, const char *request);
+void parse_headers(size_t &i, t_req_line &rl, const char *request, char **&envp);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
 t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
@@ -249,4 +263,6 @@ std::string b64decode(const std::string& str64);
 std::string str_replace(std::string str, const std::string &old_key, const std::string &new_key);
 void debug(std::string name, std::string content);
 char **addEnvVar(char **envs, char *var);
+time_t	get_time_sec(void);
+
 #endif

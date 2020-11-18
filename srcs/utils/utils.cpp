@@ -89,3 +89,15 @@ char **addEnvVar(char **envs, char *var)
 	ft_freesplit(envs);
 	return (ret);
 }
+
+/*
+** Returns seconds since epoch
+*/
+
+time_t	get_time_sec(void)
+{
+	struct timeval ct;
+
+	gettimeofday(&ct, 0);
+	return (ct.tv_sec);
+}

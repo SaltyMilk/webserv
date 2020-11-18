@@ -44,51 +44,98 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, const struct sockaddr_in	client_adr, char **envp)
+t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, const struct sockaddr_in client_adr, char **envp, t_client_buff &cl_buff)
 {
+	t_ans_arg arg;
 	std::cout << "starting to receive" << std::endl;
 	char	buff[BUFF_SIZE];
 	int ret;
-	std::string req;
-	ft_bzero(buff, BUFF_SIZE);
-	while ((ret = recv(client_fd, buff, BUFF_SIZE - 1, 0)))
+
+	/*if (cl_buff.sec_since_recv && get_time_sec() - cl_buff.sec_since_recv >= TIMEOUT_SEC) //timeout reached before we received a complete HTTP request
 	{
-		if (errno == EAGAIN)
-		{
-			usleep(4200);
-			ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
-			if (errno == EAGAIN)
-				break;
-		}
-		buff[ret] = 0;
-		req += buff;
-		ft_bzero(buff, sizeof(buff));
-	}
+		arg.rl.bad_request = true;
+		arg.incomplete = false;
+		std::cout << ""
+		return (arg);
+	}*/
+	cl_buff.sec_since_recv = get_time_sec();
+	ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
 	if (ret == 0)
 	{
-		std::cout << "MAN WTF RECV RETURNED 0" << std::endl;
-		req += buff;
+		std::cout << "returned 0" << std::endl;
+		arg.incomplete = true;
+		return (arg);
 	}
 	if (ret == -1)
-		std::cout << "errno=" << strerror(errno) << std::endl;
-			std::cout <<  "DEBUG BEGINING OF REQUEST OUTPUT" << std::endl;
-//	size_t k = 0;
-	std::cout << "done receiving" << std::endl;
-	if (req.length() < 2000)
-		std::cout << req << std::endl;
-	/*while (req[k] && !(req[k] == '\r' && req[k + 1] == '\n' && req[k+2] == '\r' && req[k +3] == '\n'))
-		write(1, req.c_str() + k++, 1);*/
-	std::cout <<std::endl << "DEBUG END OF REQUEST OUTPUT" << std::endl;
-	//std::cout << "REQUEST LOG" << std::endl << req << std::endl << "END REQUEST LOG" << std::endl;
-	if (req.length())
-		return parse_request(const_cast<char *>(req.c_str()), client_fd, servers, server_fd, client_adr, envp);
-	else
 	{
-		std::cout << "WTF WHY DID I GET HERE ?" << std::endl;
-		close(client_fd);
+		arg.incomplete = true;
+		std::cout << "errno=" << strerror(errno) << std::endl;
+		return (arg);
 	}
-	//Doesn't matter we won't answer this
-	t_ans_arg arg;
+		std::cout << "read size =" << ret << std::endl;	
+		buff[ret] = 0;
+		cl_buff.req_buff += buff;
+		cl_buff.req_buff_len += ret;
+		if (cl_buff.req_buff.find("\r\n\r\n") != std::string::npos) //Received all headers (can be optimized)
+		{
+			std::cout << "Received all headers" << std::endl;
+			
+			t_req_line rl;
+			size_t i = 0;
+			char **env = NULL;
+			if (!cl_buff.rl_set)
+			{
+				parse_request_line(i, rl, cl_buff.req_buff.c_str());
+				parse_headers(i,rl, cl_buff.req_buff.c_str(), env);
+				cl_buff.rl = rl;
+				cl_buff.rl_set = true;
+			}
+			if(env)
+			{for (size_t j = 0; env[j]; j++)
+				free(env[j]);
+			free(env);}
+			if ((!cl_buff.rl.headers[CONTENT_LENGTH][0] || ft_atoi(cl_buff.rl.headers[CONTENT_LENGTH].c_str()) == 0) && !cl_buff.rl.headers[TRANSFER_ENCODING][0])//No body to expect
+			{
+				arg = parse_request(const_cast<char *>(cl_buff.req_buff.c_str()), client_fd, servers, server_fd, client_adr, envp);
+				std::cout << "yup got here" << std::endl;
+				arg.incomplete = false; // DONE RECEIVING REQUEST
+				return(arg);
+			}
+			else//We have to check that we received CONTENT_LENGTH bytes or chunk encoding is completly received
+			{
+				if (std::string(ft_strlowcase(const_cast<char *>(cl_buff.rl.headers[TRANSFER_ENCODING].c_str()))) == "chunked")
+				{
+					if (cl_buff.req_buff.find("\r\n\r\n") != cl_buff.req_buff.rfind("\r\n\r\n"))//CRLF at the end of trailer part detected : received all chunks
+					{
+						arg = parse_request(const_cast<char *>(cl_buff.req_buff.c_str()), client_fd, servers, server_fd, client_adr, envp);
+						arg.incomplete = false;
+						return (arg);
+					}
+					else
+					{
+						arg.incomplete = true;
+						return (arg);//Didn't receive all chunks
+					}
+				}
+				else if (ft_atoi(cl_buff.rl.headers[CONTENT_LENGTH].c_str()))
+				{
+					if (cl_buff.req_buff_len == ft_atoi(cl_buff.rl.headers[CONTENT_LENGTH].c_str()))//Everything received
+					{
+						arg = parse_request(const_cast<char *>(cl_buff.req_buff.c_str()), client_fd, servers, server_fd, client_adr, envp);
+						arg.incomplete = false;
+						return (arg);
+					}
+					else
+					{
+						arg.incomplete = true;
+						return (arg);//Didn't receive all chunks	
+					}
+				}	
+
+			}
+		}
+	std::cout << "done receiving" << std::endl;
+	arg.incomplete = true;
 	return(arg);
 }
 
@@ -154,6 +201,7 @@ int main(int argc, char **argv, char **envp)
 	fd_set wsockets, ready_wsockets;
 	std::vector<int> serv_fds;
 	std::vector<t_ans_arg> requests;
+	std::vector<t_client_buff> client_buffs;
 	int max_fd = 0;
 	int next_fd_to_resp = -1;
 
@@ -176,11 +224,10 @@ int main(int argc, char **argv, char **envp)
 	{
 		ready_sockets = sockets;
 		ready_wsockets = wsockets;
-		std::cout <<"sockets=" << *(unsigned int*)sockets.fds_bits << std::endl;
-		std::cout << "selecting" << std::endl;
+	//	std::cout << "selecting" << std::endl;
 		if (select(max_fd +1, &ready_sockets, &ready_wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
-		std::cout << "done selecting" << std::endl;
+	//	std::cout << "done selecting" << std::endl;
 		for (int i = 0; i <= max_fd; i++)
 		{
 			if (FD_ISSET(i, &ready_sockets))//Socket ready for read operations
@@ -190,15 +237,35 @@ int main(int argc, char **argv, char **envp)
 				{
 					next_fd_to_resp = i;
 					int fd = net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i), client_adr);
+					//add a client_buff to receive request
+					t_client_buff tmp_cl_buff;
+					tmp_cl_buff.client_fd = fd;
+					tmp_cl_buff.req_buff = "";
+					tmp_cl_buff.sec_since_recv = 0;
+					tmp_cl_buff.req_buff_len = 0;
+					tmp_cl_buff.rl_set = false;
+					client_buffs.push_back(tmp_cl_buff);
 					FD_SET(fd, &sockets);//add new client socket to the set fd
-					FD_SET(fd, &wsockets);//add new client socket to the set fd
-					if (fd > max_fd)
+					if (fd > max_fd)//For optimization select only checks the maximum_fd we are communicating with
 						max_fd = fd;
 				}
 				else//
 				{
-					requests.push_back(net_receive(servers, i, next_fd_to_resp, client_adr, envp));
-					FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
+					std::vector<t_client_buff>::iterator it;
+					for ( it = client_buffs.begin(); it != client_buffs.end(); it++)
+						if (i == (*it).client_fd)
+							break;
+					t_ans_arg ans_arg = net_receive(servers, i, next_fd_to_resp, client_adr, envp, *it);
+					if (ans_arg.incomplete == false)//Done receiving from socket
+					{
+			//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
+						std::cout << "received full request" << std::endl;
+						client_buffs.erase(it);
+						requests.push_back(ans_arg);
+						FD_CLR(i, &sockets);//Remove client socket from list of active sockets after serving him
+						FD_SET(i, &wsockets);//add new client socket to the set fd
+					}
+					
 				}
 			}
 			if (FD_ISSET(i, &ready_wsockets))//Socket ready for write operations
@@ -213,6 +280,7 @@ int main(int argc, char **argv, char **envp)
 					}
 			}
 		}
+		usleep(42);
 	}
 	return (0);
 }

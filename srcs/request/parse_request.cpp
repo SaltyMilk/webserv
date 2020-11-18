@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-void parse_request_line(size_t &i, t_req_line &rl, char *request)
+void parse_request_line(size_t &i, t_req_line &rl, const char *request)
 {
 	rl.bad_request = false;
 	//PARSE METHOD
@@ -52,7 +52,7 @@ std::list<std::string> parse_content(std::string header_value)
 	return (content);
 }
 
-void parse_headers(size_t &i, t_req_line &rl, char *request, char **&envp)
+void parse_headers(size_t &i, t_req_line &rl, const char *request, char **&envp)
 {
 	while (request[i] && !((request[i] == '\r' && request[i + 1] == '\n') || request[i] == '\n')) // If end of request or end of headers
 	{
@@ -169,11 +169,12 @@ void parse_body(size_t i, t_req_line &rl, char *request)
 	}
 }
 //Note we accept none-regular http request, meaning every \r\n could be replaced by only \n like on nginx.
-t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in	client_adr, char **envp)
+t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in client_adr, char **envp)
 {
 	(void)envp;
 	t_ans_arg arg;
-	char **serv_env = NULL;
+	char **serv_env = (char**)malloc(sizeof(char*));
+	serv_env[0] = NULL;
 	t_req_line rl;
 	size_t mi = 0; //Master index to parse request
 	rl.bad_request = false;

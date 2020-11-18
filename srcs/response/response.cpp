@@ -160,13 +160,14 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 	}
 	else 
 		ret = send(client_fd, response.c_str(), ft_strlen(response.c_str()), 0);
+	std::cout << "request method =" << rl.method << std::endl;
 	std::cout << "resp length= " << response.length() << std::endl;
 	std::cout << rret << " bytes really written" << std::endl;
 	std::cout << ret << " bytes written" << std::endl;
 	//CLOSE CONNECTION. (Fixs pending requests)
 	close(client_fd);
-	for (size_t i = 0; envp[i]; i++)
+	/*for (size_t i = 0; envp[i]; i++)
 			free(envp[i]);
-		free(envp);
+	free(envp);*/
 	return (0);
 }

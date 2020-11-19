@@ -232,7 +232,7 @@ int main(int argc, char **argv, char **envp)
 		ready_sockets = sockets;
 		ready_wsockets = wsockets;
 			std::cout << "selecting" << std::endl;
-		if (select(1023 + 1, &ready_sockets, &ready_wsockets, NULL, NULL) == -1)
+		if (select(max_fd + 1, &ready_sockets, &ready_wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
 			std::cout << "done selecting" << std::endl;
 		for (int i = 0; i <= max_fd; i++)

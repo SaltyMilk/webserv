@@ -93,8 +93,9 @@ void post(t_req_line rl, t_http_res &resp, t_route route, char **&envp)
 
 }
 
-int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
+std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 {	
+	(void)client_fd;
 	t_route route;//Settings for requested ressource location
 	t_http_res resp;
 	std::string response; //This will be sent as a response to a given request
@@ -142,31 +143,17 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 		
 	//	std::cout << "Response LOG"<< std::endl << response << std::endl << "END RESPONSE LOG" << std::endl;
 //	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
-	int ret = 0;
+/*	int ret = 0;
 	int rret = 0;	
-	if (response.length() > WRITE_SIZE)
-	{
-		size_t i = 0;//number of bytes written
-		while (i < response.length() - WRITE_SIZE)
-		{
-			rret += send(client_fd, response.c_str() + i, WRITE_SIZE, 0);
-			i += WRITE_SIZE;
-		}
-		if (response.length() - i)
-			rret += send(client_fd, response.c_str() + i, response.length() - i, 0);
-		ret = i + (response.length() - i);
-	}
-	else 
-		ret = send(client_fd, response.c_str(), ft_strlen(response.c_str()), 0);
+
 	std::cout << "request method =" << rl.method << std::endl;
 	std::cout << "resp length= " << response.length() << std::endl;
 	std::cout << rret << " bytes really written" << std::endl;
-	std::cout << ret << " bytes written" << std::endl;
+	std::cout << ret << " bytes written" << std::endl;*/
 	//CLOSE CONNECTION. (Fixs pending requests)
-	std::cout << "closing connection to client n°" << client_fd << std::endl;
-	close(client_fd);
+	//std::cout << "closing connection to client n°" << client_fd << std::endl;
 	/*for (size_t i = 0; envp[i]; i++)
 			free(envp[i]);
 	free(envp);*/
-	return (0);
+	return (response);
 }

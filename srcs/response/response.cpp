@@ -110,7 +110,9 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 	if (route.location == "/" && route.root_dir == ".")
 		route.root_dir = "./";
-	if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
+	if (!envp)
+		send_500(rl, resp, conf);
+	else if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
 		send_405(rl, resp, conf, route);
 	else if (bad_request(rl) || rl.bad_request)
 		send_400(rl, resp, conf);

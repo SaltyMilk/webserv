@@ -125,7 +125,8 @@ void parse_headers(size_t &i, t_req_line &rl, char *request, char **&envp)
 		header_field = ft_strupcase(const_cast<char*>(header_field.c_str()));
 		std::string env_header = "HTTP_" + header_field + "=" + header_value;
 		if (id == -1) //temp fix might accept all header later
-			envp = addEnvVar(envp, ft_strdup(env_header.c_str()));
+			if (!(envp = addEnvVar(envp, ft_strdup(env_header.c_str()))))
+				return ;
 		//HEADER ADDED AS ENV_VAR FOR CGI
 		if (id == HOST && rl.headers[HOST].length())//CHECK FOR DUPLICATE HOST HEADER -> Bad request
 		{

@@ -288,6 +288,14 @@ int main(int argc, char **argv, char **envp)
 							(*it).request = answer_request((*it).client_fd, (*it).rl, (*it).conf, (*it).envp);
 							(*it).response_length = (*it).request.length();
 						}
+						if ((*it).resp_byte_sent == (*it).response_length)
+						{
+						close(i);
+						requests.erase(it);
+						std::cout << "write block fd(i)=" << i << std::endl;
+						FD_CLR(i, &wsockets);
+						break;
+						}
 						if ((*it).resp_byte_sent < (*it).response_length)
 						{
 							if ((*it).response_length - (*it).resp_byte_sent < WRITE_SIZE)
@@ -299,20 +307,13 @@ int main(int argc, char **argv, char **envp)
 							else
 								(*it).resp_byte_sent += (size_t)ret_send;
 						}
-						else
+						else if ((*it).resp_byte_sent < (*it).response_length)
 						{
 								ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
 							if (ret_send == 0 || ret_send == -1)
 								std::cout << "wtf send" << std::endl;
 						}
-						if ((*it).resp_byte_sent == (*it).response_length)
-						{
-						close((*it).client_fd);
-						requests.erase(it);
-						std::cout << "write block fd(i)=" << i << std::endl;
-						FD_CLR(i, &wsockets);
-						break;
-						}
+
 					}
 			}
 		}

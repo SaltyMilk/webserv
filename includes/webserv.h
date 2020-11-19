@@ -36,7 +36,7 @@
 	#define BUFF_SIZE 42420
 #endif
 
-#define WRITE_SIZE 100
+#define WRITE_SIZE 10000
 //HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1

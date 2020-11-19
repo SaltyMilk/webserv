@@ -107,7 +107,6 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 	handle_absolute_path(rl);
 	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
 	route = get_route_for(rl, conf);
-	std::cout << "I've chosen this route for you:" << route.location << std::endl;
 	if (route.location == "/" && route.root_dir == ".")
 		route.root_dir = "./";
 	if (!method_allowed(rl.method, route))//Method requested not allowed for requested route/location
@@ -123,7 +122,6 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 		rl.target = str_replace(rl.target, route.location, route.root_dir);//Change location in target to root_dir
 		if (route.cgi)
 			parse_cgi(rl);
-		std::cout << "target=" << rl.target << std::endl;
 		if (route.auth && (rl.auth.type.empty() || rl.auth.ident.empty()) && route.auth_user != rl.auth.ident)
 			send_401(rl, resp, conf, route.auth_name);
 		else if (!method_supported(rl.method))//None standard http method requested
@@ -165,6 +163,7 @@ int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
 	std::cout << rret << " bytes really written" << std::endl;
 	std::cout << ret << " bytes written" << std::endl;
 	//CLOSE CONNECTION. (Fixs pending requests)
+	std::cout << "closing connection to client n°" << client_fd << std::endl;
 	close(client_fd);
 	/*for (size_t i = 0; envp[i]; i++)
 			free(envp[i]);

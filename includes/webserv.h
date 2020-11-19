@@ -33,7 +33,7 @@
 #include <sys/time.h>
 
 #ifndef BUFF_SIZE
-	#define BUFF_SIZE 42420
+	#define BUFF_SIZE 12420
 #endif
 
 #define WRITE_SIZE 100

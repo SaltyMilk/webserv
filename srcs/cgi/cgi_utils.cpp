@@ -8,6 +8,7 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 	if (i < 0)
 		return;
 	char first_line[i + 1];
+	ft_bzero(first_line, i + 1);
 	size_t j = 0;
 	while (j < i)
 	{

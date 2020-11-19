@@ -190,6 +190,7 @@ void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&en
 		resp.body = ressource_content;
 	}
 	write(fd, ressource_content.c_str(), ressource_content.length());
+	close(fd);
 }
 
 void empty_directory(std::string path)

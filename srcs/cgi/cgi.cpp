@@ -72,6 +72,8 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 		}
 		unlink(".tmpfile");
 	}
+	close(fd[1]);
+	close(fd[0]);
 //	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
 	ft_freesplit(argv);
 	ft_freesplit(envs);

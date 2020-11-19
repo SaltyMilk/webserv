@@ -42,7 +42,7 @@ int net_init(unsigned int port, std::string host_addr)
 		excerr("Couldn't unblock server socket", 1);
 
 	// listen socket
-	if (listen(fd, 10) == -1)
+	if (listen(fd, 100) == -1)
 		excerr("Couldn't listen on server socket.", 1);
 	return fd;
 }
@@ -231,10 +231,10 @@ int main(int argc, char **argv, char **envp)
 	{
 		ready_sockets = sockets;
 		ready_wsockets = wsockets;
-			std::cout << "selecting" << std::endl;
+		std::cout << "selecting" << std::endl;
 		if (select(max_fd + 1, &ready_sockets, &ready_wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
-			std::cout << "done selecting" << std::endl;
+		std::cout << "done selecting" << std::endl;
 		for (int i = 0; i <= max_fd; i++)
 		{
 
@@ -270,6 +270,7 @@ int main(int argc, char **argv, char **envp)
 						//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
 						std::cout << "received full request" << std::endl;
 						client_buffs.erase(it);
+						ans_arg.resp_byte_sent = 0;
 						requests.push_back(ans_arg);
 						FD_CLR(i, &sockets);  //Remove client socket from list of active sockets after serving him
 						FD_SET(i, &wsockets); //add new client socket to the set fd
@@ -281,11 +282,37 @@ int main(int argc, char **argv, char **envp)
 				for (std::vector<t_ans_arg>::iterator it = requests.begin(); it != requests.end(); it++)
 					if ((*it).client_fd == i)
 					{
-						answer_request((*it).client_fd, (*it).rl, (*it).conf, (*it).envp);
+						int ret_send = 0;
+						if (!(*it).resp_byte_sent)
+						{
+							(*it).request = answer_request((*it).client_fd, (*it).rl, (*it).conf, (*it).envp);
+							(*it).response_length = (*it).request.length();
+						}
+						if ((*it).resp_byte_sent < (*it).response_length)
+						{
+							if ((*it).response_length - (*it).resp_byte_sent < WRITE_SIZE)
+								ret_send = send((*it).client_fd, (*it).request.c_str() + (*it).resp_byte_sent, (*it).response_length - (*it).resp_byte_sent, 0);
+							else if ((*it).resp_byte_sent < (*it).response_length - WRITE_SIZE)
+								ret_send = send((*it).client_fd, (*it).request.c_str() + (*it).resp_byte_sent, WRITE_SIZE, 0);
+							if (ret_send == 0 || ret_send == -1)
+								std::cout << "wtf send" << std::endl;
+							else
+								(*it).resp_byte_sent += (size_t)ret_send;
+						}
+						else
+						{
+								ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
+							if (ret_send == 0 || ret_send == -1)
+								std::cout << "wtf send" << std::endl;
+						}
+						if ((*it).resp_byte_sent == (*it).response_length)
+						{
+						close((*it).client_fd);
 						requests.erase(it);
-						std::cout << "write block fd(i)="<<i<< std::endl;
+						std::cout << "write block fd(i)=" << i << std::endl;
 						FD_CLR(i, &wsockets);
 						break;
+						}
 					}
 			}
 		}

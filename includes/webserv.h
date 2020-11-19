@@ -33,7 +33,7 @@
 #include <sys/time.h>
 
 #ifndef BUFF_SIZE
-	#define BUFF_SIZE 12420
+	#define BUFF_SIZE 42420
 #endif
 
 #define WRITE_SIZE 100
@@ -172,6 +172,7 @@ typedef struct s_client_buff
 	int req_buff_len;
 	t_req_line rl;
 	bool rl_set;
+
 }				t_client_buff;
 
 typedef struct s_ans_arg
@@ -181,6 +182,9 @@ typedef struct s_ans_arg
 	t_conf conf;
 	char **envp;
 	bool incomplete;//is the request complete ? -> used to check if we finished recved
+	size_t resp_byte_sent;
+	size_t response_length;
+	std::string request;
 }				t_ans_arg;
 
 extern std::vector<int> 	serv_socket;
@@ -205,7 +209,7 @@ typedef struct	s_http_res
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
 }				t_http_res;
-int answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp);
+std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp);
 //RESPONSE UTILS
 int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);

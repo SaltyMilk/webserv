@@ -288,6 +288,14 @@ int main(int argc, char **argv, char **envp)
 							(*it).request = answer_request((*it).client_fd, (*it).rl, (*it).conf, (*it).envp);
 							(*it).response_length = (*it).request.length();
 						}
+						if ((*it).response_length <= WRITE_SIZE)
+						{
+							ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
+							if (ret_send == 0 || ret_send == -1)
+								std::cout << "wtf send" << std::endl;
+							else
+								(*it).resp_byte_sent += (size_t)ret_send;
+						}
 						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
 						{
 						close(i);
@@ -310,9 +318,12 @@ int main(int argc, char **argv, char **envp)
 						}
 						else if ((*it).resp_byte_sent < (*it).response_length)//SEND FULL REQUEST AT ONCE
 						{
-								ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
+							ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
 							if (ret_send == 0 || ret_send == -1)
 								std::cout << "wtf send" << std::endl;
+							else
+								(*it).resp_byte_sent += (size_t)ret_send;
+						
 							break;
 						}
 

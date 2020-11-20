@@ -238,7 +238,7 @@ int main(int argc, char **argv, char **envp)
 		for (int i = 0; i <= max_fd; i++)
 		{
 
-			if (FD_ISSET(i, &ready_sockets)) //Socket ready for read operations
+			if (FD_ISSET(i, &ready_sockets) && requests.empty()) //Socket ready for read operations
 			{
 				struct sockaddr_in client_adr;
 				if (std::find(serv_fds.begin(), serv_fds.end(), i) != serv_fds.end()) //Connection is being asked to one of the servers
@@ -277,7 +277,7 @@ int main(int argc, char **argv, char **envp)
 					}
 				}
 			}
-			if (FD_ISSET(i, &ready_wsockets)) //Socket ready for write operations
+			if (FD_ISSET(i, &ready_wsockets) && !requests.empty()) //Socket ready for write operations
 			{
 				for (std::vector<t_ans_arg>::iterator it = requests.begin(); it != requests.end(); it++)
 					if ((*it).client_fd == i)
@@ -288,7 +288,7 @@ int main(int argc, char **argv, char **envp)
 							(*it).request = answer_request((*it).client_fd, (*it).rl, (*it).conf, (*it).envp);
 							(*it).response_length = (*it).request.length();
 						}
-						if ((*it).resp_byte_sent == (*it).response_length)
+						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
 						{
 						close(i);
 						requests.erase(it);
@@ -296,7 +296,7 @@ int main(int argc, char **argv, char **envp)
 						FD_CLR(i, &wsockets);
 						break;
 						}
-						if ((*it).resp_byte_sent < (*it).response_length)
+						else if ((*it).resp_byte_sent < (*it).response_length)//SENDING PART OF THE REP
 						{
 							if ((*it).response_length - (*it).resp_byte_sent < WRITE_SIZE)
 								ret_send = send((*it).client_fd, (*it).request.c_str() + (*it).resp_byte_sent, (*it).response_length - (*it).resp_byte_sent, 0);
@@ -306,12 +306,14 @@ int main(int argc, char **argv, char **envp)
 								std::cout << "wtf send" << std::endl;
 							else
 								(*it).resp_byte_sent += (size_t)ret_send;
+							break;
 						}
-						else if ((*it).resp_byte_sent < (*it).response_length)
+						else if ((*it).resp_byte_sent < (*it).response_length)//SEND FULL REQUEST AT ONCE
 						{
 								ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
 							if (ret_send == 0 || ret_send == -1)
 								std::cout << "wtf send" << std::endl;
+							break;
 						}
 
 					}

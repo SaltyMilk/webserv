@@ -1,5 +1,6 @@
 #include "../includes/webserv.h"
 int client_count = 0; //Remove once project is finished, good for debugging
+bool recv_err = false;
 std::vector<int> serv_socket;
 
 std::string cinet_ntoa(in_addr_t in)
@@ -66,11 +67,13 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	{
 		std::cout << "returned 0" << std::endl;
 		arg.incomplete = true;
+		recv_err = true;
 		return (arg);
 	}
 	if (ret == -1)
 	{
 		arg.incomplete = true;
+		recv_err = true;
 		std::cout << "errno=" << strerror(errno) << std::endl;
 		return (arg);
 	}
@@ -91,8 +94,8 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 			parse_headers(i, rl, cl_buff.req_buff.c_str(), env);
 			cl_buff.rl = rl;
 			cl_buff.rl_set = true;
-			std::cout << "Debug request:" << std::endl
-					  << cl_buff.req_buff << std::endl;
+		/*	std::cout << "Debug request:" << std::endl
+					  << cl_buff.req_buff << std::endl;*/
 		}
 		if (env)
 		{
@@ -265,7 +268,15 @@ int main(int argc, char **argv, char **envp)
 						if (i == (*it).client_fd)
 							break;
 					t_ans_arg ans_arg = net_receive(servers, i, next_fd_to_resp, client_adr, envp, *it);
-					if (ans_arg.incomplete == false) //Done receiving from socket
+					if(recv_err == true)
+					{
+						std::cout << "REMOVING CLIENT BECAUSE OF RECV_ERR" << std::endl;
+						close(i);
+						client_buffs.erase(it);
+						FD_CLR(i, &sockets);
+						recv_err = false;
+					}
+					else if (ans_arg.incomplete == false) //Done receiving from socket
 					{
 						//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
 						std::cout << "received full request" << std::endl;

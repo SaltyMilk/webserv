@@ -8,7 +8,7 @@ void send_400(t_req_line rl, t_http_res &resp, t_conf conf)
 	char c;
 	int efd = open(conf.default_error[ERR400].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -21,7 +21,7 @@ void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string
 	char c;
 	int efd = open(conf.default_error[ERR401].c_str(), O_RDONLY);
 	if (request.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			response.body += c;
 	close(efd);
 }
@@ -34,7 +34,7 @@ void send_403(t_req_line rl, t_http_res &resp, t_conf conf)
 	char c;
 	int efd = open(conf.default_error[ERR403].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -47,7 +47,7 @@ void send_404(t_req_line rl, t_http_res &resp, t_conf conf)
 	char c;
 	int efd = open(conf.default_error[ERR404].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -60,7 +60,7 @@ void send_413(t_req_line rl, t_http_res &resp, t_conf conf)
 	char c;
 	int efd = open(conf.default_error[ERR413].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -74,7 +74,7 @@ void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	char c;
 	int efd = open(conf.default_error[ERR405].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -87,7 +87,7 @@ void send_501(t_req_line rl, t_http_res &resp, t_conf conf)
 	char c;
 	int efd = open(conf.default_error[ERR501].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -100,7 +100,7 @@ void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
 	char c;
 	int efd = open(conf.default_error[ERR505].c_str(), O_RDONLY);
 	if (rl.method != "HEAD") // No body for head method
-		while (read(efd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(efd, &c, 1) > 0)
 			resp.body += c;
 	close(efd);
 }
@@ -114,7 +114,7 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&env
 	char c;
 	if ((rl.method != "HEAD" && (!route.cgi || std::find(route.cgi_exts.begin(), route.cgi_exts.end(), get_file_ext(rl.target)) == route.cgi_exts.end()))
 		|| (rl.method == "GET" && !rl.query.length())) // No body for head method
-		while (read(fd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(fd, &c, 1) > 0)
 			resp.body += c;
 	else if (route.cgi && rl.method != "HEAD")
 		resp.body = execute_cgi(rl, route, resp, envp);
@@ -129,7 +129,7 @@ void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route rou
 	resp.headers[LAST_MODIFIED] = format_header(LAST_MODIFIED, get_last_modified(route.default_dir_file));
 	char c;
 	if (rl.method != "HEAD") // No body for head method
-		while (read(fd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(fd, &c, 1) > 0)
 			resp.body += c;
 	close(fd);
 }
@@ -142,7 +142,7 @@ void send_200_dirlist(t_req_line rl, t_http_res &resp)
 	int fd = open(".dirlisting.html", O_RDONLY);
 	char c;
 	if (rl.method != "HEAD") // No body for head method
-		while (read(fd, &c, 1) > 0)
+		while (GET_FILE_CONTENT(fd, &c, 1) > 0)
 			resp.body += c;
 	close(fd);
 }
@@ -160,7 +160,7 @@ void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
 	std::string current_representation;
 	fd = open((route.upload_root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
 	char c;
-	while (read(fd, &c, 1) > 0)
+	while (GET_FILE_CONTENT(fd, &c, 1) > 0)
 		current_representation += c;
 	resp.status_code = "204";
 	resp.reason_phrase = "No Content";

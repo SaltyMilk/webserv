@@ -65,12 +65,11 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 	{
 		int r;
 		close(fd[1]);
-		while ((r = read(fd[0], buff, 1000 -1)) > 0)
+		while ((r = GET_FILE_CONTENT(fd[0], buff, 1000 -1)) > 0)
 		{
 			buff[r] = 0;
 			output += buff;
 		}
-		unlink(".tmpfile");
 	}
 	close(fd[1]);
 	close(fd[0]);
@@ -81,7 +80,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 	size_t k = 0;
 	std::cout <<  "DEBUG BEGINING OF CGI OUTPUT" << std::endl;
 	while (output[k] && !(output[k] == '\r' && output[k + 1] == '\n' && output[k+2] == '\r' && output[k +3] == '\n'))
-		write(1, output.c_str() + k++, 1);
+		PUT_FILE(1, output.c_str() + k++, 1);
 	std::cout << std::endl <<  "DEBUG END OF CGI OUTPUT" << std::endl;
 	return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
 }

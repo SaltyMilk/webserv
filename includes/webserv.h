@@ -1,6 +1,5 @@
 #ifndef WEBSERV_H
 #define WEBSERV_H
-//GENERAL INCLUDES
 #include <string>
 #include <list>
 #include <map>
@@ -14,7 +13,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <signal.h>
-//NETWORK INCLUDES
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -29,15 +27,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
-//DATE INCLUDES
 #include <sys/time.h>
-
-#ifndef BUFF_SIZE
-	#define BUFF_SIZE 42420
-#endif
-
+#define BUFF_SIZE 42420
 #define WRITE_SIZE 10000
-//HEADER DEFINES, also defines the order in which headers are sent
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1
 #define ALLOW				2
@@ -56,10 +48,10 @@
 #define TRANSFER_ENCODING	15
 #define USER_AGENT			16
 #define WWW_AUTHENTICATE	17
-
-//Number of error status code supported
+#define GET_FILE_CONTENT read
+#define PUT_FILE write
+#define	PRINT_ERR strerror
 #define N_ERR_IMPLEMENTED 8
-//Defines to be used with conf::default_error
 #define ERR400 0
 #define ERR401 1
 #define ERR403 2
@@ -68,9 +60,7 @@
 #define ERR413 5
 #define ERR501 6
 #define ERR505 7
-
 #define WEBSERV_VER "0.1"
-
 #define TIMEOUT_SEC 10
 
 //CONFIG PARSER
@@ -174,7 +164,6 @@ typedef struct s_client_buff
 	bool rl_set;
 
 }				t_client_buff;
-
 typedef struct s_ans_arg
 {
 	int client_fd;

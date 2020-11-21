@@ -138,19 +138,19 @@ void get_dir_listing(std::string dir)
 	if (dir[dir.length() - 1] != '/')
 		dir += "/";
 	fd = open(".dirlisting.html", O_CREAT | O_TRUNC | O_RDWR, 0666);//For bonus workers add worker's id to file name
-	write(fd, start.c_str(), ft_strlen(start.c_str()));
+	PUT_FILE(fd, start.c_str(), ft_strlen(start.c_str()));
 	while ((tmp = readdir(dptr))) //build href for each file
 	{
-		write(fd, "<pre><a href=\"", 14);
+		PUT_FILE(fd, "<pre><a href=\"", 14);
 		if (std::string(tmp->d_name) == ".")
-			write(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
+			PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
 		else
-			write(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
-		write(fd, "\">", 2);
-		write(fd, tmp->d_name, ft_strlen(tmp->d_name));
-		write(fd, "</a></pre>", 10);
+			PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
+		PUT_FILE(fd, "\">", 2);
+		PUT_FILE(fd, tmp->d_name, ft_strlen(tmp->d_name));
+		PUT_FILE(fd, "</a></pre>", 10);
 	}
-	write(fd, "<hr></body>\n</html>\n", 20);
+	PUT_FILE(fd, "<hr></body>\n</html>\n", 20);
 	closedir(dptr);
 	close(fd);
 }
@@ -189,7 +189,7 @@ void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&en
 		ressource_content = execute_cgi(rl, route, resp, envp);
 		resp.body = ressource_content;
 	}
-	write(fd, ressource_content.c_str(), ressource_content.length());
+	PUT_FILE(fd, ressource_content.c_str(), ressource_content.length());
 	close(fd);
 }
 

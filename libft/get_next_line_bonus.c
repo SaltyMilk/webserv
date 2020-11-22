@@ -19,9 +19,9 @@ int	clean_exit(char **buffer, int ret)
 }
 
 int	prep_gnl(int fd, char **line, char **buffer,
-			char fdbuffer[OPEN_MAX][BUFFER_SIZE + 1])
+			char fdbuffer[_SC_OPEN_MAX][BUFFER_SIZE + 1])
 {
-	if (fd < 0 || BUFFER_SIZE <= 0 || !line || fd > OPEN_MAX)
+	if (fd < 0 || BUFFER_SIZE <= 0 || !line || fd > _SC_OPEN_MAX)
 		return (-1);
 	if (!(*buffer = malloc((BUFFER_SIZE + 1) * sizeof(char))))
 		return (-1);
@@ -56,7 +56,7 @@ int	readtnl(int fd, char **buffer, char **line)
 int	get_next_line(int fd, char **line)
 {
 	char				*buffer;
-	static char			fdbuffer[OPEN_MAX][BUFFER_SIZE + 1];
+	static char			fdbuffer[_SC_OPEN_MAX][BUFFER_SIZE + 1];
 	int					read_ret;
 
 	if ((read_ret = prep_gnl(fd, line, &buffer, fdbuffer)) == -1)

@@ -152,7 +152,12 @@ void parseHostAddr(t_conf &conf, char *line)
 	char **sp = ft_split(line, ' ');
 	if (!sp[1])
 			excerr("Config file error: missing argument for server_name", 1);	
-	conf.host = std::string(sp[1]);
+	std::cout << "nope" << std::endl;
+	std::cout << sp[1] << std::endl;
+	std::string s = std::string(sp[1]);
+	std::cout << "s=" << s << std::endl;
+	conf.host = s;
+	std::cout << "yup" << std::endl;
 	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
 	free(sp);

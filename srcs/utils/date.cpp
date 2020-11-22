@@ -24,7 +24,7 @@ std::string get_last_modified(std::string filename)
 	struct tm date;
 	stat(filename.c_str(), &st);
 
-	time_t time = st.st_mtimespec.tv_sec;
+	time_t time = st.st_mtim.tv_sec;
 	struct timeval tp;
 	gettimeofday(&tp, nullptr);	
 	if (time > tp.tv_sec)//if last modified is in the future, we change it to the current time

@@ -1,13 +1,13 @@
 #include "../../includes/webserv.h"
 
-int valid_http_ver(t_req_line rl)
+int valid_http_ver(t_request rl)
 {	//HTTP/1.1
 	//[5] is the first '1' this assumes bad request have been parsed first !
 	//[6] is checked otherwise HTTP/11.1 would return 1 too 
 	return (rl.http_ver[5] == '1' && rl.http_ver[6] == '.');
 }
 //Note : invalid method doesn't throw bad_request
-int bad_request(t_req_line rl)
+int bad_request(t_request rl)
 {
 	//CHECK MANDATORY HEADERS
 	if (!rl.headers[HOST].length())
@@ -55,7 +55,7 @@ int bad_request(t_req_line rl)
 	return (0);
 }
 
-void handle_absolute_path(t_req_line &rl)
+void handle_absolute_path(t_request &rl)
 {
 	if (rl.target[0] != '/')
 	{
@@ -74,7 +74,7 @@ void handle_absolute_path(t_req_line &rl)
 	}
 }
 
-void parse_query_from_target(t_req_line &rl)
+void parse_query_from_target(t_request &rl)
 {
 	std::string targ = "";
 	size_t i = 0;
@@ -104,7 +104,7 @@ t_route get_default_route()
 	return (route);
 }
 
-t_route get_route_for(t_req_line rl, t_conf conf)
+t_route get_route_for(t_request rl, t_server conf)
 {
 	if (conf.routes.empty())
 		return (get_default_route());
@@ -178,7 +178,7 @@ void create_missing_dirs(std::string targ, t_route route)
 }
 
 //Used to create a file with HTTP PUT method
-void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&envp) 
+void create_ressource(t_request rl, t_route route, t_response &resp, char **&envp)
 {
 	int fd;
 	std::string ressource_content = rl.body;

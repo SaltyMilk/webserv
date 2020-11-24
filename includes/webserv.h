@@ -1,21 +1,14 @@
 #ifndef WEBSERV_H
 #define WEBSERV_H
-#include <string>
-#include <list>
-#include <map>
-#include <algorithm>
-#include <vector>
-#include <errno.h>
-#include <iostream>
+
+/*
+ * libft
+ */
 #include "../libft/libft.h"
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+
+/*
+ * network includes
+ */
 #include <fcntl.h>
 #include <netdb.h>
 #include <ctype.h>
@@ -26,10 +19,26 @@
 #include <sys/time.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+
+/*
+ * general includes
+ */
+#include <string>
+#include <string.h>
+#include <list>
+#include <map>
+#include <algorithm>
+#include <vector>
 #include <errno.h>
-#include <sys/time.h>
-#define BUFF_SIZE 42420
-#define WRITE_SIZE 10000
+#include <iostream>
+#include <unistd.h>
+#include <dirent.h>
+#include <signal.h>
+#include <stdlib.h>
+
+/*
+ * header defines
+ */
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1
 #define ALLOW				2
@@ -48,10 +57,10 @@
 #define TRANSFER_ENCODING	15
 #define USER_AGENT			16
 #define WWW_AUTHENTICATE	17
-#define GET_FILE_CONTENT read
-#define PUT_FILE write
-#define	PRINT_ERR strerror
-#define N_ERR_IMPLEMENTED 8
+
+/*
+ * error defines
+ */
 #define ERR400 0
 #define ERR401 1
 #define ERR403 2
@@ -60,11 +69,33 @@
 #define ERR413 5
 #define ERR501 6
 #define ERR505 7
-#define WEBSERV_VER "0.1"
-#define TIMEOUT_SEC 10
+#define N_ERR_IMPLEMENTED 8
 
-//CONFIG PARSER
-typedef struct s_route
+#define BUFF_SIZE 42420
+#define WRITE_SIZE 10000
+#define GET_FILE_CONTENT read
+#define PUT_FILE write
+
+/*
+ * version define
+ */
+#define WEBSERV_VER "0.1"
+
+typedef	struct s_route	t_route;
+typedef	struct s_server	t_server;
+typedef	struct s_net	t_net;
+typedef	struct s_hpf	t_hpf;
+typedef	struct s_path	t_path;
+typedef	struct s_auth	t_auth;
+typedef	struct s_headers t_headers;
+typedef	struct s_request t_request;
+typedef	struct s_response t_response;
+typedef struct s_client_buff t_client_buff;
+typedef struct s_ans_arg t_ans_arg;
+
+extern std::vector<int> 	serv_socket;
+
+struct	s_route
 {
 	std::string location;
 	char modifier; //Will support '='
@@ -73,16 +104,16 @@ typedef struct s_route
 	std::vector<std::string> allowed_methods;
 	std::string default_dir_file;
 	bool dir_listing;
-	bool cgi;//on or off 
+	bool cgi;//on or off
 	std::string cgi_path;
 	std::vector<std::string> cgi_exts;
 	std::string auth_name;
 	std::string auth_user;
 	size_t body_limit;
 	bool auth;
-}	t_route;
+};
 
-typedef struct s_conf
+struct	s_server
 {
 	std::vector<int> ports;
 	std::string host;//ip of the server
@@ -93,51 +124,40 @@ typedef struct s_conf
 	std::vector<t_route> routes;//list of all routes
 	bool is_default_server;// if true this is the default server to use when no other match HOST header
 	std::vector<int> fd;//Fd linked to this server
-}	t_conf;
+};
 
-std::vector<t_conf> parseConf(std::string);
-int parseRouteFields(char *line, t_route &route);
-
-//NET
-typedef struct	s_net
+struct	s_net
 {
 	std::vector<struct sockaddr_in> clients_net;//network information about clients
-}				t_net;
+};
 
-typedef struct	host_port_fd //Gives us the server socket corresponding to a port and host
+struct	s_hpf
 {
 	std::string host;
 	int port;
 	int fd;
-}				 t_hpf;
-std::string cinet_ntoa(in_addr_t in);
+};
 
-typedef struct	s_path t_path;
-struct s_path
+struct	s_path
 {
 	std::string info;
 	std::string script;
 	std::string translated;
 };
 
-typedef struct	s_auth t_auth;
-struct s_auth
+struct	s_auth
 {
 	std::string	type;
 	std::string ident;
 };
 
-typedef struct	s_headers t_headers;
-struct s_headers
+struct	s_headers
 {
 	int 		id;
 	std::string	value;
-	std::string name;
 };
 
-
-//PARSER
-typedef struct	s_request_line
+struct	s_request
 {
 	std::string method; // GET, PUT, POST,...
 	std::string target; // ex: /index, http://https://profile.intra.42.fr/,...
@@ -152,100 +172,119 @@ typedef struct	s_request_line
 	t_path 		path;
 	bool bad_request;//Allows bad_request checks before/while parsing request
 	struct sockaddr_in	client_adr;
-}				t_req_line;
+};
 
-typedef struct s_client_buff
-{	
+struct	s_response
+{
+	std::string http_ver;// ex : HTTP/1.1
+	std::string status_code; // ex:
+	std::string reason_phrase; // GET, PUT, POST,...
+	std::string headers[18]; //headers are indexed like in project's subject
+	std::string body;
+};
+
+struct	s_client_buff
+{
 	int client_fd;
 	time_t sec_since_recv; //Used to timeout incomplete HTTP request -> send 400
 	std::string req_buff;
 	int req_buff_len;
-	t_req_line rl;
+	t_request rl;
 	bool rl_set;
+};
 
-}				t_client_buff;
-typedef struct s_ans_arg
+struct	s_ans_arg
 {
 	int client_fd;
-	t_req_line rl;
-	t_conf conf;
+	t_request rl;
+	t_server conf;
 	char **envp;
 	bool incomplete;//is the request complete ? -> used to check if we finished recved
 	size_t resp_byte_sent;
 	size_t response_length;
 	std::string request;
-}				t_ans_arg;
+};
 
-extern std::vector<int> 	serv_socket;
+/*
+ * Config parsing
+ */
+std::vector<t_server>	parseConf(std::string);
+int		parseRouteFields(char *line, t_route &route);
 
-t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in client_adr, char **envp);
-int get_header_id(std::string header_field);
-void parse_request_line(size_t &i, t_req_line &rl, const char *request);
-void parse_headers(size_t &i, t_req_line &rl, const char *request, char **&envp);
-//PARSE REQUEST UTILS
-void parse_chunked(size_t i, t_req_line &rl, char *request);
-t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
-std::pair<std::string, int> parsed_host_header(t_req_line &rl);
-std::string cinet_ntoa(in_addr_t in);
-char **dupEnv(char **envs);
+/*
+ * Network
+ */
+std::string		cinet_ntoa(in_addr_t in);
 
-//RESPONSE
-typedef struct	s_http_res
-{
-	std::string http_ver;// ex : HTTP/1.1
-	std::string status_code; // ex: 
-	std::string reason_phrase; // GET, PUT, POST,...
-	std::string headers[18]; //headers are indexed like in project's subject
-	std::string body;
-}				t_http_res;
-std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp);
+/*
+ * Requests
+ */
+t_ans_arg parse_request(char *request, int fd, std::vector<t_server> servers, int server_fd, struct sockaddr_in client_adr, char **envp);
+int		get_header_id(std::string header_field);
+void	parse_request_line(size_t &i, t_request &rl, const char *request);
+void	parse_headers(size_t &i, t_request &rl, const char *request, char **&envp);
+void	parse_chunked(size_t i, t_request &rl, char *request);
+void	parse_chunked(size_t i, t_request &rl, char *request);
+t_server	get_server_conf_for_request(t_request &rl, std::vector<t_server> servers, int server_fd);
+std::pair<std::string, int> parsed_host_header(t_request &rl);
+std::string get_content_type(std::string filename);
+
+/*
+ * Response
+ */
+std::string answer_request(int client_fd, t_request rl, t_server conf, char **&envp);
 //RESPONSE UTILS
-int bad_request(t_req_line rl);
-int valid_http_ver(t_req_line rl);
-void handle_absolute_path(t_req_line &rl);
-void parse_query_from_target(t_req_line &rl);
+int bad_request(t_request rl);
+int valid_http_ver(t_request rl);
+void handle_absolute_path(t_request &rl);
+void parse_query_from_target(t_request &rl);
 t_route get_default_route();
-t_route get_route_for(t_req_line rl, t_conf conf);
+t_route get_route_for(t_request rl, t_server conf);
 bool method_allowed(std::string method, t_route route);
 bool method_supported(std::string method);
 void get_dir_listing(std::string dir);
-void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char**&envp);
+void create_ressource(t_request rl, t_route route, t_response &resp, char**&envp);
 void empty_directory(std::string path);
 
-//CGI
-char	**get_cgi_envs(t_req_line &request, char**&envp);
-void 	parse_cgi(t_req_line &request);
+/*
+ * CGI
+ */
+char	**get_cgi_envs(t_request &request, char**&envp);
+void 	parse_cgi(t_request &request);
 std::string	format_header(int header, std::string value);
-std::string get_header_field(int header);
-std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, char **&envp);
-int parse_cgi_headers(t_http_res &resp, const char *output);
-void parse_cgi_status(t_http_res &resp, const char *output);
+std::string execute_cgi(t_request &request, t_route route, t_response &resp, char **&envp);
+int parse_cgi_headers(t_response &resp, const char *output);
+void parse_cgi_status(t_response &resp, const char *output);
 
-//DATE
-std::string get_imf_fixdate();
-std::string get_last_modified(std::string filename);
-//CONTENT_TYPE
-std::string get_content_type(std::string filename);
-//STATUS_CODE
-void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string auth_name);
-void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
-void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&envp);
-void send_200_dirlist(t_req_line rl, t_http_res &resp);
-void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route route);
-void send_201_put(t_req_line rl, t_http_res &resp);
-void send_204_put(t_req_line rl, t_http_res &resp, t_route route);
-void send_204_delete(t_http_res &resp);
+/*
+ * Status codes
+ */
+void send_400(t_request rl, t_response &resp, t_server conf);
+void send_401(t_request request, t_response &response, t_server conf, std::string auth_name);
+void send_403(t_request rl, t_response &resp, t_server conf);
+void send_404(t_request rl, t_response &resp, t_server conf);
+void send_405(t_request rl, t_response &resp, t_server conf, t_route route);
+void send_413(t_request rl, t_response &resp, t_server conf);
+void send_501(t_request rl, t_response &resp, t_server conf);
+void send_505(t_request rl, t_response &resp, t_server conf);
+void send_200(t_request rl, t_response &resp, int fd, t_route route, char**&envp);
+void send_200_dirlist(t_request rl, t_response &resp);
+void send_200_file_is_a_dir(t_request rl, t_response &resp, int fd, t_route route);
+void send_201_put(t_request rl, t_response &resp);
+void send_204_put(t_request rl, t_response &resp, t_route route);
+void send_204_delete(t_response &resp);
 //STATUS_CODE UTILS
 std::string get_allowed_methods(t_route route);
 
-//UTILS
-int print_err(std::string s);
+/*
+ * Dates
+ */
+std::string get_imf_fixdate();
+std::string get_last_modified(std::string filename);
+
+/*
+ * Utils
+ */
 void excerr(std::string msg, int c);
 bool file_exists(std::string filename);
 bool file_is_dir(std::string filename);
@@ -254,8 +293,7 @@ std::string get_file_ext(std::string file);
 void chandler(int sig_num);
 std::string b64decode(const std::string& str64);
 std::string str_replace(std::string str, const std::string &old_key, const std::string &new_key);
-void debug(std::string name, std::string content);
 char **addEnvVar(char **envs, char *var);
 time_t	get_time_sec(void);
 
-#endif
+#endif WEBSERV_H

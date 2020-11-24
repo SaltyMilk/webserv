@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-void send_400(t_req_line rl, t_http_res &resp, t_conf conf)
+void send_400(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "400";
 	resp.reason_phrase = "Bad Request";
@@ -13,7 +13,7 @@ void send_400(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string auth_name)
+void send_401(t_request request, t_response &response, t_server conf, std::string auth_name)
 {
 	response.status_code = "401";
 	response.reason_phrase = "Unauthorized";
@@ -26,7 +26,7 @@ void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string
 	close(efd);
 }
 
-void send_403(t_req_line rl, t_http_res &resp, t_conf conf)
+void send_403(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "403";
 	resp.reason_phrase = "Forbidden";
@@ -39,7 +39,7 @@ void send_403(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_404(t_req_line rl, t_http_res &resp, t_conf conf)
+void send_404(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "404";
 	resp.reason_phrase = "Not Found";
@@ -52,7 +52,7 @@ void send_404(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_413(t_req_line rl, t_http_res &resp, t_conf conf)
+void send_413(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "413";
 	resp.reason_phrase = "Payload Too Large";
@@ -65,7 +65,7 @@ void send_413(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
+void send_405(t_request rl, t_response &resp, t_server conf, t_route route)
 {
 	resp.status_code = "405";
 	resp.reason_phrase = "Method Not Allowed";
@@ -79,7 +79,7 @@ void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route)
 	close(efd);
 }
 
-void send_501(t_req_line rl, t_http_res &resp, t_conf conf)
+void send_501(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "501";
 	resp.reason_phrase = "Not Implemented";
@@ -92,7 +92,7 @@ void send_501(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
+void send_505(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "505";
 	resp.reason_phrase = "HTTP Version Not Supported";
@@ -105,7 +105,7 @@ void send_505(t_req_line rl, t_http_res &resp, t_conf conf)
 	close(efd);
 }
 
-void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&envp)
+void send_200(t_request rl, t_response &resp, int fd, t_route route, char**&envp)
 {
 	resp.status_code = "200";
 	resp.reason_phrase = "OK";
@@ -121,7 +121,7 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&env
 	close(fd);
 }
 
-void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route route)
+void send_200_file_is_a_dir(t_request rl, t_response &resp, int fd, t_route route)
 {
 	resp.status_code = "200";
 	resp.reason_phrase = "OK";
@@ -134,7 +134,7 @@ void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route rou
 	close(fd);
 }
 
-void send_200_dirlist(t_req_line rl, t_http_res &resp)
+void send_200_dirlist(t_request rl, t_response &resp)
 {
 	resp.status_code = "200";
 	resp.reason_phrase = "OK";
@@ -147,14 +147,14 @@ void send_200_dirlist(t_req_line rl, t_http_res &resp)
 	close(fd);
 }
 
-void send_201_put(t_req_line rl, t_http_res &resp)
+void send_201_put(t_request rl, t_response &resp)
 {
 	resp.status_code = "201";
 	resp.reason_phrase = "Created";
 	resp.headers[LOCATION] = format_header(LOCATION, rl.target);
 }
 
-void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
+void send_204_put(t_request rl, t_response &resp, t_route route)
 {
 	int fd;
 	std::string current_representation;
@@ -169,7 +169,7 @@ void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
 	close(fd);
 }
 
-void send_204_delete(t_http_res &resp)
+void send_204_delete(t_response &resp)
 {
 	resp.status_code = "204";
 	resp.reason_phrase = "No Content";

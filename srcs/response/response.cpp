@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-int index_requested(t_req_line &rl, t_http_res &resp, t_conf conf)
+int index_requested(t_request &rl, t_response &resp, t_server conf)
 {
 		bool found = false;
 		for (size_t i = 0; conf.indexs.size() && i < conf.indexs.size(); i++)
@@ -18,7 +18,7 @@ int index_requested(t_req_line &rl, t_http_res &resp, t_conf conf)
 	return (1); //index found continue to send_200 execution
 }
 
-std::string construct_response(t_http_res resp)
+std::string construct_response(t_response resp)
 {
 	std::string response;
 	//CONSTRUCT STATUS LINE
@@ -32,7 +32,7 @@ std::string construct_response(t_http_res resp)
 	return (response);
 }
 
-int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route, char**&envp)
+int getorhead_resp(t_request rl, t_response &resp, t_server conf, t_route route, char**&envp)
 {
 	int fd;
 	if (rl.target == "/" && conf.indexs.size() > 0 && !index_requested(rl, resp, conf)) //Use webserv's index for target
@@ -51,7 +51,7 @@ int getorhead_resp(t_req_line rl, t_http_res &resp, t_conf conf, t_route route, 
 	return (0);
 }
 
-void put_resp(t_req_line rl, t_http_res &resp, t_route route)
+void put_resp(t_request rl, t_response &resp, t_route route)
 {
 	char **tmp;
 	rl.target = str_replace(rl.target, route.root_dir, route.upload_root_dir);
@@ -62,7 +62,7 @@ void put_resp(t_req_line rl, t_http_res &resp, t_route route)
 	create_ressource(rl, route, resp, tmp);
 }
 
-void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
+void delete_resp(t_request rl, t_response &resp, t_server conf)
 {
 	if (!file_exists(rl.target))
 		send_404(rl, resp, conf);
@@ -79,7 +79,7 @@ void delete_resp(t_req_line rl, t_http_res &resp, t_conf conf)
 	}
 }
 
-void post(t_req_line rl, t_http_res &resp, t_route route, char **&envp)
+void post(t_request rl, t_response &resp, t_route route, char **&envp)
 {
 	int fd;
 
@@ -93,11 +93,11 @@ void post(t_req_line rl, t_http_res &resp, t_route route, char **&envp)
 
 }
 
-std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp)
+std::string answer_request(int client_fd, t_request rl, t_server conf, char **&envp)
 {	
 	(void)client_fd;
 	t_route route;//Settings for requested ressource location
-	t_http_res resp;
+	t_response resp;
 	std::string response; //This will be sent as a response to a given request
 	
 	resp.http_ver = "HTTP/1.1";//We will always respond with the version we use
@@ -140,18 +140,6 @@ std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&en
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
 	std::cout << "Response status code=" << resp.status_code << std::endl;
-		
-	//	std::cout << "Response LOG"<< std::endl << response << std::endl << "END RESPONSE LOG" << std::endl;
-//	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
-/*	int ret = 0;
-	int rret = 0;	
-
-	std::cout << "request method =" << rl.method << std::endl;
-	std::cout << "resp length= " << response.length() << std::endl;
-	std::cout << rret << " bytes really written" << std::endl;
-	std::cout << ret << " bytes written" << std::endl;*/
-	//CLOSE CONNECTION. (Fixs pending requests)
-	//std::cout << "closing connection to client n°" << client_fd << std::endl;
 	/*for (size_t i = 0; envp[i]; i++)
 			free(envp[i]);
 	free(envp);*/

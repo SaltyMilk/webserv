@@ -48,7 +48,7 @@ int net_init(unsigned int port, std::string host_addr)
 	return fd;
 }
 
-t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, const struct sockaddr_in client_adr, char **envp, t_client_buff &cl_buff)
+t_ans_arg net_receive(std::vector<t_server> servers, int client_fd, int server_fd, const struct sockaddr_in client_adr, char **envp, t_client_buff &cl_buff)
 {
 	t_ans_arg arg;
 	std::cout << "starting to receive" << std::endl;
@@ -85,7 +85,7 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	{
 		std::cout << "Received all headers" << std::endl;
 
-		t_req_line rl;
+		t_request rl;
 		size_t i = 0;
 		char **env = NULL;
 		if (!cl_buff.rl_set)
@@ -94,8 +94,6 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 			parse_headers(i, rl, cl_buff.req_buff.c_str(), env);
 			cl_buff.rl = rl;
 			cl_buff.rl_set = true;
-		/*	std::cout << "Debug request:" << std::endl
-					  << cl_buff.req_buff << std::endl;*/
 		}
 		if (env)
 		{
@@ -177,10 +175,10 @@ std::vector<t_hpf>::iterator is_in_hpfs(std::string host, int port, std::vector<
 	return it;
 }
 
-void init_all_servers(std::vector<t_conf> &servers, std::vector<int> &serv_fds, fd_set *sockets)
+void init_all_servers(std::vector<t_server> &servers, std::vector<int> &serv_fds, fd_set *sockets)
 {
 	std::vector<t_hpf> hpfs;
-	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++) //Init a/multiple sockets for each server
+	for (std::vector<t_server>::iterator it = servers.begin(); it != servers.end(); it++) //Init a/multiple sockets for each server
 	{
 		for (std::vector<int>::iterator itp = (*it).ports.begin(); itp != (*it).ports.end(); itp++) //Init a socket for a each port
 		{
@@ -204,7 +202,7 @@ void init_all_servers(std::vector<t_conf> &servers, std::vector<int> &serv_fds, 
 
 int main(int argc, char **argv, char **envp)
 {
-	std::vector<t_conf> servers;
+	std::vector<t_server> servers;
 	t_net s_net;
 	std::string conf_file = "ws.conf"; //Default path
 	fd_set sockets, ready_sockets;

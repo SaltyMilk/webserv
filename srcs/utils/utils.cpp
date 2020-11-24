@@ -1,9 +1,5 @@
 #include "../../includes/webserv.h"
-int print_err(std::string s)
-{
-	std::cout << s;
-	return (1);
-}
+
 //Cerr msg and exits with code c
 void excerr(std::string msg, int c)
 {
@@ -57,11 +53,6 @@ std::string str_replace(std::string str, const std::string &old_key, const std::
 		return str;
 	str.replace(start_pos, old_key.length(), new_key);
 	return str;
-}
-
-void debug(std::string name, std::string content)
-{
-	std::cout << name << content << std::endl;
 }
 
 char **addEnvVar(char **envs, char *var)

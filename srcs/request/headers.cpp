@@ -27,11 +27,6 @@ std::string	format_header(int header, std::string value)
 	return (std::string(g_headers[header].name + ": ") + value);
 }
 
-std::string get_header_field(int header)
-{
-	return (std::string(g_headers[header].value));
-}
-
 int 		get_header_id(std::string header_field)
 {
 	std::string upcase_hf = std::string(ft_strupcase(const_cast<char *>(header_field.c_str())));

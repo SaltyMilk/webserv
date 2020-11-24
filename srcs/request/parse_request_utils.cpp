@@ -97,6 +97,12 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 		if (id != -1 && id != TRANSFER_ENCODING && id != CONTENT_LENGTH && id != HOST
 			&& id != WWW_AUTHENTICATE && id != CONTENT_TYPE) //ignore forbidden headers as asked by rfc
 			rl.headers[id] = header_value;
+		if (id == AUTHORIZATION)
+		{
+			size_t pos = header_value.find(" ");
+			rl.auth.type = header_value.substr(0, pos);
+			rl.auth.ident = b64decode(header_value.substr(pos + 1));
+		}
 	}
 	if (!request[i]) // NO EMPTY LINES FOUND ! nginx loops then sends empty resp, we could send 400
 		rl.bad_request = true;
@@ -108,8 +114,23 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 //ret.first is the hostname and ret.second is the port number
 std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 {
-	char **sp;
 	std::pair<std::string, int> pair;
+	int pos = rl.headers[HOST].find(':');
+	int port;
+	pair.second = -1;
+	if (pos > 0)
+	{
+		pair.first = rl.headers[HOST].substr(0, pos);
+		port = ft_satoi(rl.headers[HOST].substr(pos).c_str());
+		if (port < 0)
+			rl.bad_request = true;
+		else
+			pair.second = port;
+	}
+	else
+		pair.first = rl.headers[HOST];
+
+/*	char **sp;
 	if (!(sp = ft_split(rl.headers[HOST].c_str(), ':')))
 		excerr("Internal error split failed",1);//weird bug where sometimes the next line segfaults
 	if (sp[0])
@@ -129,7 +150,7 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 		pair.second = port;
 	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
-	free(sp);
+	free(sp)*/
 	return (pair);
 }
 
@@ -152,4 +173,21 @@ t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, 
 	}
 	std::cout << "Shouldn't ever get here" << std::endl; //REMOVE ONCE PROJECT IS FINISHED, might save us ^-^'
 	return (servers[0]); // use default server if no other match
+}
+
+char **dupEnv(char **envs)
+{
+	char **ret;
+	size_t i = 0;
+	while (envs[i])
+		i++;
+	ret = (char**)malloc(sizeof(char *) * (i+1));
+	i = 0;
+	while (envs[i])
+	{
+		ret[i] = ft_strdup(envs[i]);
+		i++;
+	}
+	ret[i] = 0;
+	return (ret);
 }

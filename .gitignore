@@ -1,3 +1,6 @@
+### PROJECT RELATED ###
+tests/YoupiBanane/youpla.bla
+uploads
 ### C ###
 # Prerequisites
 *.d
@@ -262,3 +265,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+### Custom ###
+# Executable webserv
+webserv

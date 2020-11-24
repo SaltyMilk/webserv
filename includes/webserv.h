@@ -1,6 +1,5 @@
 #ifndef WEBSERV_H
 #define WEBSERV_H
-//GENERAL INCLUDES
 #include <string>
 #include <list>
 #include <map>
@@ -14,7 +13,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <signal.h>
-//NETWORK INCLUDES
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -29,11 +27,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
-//DATE INCLUDES
 #include <sys/time.h>
-#define BUFF_SIZE 42
-
-//HEADER DEFINES, also defines the order in which headers are sent
+#define BUFF_SIZE 42420
+#define WRITE_SIZE 10000
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1
 #define ALLOW				2
@@ -52,19 +48,20 @@
 #define TRANSFER_ENCODING	15
 #define USER_AGENT			16
 #define WWW_AUTHENTICATE	17
-
-//Number of error status code supported
-#define N_ERR_IMPLEMENTED 7
-//Defines to be used with conf::default_error
+#define GET_FILE_CONTENT read
+#define PUT_FILE write
+#define	PRINT_ERR strerror
+#define N_ERR_IMPLEMENTED 8
 #define ERR400 0
-#define ERR403 1
-#define ERR404 2
-#define ERR405 3
-#define ERR413 4
-#define ERR501 5
-#define ERR505 6
-
+#define ERR401 1
+#define ERR403 2
+#define ERR404 3
+#define ERR405 4
+#define ERR413 5
+#define ERR501 6
+#define ERR505 7
 #define WEBSERV_VER "0.1"
+#define TIMEOUT_SEC 10
 
 //CONFIG PARSER
 typedef struct s_route
@@ -78,6 +75,11 @@ typedef struct s_route
 	bool dir_listing;
 	bool cgi;//on or off 
 	std::string cgi_path;
+	std::vector<std::string> cgi_exts;
+	std::string auth_name;
+	std::string auth_user;
+	size_t body_limit;
+	bool auth;
 }	t_route;
 
 typedef struct s_conf
@@ -108,6 +110,31 @@ typedef struct	host_port_fd //Gives us the server socket corresponding to a port
 	int port;
 	int fd;
 }				 t_hpf;
+std::string cinet_ntoa(in_addr_t in);
+
+typedef struct	s_path t_path;
+struct s_path
+{
+	std::string info;
+	std::string script;
+	std::string translated;
+};
+
+typedef struct	s_auth t_auth;
+struct s_auth
+{
+	std::string	type;
+	std::string ident;
+};
+
+typedef struct	s_headers t_headers;
+struct s_headers
+{
+	int 		id;
+	std::string	value;
+	std::string name;
+};
+
 
 //PARSER
 typedef struct	s_request_line
@@ -116,16 +143,51 @@ typedef struct	s_request_line
 	std::string target; // ex: /index, http://https://profile.intra.42.fr/,...
 	std::string http_ver;// ex : HTTP/1.1
 	std::string headers[18]; //headers are indexed like in project's subject
+	std::list<std::string> alanguages;
+	std::list<std::string> clanguages;
+	std::list<std::string> charsets;
 	std::string body;
 	std::string query;
+	t_auth 		auth;
+	t_path 		path;
 	bool bad_request;//Allows bad_request checks before/while parsing request
+	struct sockaddr_in	client_adr;
 }				t_req_line;
 
-int parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd);
+typedef struct s_client_buff
+{	
+	int client_fd;
+	time_t sec_since_recv; //Used to timeout incomplete HTTP request -> send 400
+	std::string req_buff;
+	int req_buff_len;
+	t_req_line rl;
+	bool rl_set;
+
+}				t_client_buff;
+typedef struct s_ans_arg
+{
+	int client_fd;
+	t_req_line rl;
+	t_conf conf;
+	char **envp;
+	bool incomplete;//is the request complete ? -> used to check if we finished recved
+	size_t resp_byte_sent;
+	size_t response_length;
+	std::string request;
+}				t_ans_arg;
+
+extern std::vector<int> 	serv_socket;
+
+t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int server_fd, struct sockaddr_in client_adr, char **envp);
 int get_header_id(std::string header_field);
+void parse_request_line(size_t &i, t_req_line &rl, const char *request);
+void parse_headers(size_t &i, t_req_line &rl, const char *request, char **&envp);
 //PARSE REQUEST UTILS
 void parse_chunked(size_t i, t_req_line &rl, char *request);
 t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd);
+std::pair<std::string, int> parsed_host_header(t_req_line &rl);
+std::string cinet_ntoa(in_addr_t in);
+char **dupEnv(char **envs);
 
 //RESPONSE
 typedef struct	s_http_res
@@ -136,7 +198,7 @@ typedef struct	s_http_res
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
 }				t_http_res;
-int answer_request(int client_fd, t_req_line rl, t_conf conf);
+std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&envp);
 //RESPONSE UTILS
 int bad_request(t_req_line rl);
 int valid_http_ver(t_req_line rl);
@@ -147,8 +209,17 @@ t_route get_route_for(t_req_line rl, t_conf conf);
 bool method_allowed(std::string method, t_route route);
 bool method_supported(std::string method);
 void get_dir_listing(std::string dir);
-void create_ressource(t_req_line rl, t_route route);
+void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char**&envp);
 void empty_directory(std::string path);
+
+//CGI
+char	**get_cgi_envs(t_req_line &request, char**&envp);
+void 	parse_cgi(t_req_line &request);
+std::string	format_header(int header, std::string value);
+std::string get_header_field(int header);
+std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, char **&envp);
+int parse_cgi_headers(t_http_res &resp, const char *output);
+void parse_cgi_status(t_http_res &resp, const char *output);
 
 //DATE
 std::string get_imf_fixdate();
@@ -157,20 +228,21 @@ std::string get_last_modified(std::string filename);
 std::string get_content_type(std::string filename);
 //STATUS_CODE
 void send_400(t_req_line rl, t_http_res &resp, t_conf conf);
+void send_401(t_req_line request, t_http_res &response, t_conf conf, std::string auth_name);
 void send_403(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_404(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_405(t_req_line rl, t_http_res &resp, t_conf conf, t_route route);
 void send_413(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_501(t_req_line rl, t_http_res &resp, t_conf conf);
 void send_505(t_req_line rl, t_http_res &resp, t_conf conf);
-void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route);
+void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&envp);
 void send_200_dirlist(t_req_line rl, t_http_res &resp);
 void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route route);
 void send_201_put(t_req_line rl, t_http_res &resp);
 void send_204_put(t_req_line rl, t_http_res &resp, t_route route);
 void send_204_delete(t_http_res &resp);
 //STATUS_CODE UTILS
-std::string get_allow_header_for(t_route route);
+std::string get_allowed_methods(t_route route);
 
 //UTILS
 int print_err(std::string s);
@@ -178,5 +250,12 @@ void excerr(std::string msg, int c);
 bool file_exists(std::string filename);
 bool file_is_dir(std::string filename);
 bool is_in_set(char c, char *s);
+std::string get_file_ext(std::string file);
 void chandler(int sig_num);
+std::string b64decode(const std::string& str64);
+std::string str_replace(std::string str, const std::string &old_key, const std::string &new_key);
+void debug(std::string name, std::string content);
+char **addEnvVar(char **envs, char *var);
+time_t	get_time_sec(void);
+
 #endif

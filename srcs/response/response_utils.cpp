@@ -57,21 +57,21 @@ int bad_request(t_req_line rl)
 
 void handle_absolute_path(t_req_line &rl)
 {
-		if (rl.target[0] != '/')
+	if (rl.target[0] != '/')
+	{
+		size_t i = 0;
+		char count = 0;//Will reach 3 max
+		while (rl.target[i] && count < 3)
 		{
-			size_t i = 0;
-			char count = 0;//Will reach 3 max
-			while (rl.target[i] && count < 3)
-			{
-				if (rl.target[i] == '/')
-					count++;
-				i++;
-			}
-			if (!rl.target[i--]) 
-				rl.target = "/";
-			else
-				rl.target = std::string(rl.target, i, rl.target.length() - i);
+			if (rl.target[i] == '/')
+				count++;
+			i++;
 		}
+		if (!rl.target[i--])
+			rl.target = "/";
+		else
+			rl.target = std::string(rl.target, i, rl.target.length() - i);
+	}
 }
 
 void parse_query_from_target(t_req_line &rl)
@@ -80,7 +80,7 @@ void parse_query_from_target(t_req_line &rl)
 	size_t i = 0;
 	while (rl.target[i] && rl.target[i] != '?')
 		targ += rl.target[i++];
-	if (rl.target[i] == '?')
+	if (rl.target[i++] == '?')
 		while(rl.target[i])
 			rl.query += rl.target[i++];
 	rl.target = targ;
@@ -97,15 +97,17 @@ t_route get_default_route()
 	route.root_dir = ".";
 	route.upload_root_dir = ".";
 	route.modifier = 0;
-	route.location = "__default__";
-	route.cgi = "off";
+	route.location = "/";
+	route.cgi = false;
+	route.auth = false;
+	route.body_limit = (size_t)-1;
 	return (route);
 }
 
 t_route get_route_for(t_req_line rl, t_conf conf)
 {
-	if (!conf.routes.size())
-		return	(get_default_route());
+	if (conf.routes.empty())
+		return (get_default_route());
 	for (std::vector<t_route>::iterator it = conf.routes.begin(); it != conf.routes.end(); it++)
 		if ((*it).location == rl.target || (!(*it).modifier && std::string(rl.target,0, (*it).location.length()) == (*it).location))
 			return (*it);
@@ -136,19 +138,19 @@ void get_dir_listing(std::string dir)
 	if (dir[dir.length() - 1] != '/')
 		dir += "/";
 	fd = open(".dirlisting.html", O_CREAT | O_TRUNC | O_RDWR, 0666);//For bonus workers add worker's id to file name
-	write(fd, start.c_str(), ft_strlen(start.c_str()));
+	PUT_FILE(fd, start.c_str(), ft_strlen(start.c_str()));
 	while ((tmp = readdir(dptr))) //build href for each file
 	{
-		write(fd, "<pre><a href=\"", 14);
+		PUT_FILE(fd, "<pre><a href=\"", 14);
 		if (std::string(tmp->d_name) == ".")
-			write(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
+			PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
 		else
-			write(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
-		write(fd, "\">", 2);
-		write(fd, tmp->d_name, ft_strlen(tmp->d_name));
-		write(fd, "</a></pre>", 10);
+			PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
+		PUT_FILE(fd, "\">", 2);
+		PUT_FILE(fd, tmp->d_name, ft_strlen(tmp->d_name));
+		PUT_FILE(fd, "</a></pre>", 10);
 	}
-	write(fd, "<hr></body>\n</html>\n", 20);
+	PUT_FILE(fd, "<hr></body>\n</html>\n", 20);
 	closedir(dptr);
 	close(fd);
 }
@@ -156,8 +158,10 @@ void get_dir_listing(std::string dir)
 // ex: for PUT /somedir/index.html if somedir doesn't exist create it
 void create_missing_dirs(std::string targ, t_route route)
 {
+	(void)route;
 	size_t i = 0;
-	std::string target = route.upload_root_dir + targ; // later change to upload_root_dir
+	std::string target = targ; // later change to upload_root_dir
+	std::cout << "dirtarg=" << target<< std::endl;
 	while(target[i])
 	{
 		i++;
@@ -167,19 +171,26 @@ void create_missing_dirs(std::string targ, t_route route)
 		if (!target[i + len])
 			return;
 		i += len;
-		std::string dir_to_create = std::string(target, 0, i);
+		std::string dir_to_create = std::string(target, 0, i );
 		if (!file_exists(dir_to_create))
 			mkdir(dir_to_create.c_str(), 0777);
 	}
 }
 
 //Used to create a file with HTTP PUT method
-void create_ressource(t_req_line rl, t_route route) 
+void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&envp) 
 {
 	int fd;
+	std::string ressource_content = rl.body;
 	create_missing_dirs(rl.target, route);
-	fd = open((route.upload_root_dir + rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
-	write(fd, rl.body.c_str(), rl.body.length());
+	fd = open((rl.target).c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0777); // See above comm
+	if (rl.method == "POST")
+	{
+		ressource_content = execute_cgi(rl, route, resp, envp);
+		resp.body = ressource_content;
+	}
+	PUT_FILE(fd, ressource_content.c_str(), ressource_content.length());
+	close(fd);
 }
 
 void empty_directory(std::string path)

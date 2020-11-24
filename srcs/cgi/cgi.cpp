@@ -77,9 +77,9 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 	for (size_t i = 0; argv && argv[i]; i++)
 		free(argv[i]);
 	free(argv);
-	for (size_t i = 0; envs && envs[i]; i++)
-		free(envs[i]);
-	free(envs);
+	//for (size_t i = 0; envs && envs[i]; i++)
+	//	free(envs[i]);
+	//free(envs);
 	parse_cgi_status(resp, output.c_str());
 /*	size_t k = 0;
 	std::cout <<  "DEBUG BEGINING OF CGI OUTPUT" << std::endl;

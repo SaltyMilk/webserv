@@ -94,10 +94,6 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 		{
 			parse_request_line(i, rl, cl_buff.req_buff.c_str());
 			parse_headers(i, rl, cl_buff.req_buff.c_str(), env);
-			if (env)
-				for(size_t j  = 0; env[j]; j++)
-					free(env[j]);
-			free(env);
 			cl_buff.rl = rl;
 			cl_buff.rl_set = true;
 		/*	std::cout << "Debug request:" << std::endl

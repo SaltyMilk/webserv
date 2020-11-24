@@ -86,7 +86,9 @@ char **addEnvVar(char **envs, char *var)
 	}
 	ret[i] = var;
 	ret[i + 1] = NULL;
-	ft_freesplit(envs);
+	for (size_t k = 0; envs && envs[k]; k++)
+		free(envs[k]);
+	free(envs);
 	return (ret);
 }
 

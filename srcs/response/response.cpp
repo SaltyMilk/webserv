@@ -139,7 +139,7 @@ std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&en
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
 	response = construct_response(resp);
-	std::cout << "Response status code=" << resp.status_code << std::endl;
+//	std::cout << "Response status code=" << resp.status_code << std::endl;
 		
 	//	std::cout << "Response LOG"<< std::endl << response << std::endl << "END RESPONSE LOG" << std::endl;
 //	std::cout << "RESPONSE LOG" << std::endl << response << std::endl << "REPSONSE LOG END" <<std::endl;
@@ -152,8 +152,8 @@ std::string answer_request(int client_fd, t_req_line rl, t_conf conf, char **&en
 	std::cout << ret << " bytes written" << std::endl;*/
 	//CLOSE CONNECTION. (Fixs pending requests)
 	//std::cout << "closing connection to client n°" << client_fd << std::endl;
-	/*for (size_t i = 0; envp[i]; i++)
+	for (size_t i = 0; envp && envp[i]; i++)
 			free(envp[i]);
-	free(envp);*/
+	free(envp);
 	return (response);
 }

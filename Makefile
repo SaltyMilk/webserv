@@ -51,7 +51,7 @@ all: libft $(NAME)
 $(NAME): $(OBJ)
 	@printf $(cccyan)
 	@printf "Compiling $(NAME) "
-	@$(CC) $(CFLAGS) -I$(INC) -fsanitize=address -o $(NAME) $(OBJ) $(LIB) 
+	@$(CC) $(CFLAGS) -I$(INC)  -o $(NAME) $(OBJ) $(LIB) 
 	@printf $(cclightgray)[$(ccgreenhard)√$(cclightgray)]$(ccreset)
 	@printf "\n"
 

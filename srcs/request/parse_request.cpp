@@ -49,6 +49,9 @@ std::list<std::string> parse_content(std::string header_value)
 			temp = temp.substr(0, temp.find(';'));
 		content.push_back(temp);
 	}
+	for (size_t i =0; split[i]; i++)
+		free(split[i]);
+	free(split);
 	return (content);
 }
 
@@ -181,18 +184,19 @@ t_ans_arg parse_request(char *request, int fd, std::vector<t_conf> servers, int 
 	rl.client_adr = client_adr;//Get client network infos
 	parse_request_line(mi, rl, request);
 	
-	std::cout << "OLD_REQUEST LOG:" << std::endl;
-	std::cout << rl.method << " " << rl.target << " " << rl.http_ver << std::endl;
+	//std::cout << "OLD_REQUEST LOG:" << std::endl;
+	//std::cout << rl.method << " " << rl.target << " " << rl.http_ver << std::endl;
 
 	parse_headers(mi, rl, request, serv_env);
 	//std::cout<< "host=" << rl.headers[HOST] << std::endl;
 	parse_body(mi, rl, request);
-	for (int i = 0; i < 18; i++)
+/*	for (int i = 0; i < 18; i++)
 		if (rl.headers[i].length())
 			std::cout << format_header(i, rl.headers[i]) << std::endl;
-//	std::cout << rl.body << std::endl;
-	std::cout << "END REQUEST LOG" << std::endl;
+*///	std::cout << rl.body << std::endl;
+//	std::cout << "END REQUEST LOG" << std::endl;
 	//answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd), serv_env);
+	//
 	//Return args for answer
 	arg.client_fd = fd;
 	arg.rl = rl;

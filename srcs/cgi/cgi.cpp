@@ -38,7 +38,7 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
 	argv[2] = NULL;
 	std::string output;
-	char buff[1000];
+	char buff[BUFF_SIZE];
 	int fd[2];
 	pid_t pid;
 
@@ -65,23 +65,27 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 	{
 		int r;
 		close(fd[1]);
-		while ((r = GET_FILE_CONTENT(fd[0], buff, 1000 -1)) > 0)
+		while ((r = GET_FILE_CONTENT(fd[0], buff, BUFF_SIZE -1)) > 0)
 		{
-			buff[r] = 0;
+			buff[r]=0;
 			output += buff;
 		}
 	}
 	close(fd[1]);
 	close(fd[0]);
 //	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
-	ft_freesplit(argv);
-	ft_freesplit(envs);
+	for (size_t i = 0; argv && argv[i]; i++)
+		free(argv[i]);
+	free(argv);
+	for (size_t i = 0; envs && envs[i]; i++)
+		free(envs[i]);
+	free(envs);
 	parse_cgi_status(resp, output.c_str());
-	size_t k = 0;
+/*	size_t k = 0;
 	std::cout <<  "DEBUG BEGINING OF CGI OUTPUT" << std::endl;
 	while (output[k] && !(output[k] == '\r' && output[k + 1] == '\n' && output[k+2] == '\r' && output[k +3] == '\n'))
 		PUT_FILE(1, output.c_str() + k++, 1);
 	std::cout << std::endl <<  "DEBUG END OF CGI OUTPUT" << std::endl;
-	return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
+	*/return (std::string(output, parse_cgi_headers(resp, output.c_str())));//Return the body of the cgi output without headers and meta infos
 }
 

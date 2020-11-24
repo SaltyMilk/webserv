@@ -31,9 +31,11 @@ int net_init(unsigned int port, std::string host_addr)
 	uint16_t goodport = (port >> 8) | (port << 8); //replaces htons
 	self_adr.sin_port = goodport;
 	int opt = 1;
-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	if (setsockopt(fd, SOL_SOCKET, TCP_QUICKACK, &opt, sizeof(opt)) == -1)
 		excerr("setsockopt failed.", 1);
 
+	if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt)) == -1)
+		excerr("setsockopt failed.", 1);
 	// bind socket
 	if (bind(fd, (const struct sockaddr *)&self_adr, sizeof(self_adr)) == -1)
 		excerr("Couldn't bind socket", 1);
@@ -51,7 +53,7 @@ int net_init(unsigned int port, std::string host_addr)
 t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd, const struct sockaddr_in client_adr, char **envp, t_client_buff &cl_buff)
 {
 	t_ans_arg arg;
-	std::cout << "starting to receive" << std::endl;
+//	std::cout << "starting to receive" << std::endl;
 	char buff[BUFF_SIZE];
 	int ret;
 
@@ -77,13 +79,13 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 		std::cout << "errno=" << strerror(errno) << std::endl;
 		return (arg);
 	}
-	std::cout << "read size =" << ret << std::endl;
+//	std::cout << "read size =" << ret << std::endl;
 	buff[ret] = 0;
 	cl_buff.req_buff += buff;
 	cl_buff.req_buff_len += ret;
-	if (cl_buff.rl_set || cl_buff.req_buff.find("\r\n\r\n") != std::string::npos) //Received all headers (can be optimized)
+	if (cl_buff.rl_set || cl_buff.req_buff.find("\r\n\r\n") != std::string::npos)
 	{
-		std::cout << "Received all headers" << std::endl;
+//		std::cout << "Received all headers" << std::endl;
 
 		t_req_line rl;
 		size_t i = 0;
@@ -92,6 +94,10 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 		{
 			parse_request_line(i, rl, cl_buff.req_buff.c_str());
 			parse_headers(i, rl, cl_buff.req_buff.c_str(), env);
+			if (env)
+				for(size_t j  = 0; env[j]; j++)
+					free(env[j]);
+			free(env);
 			cl_buff.rl = rl;
 			cl_buff.rl_set = true;
 		/*	std::cout << "Debug request:" << std::endl
@@ -106,7 +112,7 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 		if ((!cl_buff.rl.headers[CONTENT_LENGTH][0] || ft_atoi(cl_buff.rl.headers[CONTENT_LENGTH].c_str()) == 0) && !cl_buff.rl.headers[TRANSFER_ENCODING][0]) //No body to expect
 		{
 			arg = parse_request(const_cast<char *>(cl_buff.req_buff.c_str()), client_fd, servers, server_fd, client_adr, envp);
-			std::cout << "yup got here" << std::endl;
+//			std::cout << "yup got here" << std::endl;
 			arg.incomplete = false; // DONE RECEIVING REQUEST
 			return (arg);
 		}
@@ -144,7 +150,7 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 			}
 		}
 	}
-	std::cout << "done receiving" << std::endl;
+	//std::cout << "done receiving" << std::endl;
 	arg.incomplete = true;
 	return (arg);
 }
@@ -159,12 +165,12 @@ int net_accept(t_net &snet, int fd, struct sockaddr_in &client_adr)
 	if ((client_fd = accept(fd, (struct sockaddr *)&client_adr, &len)) == -1)
 		excerr("Couldn't accept connection", 1);
 	client_count++;
-	std::cout << "Client " << client_count << " connected!" << std::endl;
+	//std::cout << "Client " << client_count << " connected!" << std::endl;
 	snet.clients_net.push_back(client_adr);
 	// unblock socket
 	if ((fcntl(client_fd, F_SETFL, O_NONBLOCK)) == -1)
 		excerr("Couldn't unblock client's socket", 1);
-	std::cout << "client accepted with fd=" << client_fd << std::endl;
+//	std::cout << "client accepted with fd=" << client_fd << std::endl;
 	return client_fd;
 }
 
@@ -229,15 +235,15 @@ int main(int argc, char **argv, char **envp)
 	for (std::vector<int>::iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
 		if (*it > max_fd)
 			max_fd = *it;
-	std::cout << "max sock=" << max_fd << std::endl;
+//	std::cout << "max sock=" << max_fd << std::endl;
 	while (1)
 	{
 		ready_sockets = sockets;
 		ready_wsockets = wsockets;
-		std::cout << "selecting" << std::endl;
+//		std::cout << "selecting" << std::endl;
 		if (select(max_fd + 1, &ready_sockets, &ready_wsockets, NULL, NULL) == -1)
 			excerr("Select failed.", 1);
-		std::cout << "done selecting" << std::endl;
+//		std::cout << "done selecting" << std::endl;
 		for (int i = 0; i <= max_fd; i++)
 		{
 
@@ -246,9 +252,9 @@ int main(int argc, char **argv, char **envp)
 				struct sockaddr_in client_adr;
 				if (std::find(serv_fds.begin(), serv_fds.end(), i) != serv_fds.end()) //Connection is being asked to one of the servers
 				{
-					next_fd_to_resp = i;
 					int fd = net_accept(s_net, *std::find(serv_fds.begin(), serv_fds.end(), i), client_adr);
-					std::cout << "accepted client with fd = " << fd << std::endl;
+					next_fd_to_resp = i;
+//					std::cout << "accepted client with fd = " << fd << std::endl;
 					//add a client_buff to receive request
 					t_client_buff tmp_cl_buff;
 					tmp_cl_buff.client_fd = fd;
@@ -270,7 +276,7 @@ int main(int argc, char **argv, char **envp)
 					t_ans_arg ans_arg = net_receive(servers, i, next_fd_to_resp, client_adr, envp, *it);
 					if(recv_err == true)
 					{
-						std::cout << "REMOVING CLIENT BECAUSE OF RECV_ERR" << std::endl;
+//						std::cout << "REMOVING CLIENT BECAUSE OF RECV_ERR" << std::endl;
 						close(i);
 						client_buffs.erase(it);
 						FD_CLR(i, &sockets);
@@ -279,7 +285,7 @@ int main(int argc, char **argv, char **envp)
 					else if (ans_arg.incomplete == false) //Done receiving from socket
 					{
 						//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
-						std::cout << "received full request" << std::endl;
+						//std::cout << "received full request" << std::endl;
 						client_buffs.erase(it);
 						ans_arg.resp_byte_sent = 0;
 						requests.push_back(ans_arg);
@@ -309,10 +315,10 @@ int main(int argc, char **argv, char **envp)
 						}
 						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
 						{
-						close(i);
 						requests.erase(it);
-						std::cout << "write block fd(i)=" << i << std::endl;
+		//				std::cout << "write block fd(i)=" << i << std::endl;
 						FD_CLR(i, &wsockets);
+						close(i);
 						break;
 						}
 						else if ((*it).resp_byte_sent < (*it).response_length)//SENDING PART OF THE REP
@@ -337,7 +343,6 @@ int main(int argc, char **argv, char **envp)
 						
 							break;
 						}
-
 					}
 			}
 		}

@@ -16,10 +16,10 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 		j++; 
 	}
 	first_line[j] = 0;
-	std::cout << "cgi first line =" << first_line << std::endl;
+//	std::cout << "cgi first line =" << first_line << std::endl;
 	char **sp;
 	sp = ft_split(first_line, ' ');
-	if (std::string(sp[0]) == "Status:")
+	if (sp && sp[0]  && std::string(sp[0]) == "Status:")
 	{
 		resp.status_code = std::string(sp[1]);
 		resp.reason_phrase = "";
@@ -31,7 +31,9 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 			resp.reason_phrase += std::string(sp[k++]);
 		}
 	}
-	ft_freesplit(sp);
+	for (size_t n = 0; sp && sp[n]; n++)
+		free(sp[n]);
+	free(sp);
 }
 
 int parse_cgi_headers(t_http_res &resp, const char *output)

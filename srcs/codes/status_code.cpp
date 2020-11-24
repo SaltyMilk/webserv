@@ -111,11 +111,15 @@ void send_200(t_req_line rl, t_http_res &resp, int fd, t_route route, char**&env
 	resp.reason_phrase = "OK";
 	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, get_content_type(route.root_dir + rl.target)); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 	resp.headers[LAST_MODIFIED] = format_header(LAST_MODIFIED, get_last_modified(route.root_dir + rl.target));
-	char c;
+	char c[BUFF_SIZE];
+	int r;
 	if ((rl.method != "HEAD" && (!route.cgi || std::find(route.cgi_exts.begin(), route.cgi_exts.end(), get_file_ext(rl.target)) == route.cgi_exts.end()))
 		|| (rl.method == "GET" && !rl.query.length())) // No body for head method
-		while (GET_FILE_CONTENT(fd, &c, 1) > 0)
+		while ((r = GET_FILE_CONTENT(fd, c, BUFF_SIZE - 1) > 0))
+		{	
+			c[r] = 0;	
 			resp.body += c;
+		}
 	else if (route.cgi && rl.method != "HEAD")
 		resp.body = execute_cgi(rl, route, resp, envp);
 	close(fd);
@@ -127,10 +131,14 @@ void send_200_file_is_a_dir(t_req_line rl, t_http_res &resp, int fd, t_route rou
 	resp.reason_phrase = "OK";
 	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, get_content_type(route.default_dir_file)); //ADD CONTENT_TYPE HEADER TO HTTP RESP (missing charset for now)
 	resp.headers[LAST_MODIFIED] = format_header(LAST_MODIFIED, get_last_modified(route.default_dir_file));
-	char c;
+	char c[BUFF_SIZE];
+	int r;
 	if (rl.method != "HEAD") // No body for head method
-		while (GET_FILE_CONTENT(fd, &c, 1) > 0)
+		while ((r = GET_FILE_CONTENT(fd, c, BUFF_SIZE - 1) > 0))
+		{
+			c[r] = 0;
 			resp.body += c;
+		}
 	close(fd);
 }
 
@@ -140,10 +148,14 @@ void send_200_dirlist(t_req_line rl, t_http_res &resp)
 	resp.reason_phrase = "OK";
 	resp.headers[CONTENT_TYPE] = format_header(CONTENT_TYPE, "text/html");
 	int fd = open(".dirlisting.html", O_RDONLY);
-	char c;
+	char c[BUFF_SIZE];
+	int r;
 	if (rl.method != "HEAD") // No body for head method
-		while (GET_FILE_CONTENT(fd, &c, 1) > 0)
+		while ((r = GET_FILE_CONTENT(fd, c, BUFF_SIZE - 1) > 0))
+		{
+			c[r] = 0;
 			resp.body += c;
+		}
 	close(fd);
 }
 
@@ -159,9 +171,13 @@ void send_204_put(t_req_line rl, t_http_res &resp, t_route route)
 	int fd;
 	std::string current_representation;
 	fd = open((route.upload_root_dir + rl.target).c_str(), O_RDONLY); //See 201_put comm
-	char c;
-	while (GET_FILE_CONTENT(fd, &c, 1) > 0)
+	char c[BUFF_SIZE];
+	int r;
+	while ((r = GET_FILE_CONTENT(fd, c, BUFF_SIZE) > 0))
+	{
+		c[r] = 0;
 		current_representation += c;
+	}
 	resp.status_code = "204";
 	resp.reason_phrase = "No Content";
 	if (rl.body == current_representation)

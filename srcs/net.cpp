@@ -303,7 +303,7 @@ int main(int argc, char **argv, char **envp)
 						{
 							ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
 							if (ret_send == 0 || ret_send == -1)
-								std::cout << "wtf send" << std::endl;
+								std::cout << "Warning send failed or sent empty packet, closing connection to client soon." << std::endl;
 							else
 								(*it).resp_byte_sent += (size_t)ret_send;
 						}
@@ -322,7 +322,7 @@ int main(int argc, char **argv, char **envp)
 							else if ((*it).resp_byte_sent < (*it).response_length - WRITE_SIZE)
 								ret_send = send((*it).client_fd, (*it).request.c_str() + (*it).resp_byte_sent, WRITE_SIZE, 0);
 							if (ret_send == 0 || ret_send == -1)
-								std::cout << "wtf send" << std::endl;
+								std::cout << "Warning send failed or sent empty packet, closing connection to client soon." << std::endl;
 							else
 								(*it).resp_byte_sent += (size_t)ret_send;
 							break;
@@ -331,7 +331,7 @@ int main(int argc, char **argv, char **envp)
 						{
 							ret_send = send((*it).client_fd, (*it).request.c_str(), (*it).response_length, 0);
 							if (ret_send == 0 || ret_send == -1)
-								std::cout << "wtf send" << std::endl;
+								std::cout << "Warning send failed or sent empty packet, closing connection to client soon." << std::endl;
 							else
 								(*it).resp_byte_sent += (size_t)ret_send;
 						

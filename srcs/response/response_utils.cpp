@@ -204,7 +204,6 @@ void create_missing_dirs(std::string targ, t_route route)
 	(void)route;
 	size_t i = 0;
 	std::string target = targ; // later change to upload_root_dir
-	std::cout << "dirtarg=" << target<< std::endl;
 	while(target[i])
 	{
 		i++;

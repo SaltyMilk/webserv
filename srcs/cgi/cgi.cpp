@@ -52,8 +52,13 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 		if (request.method == "POST")
 		{
 			int fd;
+			int r;
 			fd = open(".tmpfile", O_WRONLY | O_TRUNC | O_CREAT, 0666);
-			ft_putstr_fd(const_cast<char*>(request.body.c_str()), fd);
+			r = PUT_FILE(fd, const_cast<char*>(request.body.c_str()), request.body.length());
+			if (r == -1 ||  r == 0)
+			{
+				std::cout << "Warning: cgi received bad info, but server will continue procedures" << std::endl;
+			}
 			close(fd);
 			fd = open(".tmpfile", O_RDONLY);
 			dup2(fd, 0);
@@ -70,6 +75,10 @@ std::string execute_cgi(t_req_line &request, t_route route, t_http_res &resp, ch
 			buff[r]=0;
 			output += buff;
 		}
+		if (r == 0)
+			std::cout << "Read cgi output correctly, nice." << std::endl;
+		else if (r == -1)
+			std::cout << "Warning bad cgi output, no problem server is still operational for this request" << std::endl;
 	}
 	close(fd[1]);
 	close(fd[0]);

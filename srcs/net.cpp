@@ -67,7 +67,6 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	ret = recv(client_fd, buff, BUFF_SIZE - 1, 0);
 	if (ret == 0)
 	{
-		std::cout << "returned 0" << std::endl;
 		arg.incomplete = true;
 		recv_err = true;
 		return (arg);
@@ -76,7 +75,6 @@ t_ans_arg net_receive(std::vector<t_conf> servers, int client_fd, int server_fd,
 	{
 		arg.incomplete = true;
 		recv_err = true;
-		std::cout << "errno=" << strerror(errno) << std::endl;
 		return (arg);
 	}
 //	std::cout << "read size =" << ret << std::endl;
@@ -311,10 +309,10 @@ int main(int argc, char **argv, char **envp)
 						}
 						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
 						{
+						close(i);
 						requests.erase(it);
 		//				std::cout << "write block fd(i)=" << i << std::endl;
 						FD_CLR(i, &wsockets);
-						close(i);
 						break;
 						}
 						else if ((*it).resp_byte_sent < (*it).response_length)//SENDING PART OF THE REP
@@ -338,6 +336,14 @@ int main(int argc, char **argv, char **envp)
 								(*it).resp_byte_sent += (size_t)ret_send;
 						
 							break;
+						}
+						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
+						{
+						close(i);
+						requests.erase(it);
+		//				std::cout << "write block fd(i)=" << i << std::endl;
+						FD_CLR(i, &wsockets);
+						break;
 						}
 					}
 			}

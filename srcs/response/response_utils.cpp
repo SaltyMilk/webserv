@@ -31,7 +31,7 @@ int bad_request(t_req_line rl)
 	}
 	//CHECK HTTP_VERSION
 	if (rl.http_ver.length() && (rl.http_ver.length() < 6  // HTTP_VER will always be at least 8 chars long && if it's empty -> server sends nothing
-		|| std::string(rl.http_ver.c_str(), 5) != "HTTP/")) // Check first part [HTTP/]/1.1
+				|| std::string(rl.http_ver.c_str(), 5) != "HTTP/")) // Check first part [HTTP/]/1.1
 		return (1);
 	size_t len = rl.http_ver.length();//micro-opti
 	size_t i = 5;
@@ -39,10 +39,10 @@ int bad_request(t_req_line rl)
 	while (i < len && rl.http_ver[i] != '.') 
 		i++;		
 	if (!ft_isdigit(rl.http_ver[5]) // HTTP/X -> X is not a digit
-		|| rl.http_ver[5] == '0'
-		|| (rl.http_ver[i] == '.' && rl.http_ver[5] == '1' && !rl.http_ver[i + 1])//HTTP/1.
-		|| (rl.http_ver[5] == '1' && rl.http_ver[6] && rl.http_ver[6] != '.' && !ft_isdigit(rl.http_ver[6])) // ex:HTTP/1a
-		|| (rl.http_ver[i] != '.' &&  !rl.http_ver[6] && rl.http_ver[5] == '1'))//EX: HTTP/1 HTTP/0 -> all other send 505, already managed
+			|| rl.http_ver[5] == '0'
+			|| (rl.http_ver[i] == '.' && rl.http_ver[5] == '1' && !rl.http_ver[i + 1])//HTTP/1.
+			|| (rl.http_ver[5] == '1' && rl.http_ver[6] && rl.http_ver[6] != '.' && !ft_isdigit(rl.http_ver[6])) // ex:HTTP/1a
+			|| (rl.http_ver[i] != '.' &&  !rl.http_ver[6] && rl.http_ver[5] == '1'))//EX: HTTP/1 HTTP/0 -> all other send 505, already managed
 		return (1);
 	// CHECK THIRD PART HTTP/1.[1]
 	if (!rl.http_ver[i]) // Done parsing ex: HTTP/12
@@ -117,7 +117,7 @@ t_route get_route_for(t_req_line rl, t_conf conf)
 bool method_supported(std::string method)
 {
 	return(method == "GET" || method == "HEAD" || method == "POST" || method == "PUT"
-		|| method == "DELETE" || method == "CONNECT" || method == "OPTIONS" || method == "TRACE");
+			|| method == "DELETE" || method == "CONNECT" || method == "OPTIONS" || method == "TRACE");
 }
 
 bool method_allowed(std::string method, t_route route)
@@ -132,25 +132,68 @@ bool method_allowed(std::string method, t_route route)
 void get_dir_listing(std::string dir)
 {
 	int fd;
+	int r;
 	std::string start = "<html>\n<head><title>Index of "+ dir +"</title></head>\n<body bgcolor=\"white\"><h1>Index of " + dir +"</h1><hr>";
 	DIR *dptr = opendir(dir.c_str());
 	struct dirent *tmp;
 	if (dir[dir.length() - 1] != '/')
 		dir += "/";
 	fd = open(".dirlisting.html", O_CREAT | O_TRUNC | O_RDWR, 0666);//For bonus workers add worker's id to file name
-	PUT_FILE(fd, start.c_str(), ft_strlen(start.c_str()));
+	r = PUT_FILE(fd, start.c_str(), ft_strlen(start.c_str()));
+	if (r == -1 || r == 0)
+	{
+		closedir(dptr);
+		close(fd);
+		return;
+	}
 	while ((tmp = readdir(dptr))) //build href for each file
 	{
-		PUT_FILE(fd, "<pre><a href=\"", 14);
+		r = PUT_FILE(fd, "<pre><a href=\"", 14);
+		if (r == -1 || r == 0)
+		{
+			closedir(dptr);
+			close(fd);
+			return;
+		}
 		if (std::string(tmp->d_name) == ".")
-			PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
+			r = PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)).c_str(), dir.length() -1);
 		else
-			PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
-		PUT_FILE(fd, "\">", 2);
-		PUT_FILE(fd, tmp->d_name, ft_strlen(tmp->d_name));
-		PUT_FILE(fd, "</a></pre>", 10);
+			r = PUT_FILE(fd, (std::string(dir, 1, dir.length() - 1)+ std::string(tmp->d_name)).c_str(), ft_strlen(tmp->d_name) + dir.length() -1);
+		if (r == -1 || r == 0)
+		{
+			closedir(dptr);
+			close(fd);
+			return;
+		}
+		r = PUT_FILE(fd, "\">", 2);
+		if (r == -1 || r == 0)
+		{
+			closedir(dptr);
+			close(fd);
+			return;
+		}
+		r =PUT_FILE(fd, tmp->d_name, ft_strlen(tmp->d_name));
+		if (r == -1 || r == 0)
+		{
+			closedir(dptr);
+			close(fd);
+			return;
+		}
+		r = PUT_FILE(fd, "</a></pre>", 10);
+		if (r == -1 || r == 0)
+		{
+			closedir(dptr);
+			close(fd);
+			return;
+		}
 	}
-	PUT_FILE(fd, "<hr></body>\n</html>\n", 20);
+	r = PUT_FILE(fd, "<hr></body>\n</html>\n", 20);
+	if (r == -1 || r == 0)
+	{
+		closedir(dptr);
+		close(fd);
+		return;
+	}
 	closedir(dptr);
 	close(fd);
 }
@@ -189,7 +232,11 @@ void create_ressource(t_req_line rl, t_route route, t_http_res &resp, char **&en
 		ressource_content = execute_cgi(rl, route, resp, envp);
 		resp.body = ressource_content;
 	}
-	PUT_FILE(fd, ressource_content.c_str(), ressource_content.length());
+	int r = PUT_FILE(fd, ressource_content.c_str(), ressource_content.length());
+	if (r == -1)
+		std::cout << "Warning PUT could not modify content of file currently" << std::endl;
+	else if (r == 0) 
+		std::cout << "Warning creating file with size of 0. Nothing bad, you're good to go." << std::endl;
 	close(fd);
 }
 

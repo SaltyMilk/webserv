@@ -29,8 +29,8 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <netinet/tcp.h>
-#define BUFF_SIZE 4242
-#define WRITE_SIZE 1000
+#define BUFF_SIZE 424242
+#define WRITE_SIZE 10000
 #define ACCEPT_CHARSETS 	0
 #define ACCEPT_LANGUAGE 	1
 #define ALLOW				2

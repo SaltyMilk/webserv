@@ -1,7 +1,5 @@
 #include "../../includes/webserv.h"
 
-static const char* B64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 static const int B64index[256] =
 		{
 				0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

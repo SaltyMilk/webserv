@@ -156,6 +156,7 @@ struct	s_headers
 {
 	int 		id;
 	std::string	value;
+	std::string	name;
 };
 
 struct	s_request
@@ -297,5 +298,5 @@ std::string str_replace(std::string str, const std::string &old_key, const std::
 char **addEnvVar(char **envs, char *var);
 time_t	get_time_sec(void);
 
-#endif WEBSERV_H
+#endif
 

@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-char	**get_cgi_envs(t_req_line &request, char**&envp)
+char	**get_cgi_envs(t_request &request, char**&envp)
 {
 	//char **envs;
 	std::map<std::string, std::string> map;

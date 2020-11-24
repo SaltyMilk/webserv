@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-void parse_chunked(size_t i, t_req_line &rl, char *request)
+void parse_chunked(size_t i, t_request &rl, char *request)
 {
 	char hexset[] = "0123456789abcdef";
 	size_t length = 0;
@@ -112,7 +112,7 @@ void parse_chunked(size_t i, t_req_line &rl, char *request)
 }
 
 //ret.first is the hostname and ret.second is the port number
-std::pair<std::string, int> parsed_host_header(t_req_line &rl)
+std::pair<std::string, int> parsed_host_header(t_request &rl)
 {
 	std::pair<std::string, int> pair;
 	int pos = rl.headers[HOST].find(':');
@@ -129,35 +129,13 @@ std::pair<std::string, int> parsed_host_header(t_req_line &rl)
 	}
 	else
 		pair.first = rl.headers[HOST];
-
-/*	char **sp;
-	if (!(sp = ft_split(rl.headers[HOST].c_str(), ':')))
-		excerr("Internal error split failed",1);//weird bug where sometimes the next line segfaults
-	if (sp[0])
-		pair.first = std::string(sp[0]);
-	pair.second = -1;
-	if (!sp[1])//optional port omitted
-	{
-		for (size_t i = 0; sp[i]; i++)
-			free(sp[i]);
-		free(sp);
-	return (pair);
-	}
-	int port = ft_satoi(sp[1]);
-	if (port < 0)//Port in header is invalid
-		rl.bad_request = true;
-	else
-		pair.second = port;
-	for (size_t i = 0; sp[i]; i++)
-		free(sp[i]);
-	free(sp)*/
 	return (pair);
 }
 
-t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, int server_fd)
+t_server get_server_conf_for_request(t_request &rl, std::vector<t_server> servers, int server_fd)
 {
 	std::pair<std::string, int> host_pair = parsed_host_header(rl);
-	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)
+	for (std::vector<t_server>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
 		if ((std::find((*it).server_names.begin(), (*it).server_names.end(), host_pair.first) != (*it).server_names.end() 
 			&& host_pair.second == -1 && std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end()) //If no port specified in HOST header just compare server_names to the host field value
@@ -166,28 +144,11 @@ t_conf get_server_conf_for_request(t_req_line &rl, std::vector<t_conf> servers, 
 			&& std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end())) //Check that server_fd handles this serv block
 			return (*it);
 	}
-	for (std::vector<t_conf>::iterator it = servers.begin(); it != servers.end(); it++)
+	for (std::vector<t_server>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
 		if (std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end())
 			return (*it);
 	}
 	std::cout << "Shouldn't ever get here" << std::endl; //REMOVE ONCE PROJECT IS FINISHED, might save us ^-^'
 	return (servers[0]); // use default server if no other match
-}
-
-char **dupEnv(char **envs)
-{
-	char **ret;
-	size_t i = 0;
-	while (envs[i])
-		i++;
-	ret = (char**)malloc(sizeof(char *) * (i+1));
-	i = 0;
-	while (envs[i])
-	{
-		ret[i] = ft_strdup(envs[i]);
-		i++;
-	}
-	ret[i] = 0;
-	return (ret);
 }

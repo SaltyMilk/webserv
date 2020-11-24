@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-void parse_cgi_status(t_http_res &resp, const char *output)
+void parse_cgi_status(t_response &resp, const char *output)
 {
 	size_t i = 0;
 	while (output[i] && output[i] != '\r' && output[i] != '\n')
@@ -36,7 +36,7 @@ void parse_cgi_status(t_http_res &resp, const char *output)
 	free(sp);
 }
 
-int parse_cgi_headers(t_http_res &resp, const char *output)
+int parse_cgi_headers(t_response &resp, const char *output)
 {
 	size_t i = 0;
 	while (output[i] && !((output[i] == '\r' && output[i + 1] == '\n') || output[i] == '\n')) // If end of output or end of headers

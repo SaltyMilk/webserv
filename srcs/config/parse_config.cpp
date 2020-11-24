@@ -1,6 +1,6 @@
 #include "../../includes/webserv.h"
 
-void parsePorts(t_conf &conf, char *line)
+void parsePorts(t_server &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
 	if (!sp[1])
@@ -18,7 +18,7 @@ void parsePorts(t_conf &conf, char *line)
 	free(sp);
 }
 
-void parseBodyLimit(t_conf &conf, char *line)
+void parseBodyLimit(t_server &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
 	size_t bl;
@@ -33,7 +33,7 @@ void parseBodyLimit(t_conf &conf, char *line)
 	free(sp);
 }
 
-void parseIndex(t_conf &conf, char *line)
+void parseIndex(t_server &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
 	for (size_t i = 1; sp[i]; i++)
@@ -43,7 +43,7 @@ void parseIndex(t_conf &conf, char *line)
 	free(sp);
 }
 
-void parseDefaultErrorPage(t_conf &conf, char *line)
+void parseDefaultErrorPage(t_server &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
 	if (!sp[1])
@@ -96,7 +96,7 @@ void parseRouteConf(char *line, int fd, t_route &route)
 }
 
 
-void parseRoutes(t_conf &conf, char *line, int fd)
+void parseRoutes(t_server &conf, char *line, int fd)
 {
     t_route r = get_default_route(); //Initialize with default settings
     char **sp = ft_split(line, ' ');
@@ -135,7 +135,7 @@ void parseRoutes(t_conf &conf, char *line, int fd)
     free(sp);
 }
 
-void parseServerName(t_conf &conf, char *line)
+void parseServerName(t_server &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
 	if (!sp[1])
@@ -147,7 +147,7 @@ void parseServerName(t_conf &conf, char *line)
 	free(sp);
 }
 
-void parseHostAddr(t_conf &conf, char *line)
+void parseHostAddr(t_server &conf, char *line)
 {
 	char **sp = ft_split(line, ' ');
 	if (!sp[1])
@@ -163,7 +163,7 @@ void parseHostAddr(t_conf &conf, char *line)
 	free(sp);
 }
 
-void set_default_settings(t_conf &conf)
+void set_default_settings(t_server &conf)
 {
 	conf.default_error[ERR400] = "www/400.html";
 	conf.default_error[ERR401] = "www/401.html";
@@ -177,9 +177,9 @@ void set_default_settings(t_conf &conf)
 	conf.body_limit = std::string().max_size();
 }
 
-t_conf parseServerBlock(int fd)
+t_server parseServerBlock(int fd)
 {
-	t_conf conf;
+	t_server conf;
 
 	ft_bzero(&conf, sizeof(conf));
 	set_default_settings(conf);
@@ -219,11 +219,11 @@ t_conf parseServerBlock(int fd)
 	return (conf);//This will never happend but clang++ is retarded and gives a warning
 }
 
-std::vector<t_conf> parseConf(std::string filename)
+std::vector<t_server> parseConf(std::string filename)
 {
 	int fd;
 	bool default_serv = true;
-	std::vector<t_conf> servers;
+	std::vector<t_server> servers;
 	if (file_is_dir(filename))
 		excerr("webserv: argument is a directory.", 2);
 	if ((fd = open(filename.c_str(), O_RDONLY)) < 0)
@@ -237,7 +237,7 @@ std::vector<t_conf> parseConf(std::string filename)
 			get_next_line(fd, &line);
 			if (!(line[0] == '{' && !line[1]))
 				excerr("Config file error: missing { at the beginning of server block (line after 'server')", 2);
-			t_conf conf = parseServerBlock(fd);
+			t_server conf = parseServerBlock(fd);
 			conf.is_default_server = default_serv; // First server block will be default
 			if (default_serv)
 				default_serv = false;

@@ -59,6 +59,14 @@ char **addEnvVar(char **envs, char *var)
 {
 	char **ret;
 	size_t i = 0;
+	if (!envs)
+	{
+		if (!(ret = (char **)ft_memalloc(sizeof(char *) * 2)))
+			return (NULL);
+		ret[0] = var;
+		ret[1] = NULL;
+		return (ret);
+	}
 	while (envs[i])
 		i++;
 	if (!(ret = (char**)ft_memalloc(sizeof(char *) * (i+2))))

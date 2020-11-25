@@ -82,7 +82,10 @@ void parse_chunked(size_t i, t_request &rl, char *request)
 		}
 		char *trimmed = ft_strtrim(header_value.c_str(), " "); //TRIM extra spaces after header value
 		if (!trimmed)
-			std::cerr << "ERROR LOG: malloc failed." << std::endl;
+		{
+			rl.err500 = true;
+			return;
+		}
 		else
 		{
 			header_value = trimmed;
@@ -149,6 +152,5 @@ t_server get_server_conf_for_request(t_request &rl, std::vector<t_server> server
 		if (std::find((*it).fd.begin(), (*it).fd.end(), server_fd) != (*it).fd.end())
 			return (*it);
 	}
-	std::cout << "Shouldn't ever get here" << std::endl; //REMOVE ONCE PROJECT IS FINISHED, might save us ^-^'
 	return (servers[0]); // use default server if no other match
 }

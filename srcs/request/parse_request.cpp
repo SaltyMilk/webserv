@@ -107,7 +107,10 @@ void parse_headers(size_t &i, t_request &rl, const char *request, char **&envp)
 		}
 		char *trimmed = ft_strtrim(header_value.c_str(), " "); //TRIM extra spaces after header value
 		if (!trimmed)
-			std::cerr << "ERROR LOG: malloc failed." << std::endl;
+		{
+			rl.err500 = true;
+			return;
+		}
 		else
 		{
 			header_value = trimmed;
@@ -130,7 +133,11 @@ void parse_headers(size_t &i, t_request &rl, const char *request, char **&envp)
 		header_field = ft_strupcase(const_cast<char*>(header_field.c_str()));
 		std::string env_header = "HTTP_" + header_field + "=" + header_value;
 		if (id == -1) //temp fix might accept all header later
-			envp = addEnvVar(envp, ft_strdup(env_header.c_str()));
+			if (!(envp = addEnvVar(envp, ft_strdup(env_header.c_str()))))
+			{
+				rl.err500 = true;
+				return;
+			}
 		//HEADER ADDED AS ENV_VAR FOR CGI
 		if (id == HOST && rl.headers[HOST].length())//CHECK FOR DUPLICATE HOST HEADER -> Bad request
 		{
@@ -197,6 +204,11 @@ t_ans_arg parse_request(char *request, int fd, std::vector<t_server> servers, in
 	//std::cout << rl.method << " " << rl.target << " " << rl.http_ver << std::endl;
 
 	parse_headers(mi, rl, request, serv_env);
+	if (rl.err500)
+	{
+		arg.rl.err500 = true;
+		return (arg);
+	}
 	//std::cout<< "host=" << rl.headers[HOST] << std::endl;
 	parse_body(mi, rl, request);
 /*	for (int i = 0; i < 18; i++)

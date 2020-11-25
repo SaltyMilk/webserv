@@ -172,7 +172,7 @@ void parse_body(size_t i, t_request &rl, char *request)
 	if (std::string(ft_strlowcase(const_cast<char *>(rl.headers[TRANSFER_ENCODING].c_str()))) == "chunked")
 		parse_chunked(i, rl, request);
 	else // Body sent as plain text
-	{	
+	{
 		rl.body = "";
 		while (request[i])
 			rl.body += request[i++];

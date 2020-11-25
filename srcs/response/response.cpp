@@ -109,7 +109,10 @@ std::string answer_request(int client_fd, t_request rl, t_server conf, char **&e
 	if (rl.err500)
 	{
 		send_500(resp);
-		goto skip_all;
+		for (size_t i = 0; envp && envp[i]; i++)
+			free(envp[i]);
+		free(envp);
+		return construct_response(resp);
 	}
 	handle_absolute_path(rl);
 	parse_query_from_target(rl);//REQ.TARGET IS NOW CLEAN
@@ -144,7 +147,6 @@ std::string answer_request(int client_fd, t_request rl, t_server conf, char **&e
 	}
 	if (!resp.headers[TRANSFER_ENCODING].length() && resp.status_code[0] != '1' && resp.status_code != "204")//CONTENT_LENGTH HEADER
 		resp.headers[CONTENT_LENGTH] = "Content-Length: " + std::to_string(resp.body.length());
-	skip_all:
 	response = construct_response(resp);
 //	std::cout << "Response status code=" << resp.status_code << std::endl;
 		

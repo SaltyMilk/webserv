@@ -18,8 +18,12 @@ void parse_cgi_status(t_response &resp, const char *output)
 	first_line[j] = 0;
 //	std::cout << "cgi first line =" << first_line << std::endl;
 	char **sp;
-	sp = ft_split(first_line, ' ');
-	if (sp && sp[0]  && std::string(sp[0]) == "Status:")
+	if (!(sp = ft_split(first_line, ' ')))
+	{
+		resp.err500 = true;
+		return ;
+	}
+	if (sp[0] && std::string(sp[0]) == "Status:")
 	{
 		resp.status_code = std::string(sp[1]);
 		resp.reason_phrase = "";
@@ -31,7 +35,7 @@ void parse_cgi_status(t_response &resp, const char *output)
 			resp.reason_phrase += std::string(sp[k++]);
 		}
 	}
-	for (size_t n = 0; sp && sp[n]; n++)
+	for (size_t n = 0; sp[n]; n++)
 		free(sp[n]);
 	free(sp);
 }
@@ -79,7 +83,10 @@ int parse_cgi_headers(t_response &resp, const char *output)
 		}
 		char *trimmed = ft_strtrim(header_value.c_str(), " "); //TRIM extra spaces after header value
 		if (!trimmed)
+		{
 			std::cerr << "ERROR LOG: malloc failed." << std::endl;
+			resp.err500 = true;
+		}
 		else
 		{
 			header_value = trimmed;

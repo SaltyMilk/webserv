@@ -39,9 +39,14 @@ char	**get_cgi_envs(t_request &request, char**&envp)
 		if (!request.headers[i].empty())
 			map["HTTP_" + get_header_field(i)] = request.headers[i];
 	}*/
-   // envs = (char **)malloc(sizeof(char *) * (map.size() + 1));
-    for (it = map.begin(); it != map.end(); it++) 
- 	  	envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()));
+    for (it = map.begin(); it != map.end(); it++)
+	{
+		if (!(envp = addEnvVar(envp, ft_strdup((it->first + "=" + it->second).c_str()))))
+		{
+			request.err500 = true;
+			return (NULL);
+		}
+	}
   	//  	envs[i++] = ft_strdup((it->first + "=" + it->second).c_str());
 /*	std::cout << "START" << std::endl;
 	for (size_t i = 0; envp[i]; i++)

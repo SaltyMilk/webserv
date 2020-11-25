@@ -15,27 +15,35 @@ void 	parse_cgi(t_request &request)
 	request.path.script = request.target.substr(0, pos);
 	request.path.translated = buff + request.path.script;
 	request.path.info = request.target;
-	/*if (pos + 2 < request.target.length())
-		request.path.info = request.target.substr(pos + 2);
-	else
-		request.path.info = request.path.translated;
-*/
 }
 
 //returns the output of the cgi
 std::string execute_cgi(t_request &request, t_route route, t_response &resp, char **&envp)
 {
-	char 	**envs;
-	char  **argv = (char**)malloc(3*sizeof(char *));
-	argv[0] = ft_strdup(route.cgi_path.c_str());
-	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
-	argv[2] = NULL;
 	std::string output;
 	char buff[BUFF_SIZE];
 	int fd[2];
 	pid_t pid;
+	char 	**envs;
+	char	**argv;
 
-	envs = get_cgi_envs(request, envp);
+	if (!(argv = (char **)ft_memalloc(3 * sizeof(char *))))
+	{
+		request.err500 = true;
+		resp.err500 = true;
+		return ("");
+	}
+	argv[0] = ft_strdup(route.cgi_path.c_str());
+	argv[1] = ft_strdup((route.root_dir + request.target).c_str());
+	argv[2] = NULL;
+	if (!argv[0] || !argv[1] || !(envs = get_cgi_envs(request, envp)))
+	{
+		free(argv);
+		request.err500 = true;
+		resp.err500 = true;
+		return ("");
+	}
+
 	pipe(fd);
 	pid = fork();
 	if (!pid)
@@ -76,7 +84,7 @@ std::string execute_cgi(t_request &request, t_route route, t_response &resp, cha
 	close(fd[1]);
 	close(fd[0]);
 //	std::cout << "DEBUG CGI OUTPUT START:" << std::endl << output << std::endl << "DEBUG CGI OUTPUT END"<< std::endl;
-	for (size_t i = 0; argv && argv[i]; i++)
+	for (size_t i = 0; argv[i]; i++)
 		free(argv[i]);
 	free(argv);
 	//for (size_t i = 0; envs && envs[i]; i++)

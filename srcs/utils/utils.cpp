@@ -58,21 +58,31 @@ std::string str_replace(std::string str, const std::string &old_key, const std::
 char **addEnvVar(char **envs, char *var)
 {
 	char **ret;
-	if (!envs)
-	{
-		ret = (char **) malloc(sizeof(char *)*2);
-		ret[0] = var;
-		ret[1] = 0;
-		return (ret);
-	}
 	size_t i = 0;
 	while (envs[i])
 		i++;
-	ret = (char**)malloc(sizeof(char *) * (i+2));
+	if (!(ret = (char**)ft_memalloc(sizeof(char *) * (i+2))))
+	{
+		for (size_t k = 0; envs && envs[k]; k++)
+			free(envs[k]);
+		free(envs);
+		free(var);
+		return (NULL);
+	}
 	i= 0;
 	while (envs[i])
 	{
-		ret[i] = ft_strdup(envs[i]);
+		if (!(ret[i] = ft_strdup(envs[i])))
+		{
+			for (size_t k = 0; ret && ret[k]; k++)
+				free(ret[k]);
+			free(ret);
+			for (size_t k = 0; envs && envs[k]; k++)
+				free(envs[k]);
+			free(envs);
+			free(var);
+			return NULL;
+		}
 		i++;
 	}
 	ret[i] = var;
@@ -80,6 +90,7 @@ char **addEnvVar(char **envs, char *var)
 	for (size_t k = 0; envs && envs[k]; k++)
 		free(envs[k]);
 	free(envs);
+	free(var);
 	return (ret);
 }
 

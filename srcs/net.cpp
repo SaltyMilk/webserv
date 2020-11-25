@@ -285,7 +285,7 @@ int main(int argc, char **argv, char **envp)
 						FD_CLR(i, &sockets);
 						recv_err = false;
 					}
-					else if (ans_arg.incomplete == false) //Done receiving from socket
+					else if (ans_arg.incomplete == false || ans_arg.rl.err500 == true) //Done receiving from socket
 					{
 						//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
 						//std::cout << "received full request" << std::endl;

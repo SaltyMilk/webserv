@@ -98,6 +98,7 @@ std::string answer_request(int client_fd, t_request rl, t_server conf, char **&e
 	(void)client_fd;
 	t_route route;//Settings for requested ressource location
 	t_response resp;
+	resp.err500 = false;
 	std::string response; //This will be sent as a response to a given request
 	
 	resp.http_ver = "HTTP/1.1";//We will always respond with the version we use

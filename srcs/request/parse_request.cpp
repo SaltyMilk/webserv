@@ -176,11 +176,20 @@ t_ans_arg parse_request(char *request, int fd, std::vector<t_server> servers, in
 {
 	(void)envp;
 	t_ans_arg arg;
-	char **serv_env = (char**)malloc(sizeof(char*));
-	serv_env[0] = NULL;
 	t_request rl;
+	arg.client_fd = fd;
 	size_t mi = 0; //Master index to parse request
+	char **serv_env;
+
+	if (!(serv_env = (char**)malloc(sizeof(char*))))
+	{
+		arg.rl.err500 = false;
+		arg.incomplete = false;
+		return (arg);
+	}
+	serv_env[0] = NULL;
 	rl.bad_request = false;
+	rl.err500 = false;
 	rl.client_adr = client_adr;//Get client network infos
 	parse_request_line(mi, rl, request);
 	
@@ -198,7 +207,7 @@ t_ans_arg parse_request(char *request, int fd, std::vector<t_server> servers, in
 	//answer_request(fd, rl, get_server_conf_for_request(rl, servers, server_fd), serv_env);
 	//
 	//Return args for answer
-	arg.client_fd = fd;
+
 	arg.rl = rl;
 	arg.conf = get_server_conf_for_request(rl, servers, server_fd);
 	arg.envp = serv_env;

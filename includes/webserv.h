@@ -174,6 +174,7 @@ struct	s_request
 	t_path 		path;
 	bool bad_request;//Allows bad_request checks before/while parsing request
 	struct sockaddr_in	client_adr;
+	bool err500;
 };
 
 struct	s_response
@@ -183,6 +184,7 @@ struct	s_response
 	std::string reason_phrase; // GET, PUT, POST,...
 	std::string headers[18]; //headers are indexed like in project's subject
 	std::string body;
+	bool err500;
 };
 
 struct	s_client_buff

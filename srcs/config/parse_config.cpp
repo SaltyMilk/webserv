@@ -2,7 +2,9 @@
 
 void parsePorts(t_server &conf, char *line)
 {
-	char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp = ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
 	if (!sp[1])
 			excerr("Config file error: missing argument for port", 1);	
 	for (size_t i = 1; sp[i]; i++)
@@ -20,7 +22,9 @@ void parsePorts(t_server &conf, char *line)
 
 void parseBodyLimit(t_server &conf, char *line)
 {
-	char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp= ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
 	size_t bl;
 	if (!sp[1])
 		excerr("Config file error: missing argument for body_limit", 1);
@@ -35,7 +39,9 @@ void parseBodyLimit(t_server &conf, char *line)
 
 void parseIndex(t_server &conf, char *line)
 {
-	char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp= ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
 	for (size_t i = 1; sp[i]; i++)
 			conf.indexs.push_back(std::string(sp[i])); //ADD INDEX TO INDEX LIST
 	for (size_t i = 0; sp[i]; i++)
@@ -45,7 +51,9 @@ void parseIndex(t_server &conf, char *line)
 
 void parseDefaultErrorPage(t_server &conf, char *line)
 {
-	char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp= ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
 	if (!sp[1])
 		excerr("Config file error: missing argument for " + std::string(sp[0]), 1);
 	if (std::string(sp[0]) == "default_400")
@@ -99,7 +107,9 @@ void parseRouteConf(char *line, int fd, t_route &route)
 void parseRoutes(t_server &conf, char *line, int fd)
 {
     t_route r = get_default_route(); //Initialize with default settings
-    char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp= ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
     if (!sp[1])
         excerr("Config file error: empty route field", 1);
     if (sp[2])//USING MODIFIER
@@ -137,7 +147,9 @@ void parseRoutes(t_server &conf, char *line, int fd)
 
 void parseServerName(t_server &conf, char *line)
 {
-	char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp= ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
 	if (!sp[1])
 			excerr("Config file error: missing argument for server_name", 1);	
 	for (size_t i = 1; sp[i]; i++)
@@ -149,7 +161,9 @@ void parseServerName(t_server &conf, char *line)
 
 void parseHostAddr(t_server &conf, char *line)
 {
-	char **sp = ft_split(line, ' ');
+	char **sp;
+	if (!(sp= ft_split(line, ' ')))
+		excerr("Interal error [CONFIG] : split failed.", 1);
 	if (!sp[1])
 			excerr("Config file error: missing argument for server_name", 1);	
 	std::cout << "nope" << std::endl;
@@ -184,8 +198,9 @@ t_server parseServerBlock(int fd)
 	ft_bzero(&conf, sizeof(conf));
 	set_default_settings(conf);
 
+	int r;
 	char *line;
-	while (get_next_line(fd, &line))
+	while ((r = get_next_line(fd, &line)) > 0)
 	{
 		if (ft_strlen(line) >= 5 && std::string(line, 5) == "port ")
 			parsePorts(conf, line);
@@ -208,6 +223,8 @@ t_server parseServerBlock(int fd)
 		}
 		free(line);
 	}
+	if (r == -1)
+		excerr("GNL failed", 1);
 	if (conf.ports.empty()) //CHECK IF AT LEAST A PORT WAS GIVEN
 		excerr("Config file error: missing port number", 1);
 	if (ft_strlen(line) == 1 && line[0] == '}')

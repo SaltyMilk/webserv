@@ -91,7 +91,17 @@ t_ans_arg net_receive(std::vector<t_server> servers, int client_fd, int server_f
 		if (!cl_buff.rl_set)
 		{
 			parse_request_line(i, rl, cl_buff.req_buff.c_str());
+			if (rl.err500)
+			{
+				arg.rl.err500 = true;
+				return(arg);
+			}
 			parse_headers(i, rl, cl_buff.req_buff.c_str(), env);
+			if (rl.err500)
+			{
+				arg.rl.err500 = true;
+				return(arg);
+			}
 			cl_buff.rl = rl;
 			cl_buff.rl_set = true;
 		/*	std::cout << "Debug request:" << std::endl
@@ -225,7 +235,6 @@ int main(int argc, char **argv, char **envp)
 	FD_ZERO(&wsockets);
 	init_all_servers(servers, serv_fds, &sockets);
 	//Find biggest socket from serv fds
-	std::cout << "max sock=" << max_fd << std::endl;
 	for (std::vector<int>::iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
 		if (*it > max_fd)
 			max_fd = *it;

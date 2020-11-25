@@ -1,5 +1,12 @@
 #include "../../includes/webserv.h"
 
+void send_500(t_response &resp)
+{
+	resp.status_code = "500";
+	resp.reason_phrase = "Internal Server Error";
+	resp.headers[RETRY_AFTER] = "19";
+}
+
 void send_400(t_request rl, t_response &resp, t_server conf)
 {
 	resp.status_code = "400";

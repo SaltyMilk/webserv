@@ -263,6 +263,7 @@ void parse_cgi_status(t_response &resp, const char *output);
 /*
  * Status codes
  */
+void send_500(t_response &resp);
 void send_400(t_request rl, t_response &resp, t_server conf);
 void send_401(t_request request, t_response &response, t_server conf, std::string auth_name);
 void send_403(t_request rl, t_response &resp, t_server conf);

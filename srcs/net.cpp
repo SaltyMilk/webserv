@@ -290,7 +290,7 @@ int main(int argc, char **argv, char **envp)
 					else if (ans_arg.incomplete == false || ans_arg.rl.err500 == true) //Done receiving from socket
 					{
 						//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
-						std::cout << "received full request" << std::endl;
+			//			std::cout << "received full request" << std::endl;
 						client_buffs.erase(it);
 						ans_arg.resp_byte_sent = 0;
 						requests.push_back(ans_arg);

@@ -272,7 +272,7 @@ int main(int argc, char **argv, char **envp)
 					if (fd > max_fd)	  //For optimization select only checks the maximum_fd we are communicating with
 						max_fd = fd;
 				}
-				else //
+				else 
 				{
 					std::vector<t_client_buff>::iterator it;
 					for (it = client_buffs.begin(); it != client_buffs.end(); it++)
@@ -321,9 +321,9 @@ int main(int argc, char **argv, char **envp)
 						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
 						{
 						close(i);
+						FD_CLR(i, &wsockets);
 						requests.erase(it);
 		//				std::cout << "write block fd(i)=" << i << std::endl;
-						FD_CLR(i, &wsockets);
 						break;
 						}
 						else if ((*it).resp_byte_sent < (*it).response_length)//SENDING PART OF THE REP
@@ -351,9 +351,9 @@ int main(int argc, char **argv, char **envp)
 						if ((*it).resp_byte_sent == (*it).response_length) //Response fully transfered
 						{
 						close(i);
+						FD_CLR(i, &wsockets);
 						requests.erase(it);
 		//				std::cout << "write block fd(i)=" << i << std::endl;
-						FD_CLR(i, &wsockets);
 						break;
 						}
 					}

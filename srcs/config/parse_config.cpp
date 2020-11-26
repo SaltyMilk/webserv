@@ -166,12 +166,9 @@ void parseHostAddr(t_server &conf, char *line)
 		excerr("Interal error [CONFIG] : split failed.", 1);
 	if (!sp[1])
 			excerr("Config file error: missing argument for server_name", 1);	
-	std::cout << "nope" << std::endl;
 	std::cout << sp[1] << std::endl;
 	std::string s = std::string(sp[1]);
-	std::cout << "s=" << s << std::endl;
 	conf.host = s;
-	std::cout << "yup" << std::endl;
 	for (size_t i = 0; sp[i]; i++)
 		free(sp[i]);
 	free(sp);

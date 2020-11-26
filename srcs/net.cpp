@@ -53,7 +53,7 @@ int net_init(unsigned int port, std::string host_addr)
 t_ans_arg net_receive(std::vector<t_server> servers, int client_fd, int server_fd, const struct sockaddr_in client_adr, char **envp, t_client_buff &cl_buff)
 {
 	t_ans_arg arg;
-//	std::cout << "starting to receive" << std::endl;
+	std::cout << "starting to receive" << std::endl;
 	char buff[BUFF_SIZE];
 	int ret;
 
@@ -86,6 +86,7 @@ t_ans_arg net_receive(std::vector<t_server> servers, int client_fd, int server_f
 //		std::cout << "Received all headers" << std::endl;
 
 		t_request rl;
+		rl.err500 = false;
 		size_t i = 0;
 		char **env = NULL;
 		if (!cl_buff.rl_set)
@@ -285,10 +286,10 @@ int main(int argc, char **argv, char **envp)
 						FD_CLR(i, &sockets);
 						recv_err = false;
 					}
-					else if (ans_arg.incomplete == false || ans_arg.rl.err500 == true) //Done receiving from socket
+					else if (ans_arg.incomplete == false /*|| ans_arg.rl.err500 == true*/) //Done receiving from socket
 					{
 						//			std::cout <<"this is your request;"<<std::endl <<(*it).req_buff << std::endl;
-						//std::cout << "received full request" << std::endl;
+						std::cout << "received full request" << std::endl;
 						client_buffs.erase(it);
 						ans_arg.resp_byte_sent = 0;
 						requests.push_back(ans_arg);
@@ -299,6 +300,7 @@ int main(int argc, char **argv, char **envp)
 			}
 			if (FD_ISSET(i, &ready_wsockets) && !requests.empty()) //Socket ready for write operations
 			{
+				std::cout << "Ready to write !" << std::endl;
 				for (std::vector<t_ans_arg>::iterator it = requests.begin(); it != requests.end(); it++)
 					if ((*it).client_fd == i)
 					{

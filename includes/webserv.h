@@ -72,7 +72,7 @@
 #define ERR505 7
 #define N_ERR_IMPLEMENTED 8
 
-#define BUFF_SIZE 42420
+#define BUFF_SIZE 424200
 #define WRITE_SIZE 10000
 #define GET_FILE_CONTENT read
 #define PUT_FILE write

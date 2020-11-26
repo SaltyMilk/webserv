@@ -190,7 +190,7 @@ t_ans_arg parse_request(char *request, int fd, std::vector<t_server> servers, in
 
 	if (!(serv_env = (char**)malloc(sizeof(char*))))
 	{
-		arg.rl.err500 = false;
+		arg.rl.err500 = true;
 		arg.incomplete = false;
 		return (arg);
 	}

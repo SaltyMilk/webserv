@@ -98,7 +98,6 @@ char **addEnvVar(char **envs, char *var)
 	for (size_t k = 0; envs && envs[k]; k++)
 		free(envs[k]);
 	free(envs);
-	free(var);
 	return (ret);
 }
 

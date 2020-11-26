@@ -96,6 +96,7 @@ void post(t_request rl, t_response &resp, t_route route, char **&envp)
 std::string answer_request(int client_fd, t_request rl, t_server conf, char **&envp)
 {	
 	(void)client_fd;
+	std::cout << "answering request" << std::endl;
 	t_route route;//Settings for requested ressource location
 	t_response resp;
 	resp.err500 = false;
